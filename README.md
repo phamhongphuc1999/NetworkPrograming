@@ -40,3 +40,5 @@
 - 411: cho phép chuyển tiếp file về client
 
 ## tài liệu tham khảo
+- https://docs.microsoft.com/en-us/windows/win32/controls/user-controls-intro
+- https://stackoverflow.com/questions/7598067/how-to-create-a-windows-style-textbox-in-a-c-win32-application
