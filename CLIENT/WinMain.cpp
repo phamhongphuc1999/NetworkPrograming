@@ -55,7 +55,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 void InitializeController(HWND hWnd) {
 	btnConnect = CreateWindow("button", "Connect", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 315, 20, 80, 30, hWnd, (HMENU)bConnect, hInst, NULL);
-	btnBrowse = CreateWindow("browse button", "Browse", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 410, 90, 70, 20, hWnd, (HMENU)bBrowse, hInst, NULL);
+	btnBrowse = CreateWindow("button", "Browse", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 410, 90, 70, 20, hWnd, (HMENU)bBrowse, hInst, NULL);
 	btnForward = CreateWindow("button", "Forward", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 490, 90, 70, 20, hWnd, (HMENU)bForward, hInst, NULL);
 	btnHide = CreateWindow("button", "Hide", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 410, 120, 70, 20, hWnd, (HMENU)bHide, hInst, NULL);
 	btnSearch = CreateWindow("button", "Search", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 410, 200, 70, 20, hWnd, (HMENU)bSearch, hInst, NULL);
@@ -107,7 +107,22 @@ void OnBnClickedConnect(HWND hWnd) {
 }
 
 void OnBnClickedBrowse(HWND hWnd) {
-	
+	OPENFILENAME ofn;
+	char szFile[100];
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;
+	ofn.lpstrFile = szFile;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	GetOpenFileName(&ofn);
+	if (strcmp(ofn.lpstrFile, "")) SetWindowTextA(eFile, ofn.lpstrFile);
 }
 
 void OnBnClickedForward(HWND hWnd) {
