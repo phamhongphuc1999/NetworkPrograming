@@ -3,11 +3,12 @@
 #include <string.h>
 #include <tchar.h>
 #include "CONST.h"
+#include "InputAndData.h"
 
 HINSTANCE hInst;
-static HWND btnBrowse, btnForward, btnSearch, btnConnect, btnHide;
+static HWND btnBrowse, btnForward, btnSearch, btnHide, btnConnect;
 static HWND eFile, eFileName, eParnerId;
-static HWND sFile, sFileName, sParnerId, sId, SIdDetail;
+bool isConnect = false, isHide = true;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -53,17 +54,78 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 }
 
 void InitializeController(HWND hWnd) {
-	btnConnect = CreateWindow("button", "Connect", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 315, 0, 70, 30, hWnd, (HMENU)bConnect, hInst, NULL);
-	btnBrowse = CreateWindow("button", "Browse", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 315, 100, 70, 30, hWnd, (HMENU)bBrowse, hInst, NULL);
-	btnForward = CreateWindow("button", "Forward", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 315, 100, 70, 30, hWnd, (HMENU)bForward, hInst, NULL);
-	btnHide = CreateWindow("button", "Hide", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 315, 100, 70, 30, hWnd, (HMENU)bHide, hInst, NULL);
-	btnSearch = CreateWindow("button", "Search", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 315, 100, 70, 30, hWnd, (HMENU)bSearch, hInst, NULL);
+	btnConnect = CreateWindow("button", "Connect", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 315, 20, 80, 30, hWnd, (HMENU)bConnect, hInst, NULL);
+	btnBrowse = CreateWindow("browse button", "Browse", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 410, 90, 70, 20, hWnd, (HMENU)bBrowse, hInst, NULL);
+	btnForward = CreateWindow("button", "Forward", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 490, 90, 70, 20, hWnd, (HMENU)bForward, hInst, NULL);
+	btnHide = CreateWindow("button", "Hide", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 410, 120, 70, 20, hWnd, (HMENU)bHide, hInst, NULL);
+	btnSearch = CreateWindow("button", "Search", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 410, 200, 70, 20, hWnd, (HMENU)bSearch, hInst, NULL);
 
-	eFile = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 20, 140, 20, hWnd, NULL, NULL, NULL);
-	eFileName = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 50, 140, 20, hWnd, NULL, NULL, NULL);
+	eFile = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 50, 90, 350, 20, hWnd, (HMENU)editFile, NULL, NULL);
+	eFileName = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 50, 200, 350, 20, hWnd, (HMENU)editFileName, NULL, NULL);
+	eParnerId = CreateWindow("Edit", "", WS_CHILD | SW_HIDE | WS_BORDER, 50, 120, 350, 20, hWnd, (HMENU)editParnerId, NULL, NULL);
+}
 
-	sFile = CreateWindow("STATIC", "File", WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, 20, 20, 120, 40, hWnd, (HMENU)(staticFile), GetModuleHandle(NULL), NULL);
-	sFileName = CreateWindow("STATIC", "File Name", WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, 20, 20, 120, 60, hWnd, (HMENU)(staticFileName), GetModuleHandle(NULL), NULL);
+void BnClickedMakeConnect() {
+	ShowWindow(btnBrowse, SW_SHOW);
+	ShowWindow(btnForward, SW_SHOW);
+	ShowWindow(btnSearch, SW_SHOW);
+	SetWindowTextA(btnConnect, "Disconnect");
+	SetWindowTextA(eFile, "");
+	SetWindowTextA(eFileName, "");
+	isConnect = true;
+}
+
+void BnClickMakeDisconnect() {
+	ShowWindow(btnBrowse, SW_HIDE);
+	ShowWindow(btnForward, SW_HIDE);
+	ShowWindow(btnSearch, SW_HIDE);
+	ShowWindow(btnHide, SW_HIDE);
+	ShowWindow(eParnerId, SW_HIDE);
+	SetWindowTextA(btnConnect, "Connect");
+	SetWindowTextA(eFile, "");
+	SetWindowTextA(eFileName, "");
+	isConnect = false;
+}
+
+void OnBnClickedConnect(HWND hWnd) {
+	if (isConnect) BnClickMakeDisconnect();
+	else {
+		TCHAR* address = new TCHAR[1024], *port = new TCHAR[1024];
+		GetWindowText(eFile, address, 1024);
+		GetWindowText(eFileName, port, 1024);
+		char* cAddress = address;
+		int iPort = atoi(port);
+		if (CheckConnect(cAddress, iPort)) {
+			BnClickedMakeConnect();
+		}
+		else {
+			MessageBox(hWnd, "Wrong IP address or port", "ERROR", MB_OK);
+			SetWindowTextA(eFile, "");
+			SetWindowTextA(eFileName, "");
+		}
+	}
+}
+
+void OnBnClickedBrowse(HWND hWnd) {
+	
+}
+
+void OnBnClickedForward(HWND hWnd) {
+	if (isHide) {
+		MessageBox(hWnd, "Enter my parner ID", "Annount", MB_OK);
+		ShowWindow(btnHide, SW_SHOW);
+		ShowWindow(eParnerId, SW_SHOW);
+		isHide = false;
+	}
+	else {
+		
+	}
+}
+
+void OnBnClickedHide(HWND hWnd) {
+	ShowWindow(btnHide, SW_HIDE);
+	ShowWindow(eParnerId, SW_HIDE);
+	isHide = true;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
@@ -73,6 +135,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 	switch (message)
 	{
 	case WM_COMMAND:
+		if ((HWND)lParam && (HIWORD(wParam)) == BN_CLICKED) {
+			int id = LOWORD(wParam);
+			if (id == bBrowse) OnBnClickedBrowse(hWnd);
+			else if (id == bHide) OnBnClickedHide(hWnd);
+			else if (id == bForward) OnBnClickedForward(hWnd);
+			else if (id = bConnect) OnBnClickedConnect(hWnd);
+		}
 		break;
 	case WM_CREATE:
 		InitializeController(hWnd);
@@ -81,27 +150,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 		PostQuitMessage(0);
 		break;
 	case WM_DRAWITEM:
-		LPDRAWITEMSTRUCT pDIS;
-		pDIS = (LPDRAWITEMSTRUCT)lParam;
-		RECT rc;
-		if (pDIS->hwndItem == sFile) {
-			SetTextColor(pDIS->hDC, RGB(200, 10, 60));
-			SelectObject(pDIS->hDC, (HPEN)GetStockObject(NULL_PEN));
-			SelectObject(pDIS->hDC, (HBRUSH)GetStockObject(NULL_BRUSH));
-			SetBkMode(pDIS->hDC, TRANSPARENT);
-			Rectangle(pDIS->hDC, 0, 0, pDIS->rcItem.right + 1, pDIS->rcItem.bottom + 1);
-			DrawText(pDIS->hDC, "File", 10, &pDIS->rcItem, 0);
-			return 0;
-		}
-		else if (pDIS->hwndItem == sFileName) {
-			SetTextColor(pDIS->hDC, RGB(200, 10, 60));
-			SelectObject(pDIS->hDC, (HPEN)GetStockObject(NULL_PEN));
-			SelectObject(pDIS->hDC, (HBRUSH)GetStockObject(NULL_BRUSH));
-			SetBkMode(pDIS->hDC, TRANSPARENT);
-			Rectangle(pDIS->hDC, 20, 50, pDIS->rcItem.right + 20, pDIS->rcItem.bottom + 30);
-			DrawText(pDIS->hDC, "File Name", 20, &pDIS->rcItem, 40);
-			return 0;
-		}
+		break;
 
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);

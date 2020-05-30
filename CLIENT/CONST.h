@@ -14,5 +14,6 @@ static UINT bBrowse = 12;
 static UINT bSearch = 13;
 static UINT bHide = 14;
 
-static UINT staticFile = 100;
-static UINT staticFileName = 101;
+static UINT editFile = 100;
+static UINT editFileName = 101;
+static UINT editParnerId = 102;
