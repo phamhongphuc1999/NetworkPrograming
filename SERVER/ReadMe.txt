@@ -1,40 +1,33 @@
-========================================================================
-    CONSOLE APPLICATION : SERVER Project Overview
-========================================================================
-
-AppWizard has created this SERVER application for you.
-
-This file contains a summary of what you will find in each of the files that
-make up your SERVER application.
-
-
-SERVER.vcxproj
-    This is the main project file for VC++ projects generated using an Application Wizard.
-    It contains information about the version of Visual C++ that generated the file, and
-    information about the platforms, configurations, and project features selected with the
-    Application Wizard.
-
-SERVER.vcxproj.filters
-    This is the filters file for VC++ projects generated using an Application Wizard. 
-    It contains information about the association between the files in your project 
-    and the filters. This association is used in the IDE to show grouping of files with
-    similar extensions under a specific node (for e.g. ".cpp" files are associated with the
-    "Source Files" filter).
-
-SERVER.cpp
-    This is the main application source file.
-
-/////////////////////////////////////////////////////////////////////////////
-Other standard files:
-
-StdAfx.h, StdAfx.cpp
-    These files are used to build a precompiled header (PCH) file
-    named SERVER.pch and a precompiled types file named StdAfx.obj.
-
-/////////////////////////////////////////////////////////////////////////////
-Other notes:
-
-AppWizard uses "TODO:" comments to indicate parts of the source code you
-should add to or customize.
-
-/////////////////////////////////////////////////////////////////////////////
+==================================================================================================
+                                   Khuôn dạng gói tin
+==================================================================================================
+=============Định dạng mảng char(char*)
+--- Có ba trường opcode, length, data
+opcode: 3 phần tử đầu trong mảng, chỉ định chức năng sẽ thực hiện
+length: 10 phần tử tiếp theo trong mảng, chứa kích thức của data
+data: phần còn lại của gói tin gửi đi, chứ dữ liệu cần truyền
+--- mỗi client có ít nhất 2 kết nối(TCP) đến server
+*Kết nối 1: chỉ dùng để nhận yêu cầu mới của server
+   --: có một luồng chính, khi có yêu cầu tới, tạo mới một luồng riêng xử lý yêu cầu đó
+       luồng chính tiếp tục đợi yêu cầu từ server
+*Kết nối 2: chỉ dùng để gửi yêu cầu tới server, sử dụng thread nếu có nhiều yêu cầu gửi tới server
+--- Định nghĩa opcode
+1, 2: server gửi tín hiệu cho client
+3, 4: client gửi tín hiệu cho server
+*SERVER:
+100: kết nối thành công, gửi ID lại client
+110: gửi danh sách các client đang kết nối
+111: gửi danh sách các client có file yêu cầu
+112: tải file từ server về client
+120: gửi yêu cầu tìm kiếm file đến client
+200: yêu cầu chuyển tiếp file về client
+201: tải file chuyển tiếp về client
+*CLIENT:
+300: yêu cầu kết nối và gửi ID
+310: gửi yêu cầu tìm kiếm file
+311: tải file từ client được chỉ định bởi client khác lên server
+320: không tìm thấy tên file trong trường data
+321: tìm thấy tên file trong trường data
+400: yêu cầu chuyển tiếp file và tải file lên server
+410: không cho chuyển tiếp file về client
+411: cho phép chuyển tiếp file về client
