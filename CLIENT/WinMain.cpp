@@ -8,6 +8,7 @@
 HINSTANCE hInst;
 static HWND btnBrowse, btnForward, btnSearch, btnHide, btnConnect;
 static HWND eFile, eFileName, eParnerId;
+static HWND sFile, sFileName, sParnerId, sID, sIdDetail;
 bool isConnect = false, isHide = true;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -55,14 +56,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 void InitializeController(HWND hWnd) {
 	btnConnect = CreateWindow("button", "Connect", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 315, 20, 80, 30, hWnd, (HMENU)bConnect, hInst, NULL);
-	btnBrowse = CreateWindow("button", "Browse", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 410, 90, 70, 20, hWnd, (HMENU)bBrowse, hInst, NULL);
-	btnForward = CreateWindow("button", "Forward", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 490, 90, 70, 20, hWnd, (HMENU)bForward, hInst, NULL);
-	btnHide = CreateWindow("button", "Hide", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 410, 120, 70, 20, hWnd, (HMENU)bHide, hInst, NULL);
-	btnSearch = CreateWindow("button", "Search", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 410, 200, 70, 20, hWnd, (HMENU)bSearch, hInst, NULL);
+	btnBrowse = CreateWindow("button", "Browse", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 460, 90, 70, 20, hWnd, (HMENU)bBrowse, hInst, NULL);
+	btnForward = CreateWindow("button", "Forward", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 540, 90, 70, 20, hWnd, (HMENU)bForward, hInst, NULL);
+	btnHide = CreateWindow("button", "Hide", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 460, 120, 70, 20, hWnd, (HMENU)bHide, hInst, NULL);
+	btnSearch = CreateWindow("button", "Search", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 460, 200, 70, 20, hWnd, (HMENU)bSearch, hInst, NULL);
 
-	eFile = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 50, 90, 350, 20, hWnd, (HMENU)editFile, NULL, NULL);
-	eFileName = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 50, 200, 350, 20, hWnd, (HMENU)editFileName, NULL, NULL);
-	eParnerId = CreateWindow("Edit", "", WS_CHILD | SW_HIDE | WS_BORDER, 50, 120, 350, 20, hWnd, (HMENU)editParnerId, NULL, NULL);
+	eFile = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 90, 350, 20, hWnd, (HMENU)editFile, NULL, NULL);
+	eFileName = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 200, 350, 20, hWnd, (HMENU)editFileName, NULL, NULL);
+	eParnerId = CreateWindow("Edit", "", WS_CHILD | SW_HIDE | WS_BORDER, 100, 120, 350, 20, hWnd, (HMENU)editParnerId, NULL, NULL);
+
+	sFile = CreateWindow("STATIC", "Address", WS_VISIBLE | WS_CHILD | SS_RIGHT, 30, 90, 55, 20, hWnd, (HMENU)staticFile, NULL, NULL);
+	sFileName = CreateWindow("STATIC", "Port", WS_VISIBLE | WS_CHILD | SS_RIGHT, 20, 200, 65, 20, hWnd, (HMENU)staticFileName, NULL, NULL);
+	sParnerId = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_RIGHT, 20, 120, 65, 20, hWnd, (HMENU)staticParnerId, NULL, NULL);
+	sID = CreateWindow("STATIC", "ID", WS_VISIBLE | WS_CHILD | SS_RIGHT, 450, 0, 20, 20, hWnd, (HMENU)staticId, NULL, NULL);
+	sIdDetail = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_RIGHT, 480, 0, 200, 20, hWnd, (HMENU)staticIdDetail, NULL, NULL);
 }
 
 void BnClickedMakeConnect() {
@@ -70,6 +77,8 @@ void BnClickedMakeConnect() {
 	ShowWindow(btnForward, SW_SHOW);
 	ShowWindow(btnSearch, SW_SHOW);
 	SetWindowTextA(btnConnect, "Disconnect");
+	SetWindowTextA(sFile, "File");
+	SetWindowTextA(sFileName, "FileName");
 	SetWindowTextA(eFile, "");
 	SetWindowTextA(eFileName, "");
 	isConnect = true;
@@ -82,6 +91,8 @@ void BnClickMakeDisconnect() {
 	ShowWindow(btnHide, SW_HIDE);
 	ShowWindow(eParnerId, SW_HIDE);
 	SetWindowTextA(btnConnect, "Connect");
+	SetWindowTextA(sFile, "Address");
+	SetWindowTextA(sFileName, "Port");
 	SetWindowTextA(eFile, "");
 	SetWindowTextA(eFileName, "");
 	isConnect = false;
@@ -130,6 +141,8 @@ void OnBnClickedForward(HWND hWnd) {
 		MessageBox(hWnd, "Enter my parner ID", "Annount", MB_OK);
 		ShowWindow(btnHide, SW_SHOW);
 		ShowWindow(eParnerId, SW_SHOW);
+		ShowWindow(sParnerId, SW_SHOW);
+		SetWindowTextA(sParnerId, "Parner ID");
 		isHide = false;
 	}
 	else {
@@ -140,6 +153,7 @@ void OnBnClickedForward(HWND hWnd) {
 void OnBnClickedHide(HWND hWnd) {
 	ShowWindow(btnHide, SW_HIDE);
 	ShowWindow(eParnerId, SW_HIDE);
+	SetWindowTextA(sParnerId, "");
 	isHide = true;
 }
 
@@ -153,7 +167,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 		if ((HWND)lParam && (HIWORD(wParam)) == BN_CLICKED) {
 			int id = LOWORD(wParam);
 			if (id == bBrowse) OnBnClickedBrowse(hWnd);
-			else if (id == bHide) OnBnClickedHide(hWnd);
+			else if (id == bHide) {
+				OnBnClickedHide(hWnd);
+				hdc = BeginPaint(hWnd, &ps);
+				TextOut(hdc, 50, 90, "Address", _tcslen("FILE"));
+				TextOut(hdc, 20, 200, "Port", _tcslen("File Name"));
+				TextOut(hdc, 20, 120, "Parner ID", _tcslen("Parner ID"));
+				EndPaint(hWnd, &ps);
+			} 
 			else if (id == bForward) OnBnClickedForward(hWnd);
 			else if (id = bConnect) OnBnClickedConnect(hWnd);
 		}
@@ -166,7 +187,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 		break;
 	case WM_DRAWITEM:
 		break;
-
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 		break;

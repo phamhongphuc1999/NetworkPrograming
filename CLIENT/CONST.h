@@ -6,7 +6,7 @@
 #define BUFF_SIZE 2048
 
 static TCHAR szWindowClass[] = _T("win32app");
-static TCHAR szTitle[] = _T("Win32 Guided Tour Application");
+static TCHAR szTitle[] = _T("Client");
 
 static UINT bConnect = 10;
 static UINT bForward = 11;
@@ -17,3 +17,9 @@ static UINT bHide = 14;
 static UINT editFile = 100;
 static UINT editFileName = 101;
 static UINT editParnerId = 102;
+
+static UINT staticFile = 200;
+static UINT staticFileName = 201;
+static UINT staticParnerId = 202;
+static UINT staticId = 203;
+static UINT staticIdDetail = 204;
