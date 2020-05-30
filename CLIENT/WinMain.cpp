@@ -167,14 +167,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 		if ((HWND)lParam && (HIWORD(wParam)) == BN_CLICKED) {
 			int id = LOWORD(wParam);
 			if (id == bBrowse) OnBnClickedBrowse(hWnd);
-			else if (id == bHide) {
-				OnBnClickedHide(hWnd);
-				hdc = BeginPaint(hWnd, &ps);
-				TextOut(hdc, 50, 90, "Address", _tcslen("FILE"));
-				TextOut(hdc, 20, 200, "Port", _tcslen("File Name"));
-				TextOut(hdc, 20, 120, "Parner ID", _tcslen("Parner ID"));
-				EndPaint(hWnd, &ps);
-			} 
+			else if (id == bHide) OnBnClickedHide(hWnd);
 			else if (id == bForward) OnBnClickedForward(hWnd);
 			else if (id = bConnect) OnBnClickedConnect(hWnd);
 		}
