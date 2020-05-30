@@ -110,7 +110,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="InputAndData.cpp" />
+    <ClCompile Include="InteractFile.cpp" />
+    <ClCompile Include="TCP_SOCKET.cpp" />
+    <ClCompile Include="TCP_SOCKET.h" />
     <ClCompile Include="WinMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CONST.h" />
+    <ClInclude Include="InputAndData.h" />
+    <ClInclude Include="InteractFile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
