@@ -53,10 +53,42 @@ node1:
 	}
 }
 
+#pragma region HANDLER MULTIPLE CLIENT
+//Add session in listSession
+unsigned _stdcall CreateSession(void* param) {
+	while (true)
+	{
+		if (lockSession == 0) {
+			lockSession = 1;
+			SESSION* session = (SESSION*)param;
+			listSession.push_back(session);
+			session->position = --listSession.end();
+			lockSession = 0;
+			break;
+		}
+	}
+	return 0;
+}
+
+//Remove session from listSession
+unsigned _stdcall ReleaseSession(void* param) {
+	while (true)
+	{
+		if (lockSession == 0) {
+			lockSession = 1;
+			SESSION* session = (SESSION*)param;
+			listSession.erase(session->position);
+			lockSession = 0;
+			break;
+		}
+	}
+	return 0;
+}
+
 unsigned _stdcall Handler(void* param) {
 	SOCKET listenSocket = (SOCKET)param;
 	sockaddr_in clientAddr;
-	char buff[BUFF_SIZE], buffSend[BUFF_SIZE];
+	char buffReceive[BUFF_SIZE], buffSend[BUFF_SIZE], opcode[BUFF_SIZE];
 	char username[2048], password[2048];
 	char* result = new char[10];
 	int ret, clientAddrLen = sizeof(clientAddr);
@@ -68,5 +100,82 @@ unsigned _stdcall Handler(void* param) {
 	events[0] = WSACreateEvent();
 	WSANETWORKEVENTS sockEvent;
 
+	for (int i = 0; i < WSA_MAXIMUM_WAIT_EVENTS; i++) InitiateSession(&client[i]);
+	client[0].connSock = listenSocket;
+	WSAEventSelect(client[0].connSock, events[0], FD_ACCEPT | FD_CLOSE);
+	nEvents++;
+
+	while (true)
+	{
+		index = WSAWaitForMultipleEvents(nEvents, events, FALSE, WSA_INFINITE, FALSE);
+		if (index == WSA_WAIT_FAILED) break;
+		index = index - WSA_WAIT_EVENT_0;
+		if (index != WSA_WAIT_FAILED && index != WSA_WAIT_TIMEOUT) {
+			WSAEnumNetworkEvents(client[index].connSock, events[index], &sockEvent);
+			if (sockEvent.lNetworkEvents & FD_ACCEPT) {
+				if (sockEvent.iErrorCode[FD_ACCEPT_BIT] != 0) {
+					printf("FD_ACCEPT failed with error %d\n", sockEvent.iErrorCode[FD_READ_BIT]);
+					break;
+				}
+				if ((connSock = accept(client[index].connSock, (sockaddr *)&clientAddr, &clientAddrLen)) == SOCKET_ERROR) {
+					printf("accept() failed with error %d\n", WSAGetLastError());
+					continue;
+				}
+				if (nEvents == WSA_MAXIMUM_WAIT_EVENTS) isThreadFull = 1;
+				else {
+					for (int j = 1; j < WSA_MAXIMUM_WAIT_EVENTS; j++)
+						if (client[j].connSock == 0) {
+							client[j].connSock = connSock;
+							events[j] = WSACreateEvent();
+							WSAEventSelect(client[j].connSock, events[j], FD_READ | FD_CLOSE);
+							HANDLE hCrSession = (HANDLE)_beginthreadex(0, 0, CreateSession, (void*)&client[j], 0, 0);
+							WaitForSingleObject(hCrSession, INFINITE);
+							nEvents++;
+							break;
+						}
+				}
+				WSAResetEvent(events[index]);
+				continue;
+			}
+
+			if (sockEvent.lNetworkEvents & FD_READ) {
+				if (sockEvent.iErrorCode[FD_READ_BIT] != 0) {
+					printf("FD_READ failed with error %d\n", sockEvent.iErrorCode[FD_READ_BIT]);
+					break;
+				}
+				ret = RECEIVE_TCP(client[index].connSock, opcode, buffReceive, 0);
+				buffReceive[ret] = 0;
+
+				int ret = SEND_TCP(client[index].connSock, EncapsulateData(opcode, buffReceive), 0);
+				if (ret == SOCKET_ERROR) printf("can not send message\n");
+				continue;
+			}
+
+			if (sockEvent.lNetworkEvents & FD_WRITE) {
+				if (sockEvent.iErrorCode[FD_WRITE_BIT] != 0) {
+					printf("FD_READ failed with error %d\n", sockEvent.iErrorCode[FD_WRITE_BIT]);
+					break;
+				}
+
+			}
+
+			if (sockEvent.lNetworkEvents & FD_CLOSE) {
+				if (sockEvent.iErrorCode[FD_CLOSE_BIT] != 0) {
+					printf("Connection shutdown\n");
+					
+				}
+				else {
+					printf("Client close connection\n");
+				}
+				HANDLE hRelease = (HANDLE)_beginthreadex(0, 0, ReleaseSession, (void*)&client[index], 0, 0);
+				WaitForSingleObject(hRelease, INFINITE);
+				closesocket(client[index].connSock);
+				InitiateSession(&client[index]);
+				WSACloseEvent(events[index]);
+				nEvents--; continue;
+			}
+		}
+	}
 	return 0;
 }
+#pragma endregion

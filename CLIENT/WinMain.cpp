@@ -1,8 +1,6 @@
 #include <windows.h>
-#include <stdlib.h>
-#include <string.h>
-#include <tchar.h>
 #include "CONST.h"
+#include "TCP_SOCKET.h"
 #include "InputAndData.h"
 
 HINSTANCE hInst;
@@ -10,6 +8,13 @@ static HWND btnBrowse, btnForward, btnSearch, btnHide, btnConnect;
 static HWND eFile, eFileName, eParnerId;
 static HWND sFile, sFileName, sParnerId, sID, sIdDetail;
 bool isConnect = false, isHide = true;
+
+#pragma region CONNECT SERVER
+WSADATA wsaData;
+WORD version = MAKEWORD(2, 2);
+SOCKET client;
+sockaddr_in serverAddr;
+#pragma endregion
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -72,7 +77,7 @@ void InitializeController(HWND hWnd) {
 	sIdDetail = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_RIGHT, 480, 0, 200, 20, hWnd, (HMENU)staticIdDetail, NULL, NULL);
 }
 
-void BnClickedMakeConnect() {
+void BnClickedDrawConnect() {
 	ShowWindow(btnBrowse, SW_SHOW);
 	ShowWindow(btnForward, SW_SHOW);
 	ShowWindow(btnSearch, SW_SHOW);
@@ -84,7 +89,7 @@ void BnClickedMakeConnect() {
 	isConnect = true;
 }
 
-void BnClickMakeDisconnect() {
+void BnClickedDrawDisconnect() {
 	ShowWindow(btnBrowse, SW_HIDE);
 	ShowWindow(btnForward, SW_HIDE);
 	ShowWindow(btnSearch, SW_HIDE);
@@ -98,16 +103,42 @@ void BnClickMakeDisconnect() {
 	isConnect = false;
 }
 
+int BnClickedMakeConnect(char* address, u_short port) {
+	if (WSAStartup(version, &wsaData)) return -1;
+	SOCKET client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	int tv = 10000;
+	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (const char*)(&tv), sizeof(int));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(port);
+	serverAddr.sin_addr.s_addr = inet_addr(address);
+	if (connect(client, (sockaddr*)&serverAddr, sizeof(serverAddr))) return -2;
+	return 1;
+}
+
+void BnClickedMakeDisconnect() {
+
+}
+
 void OnBnClickedConnect(HWND hWnd) {
-	if (isConnect) BnClickMakeDisconnect();
+	if (isConnect) {
+		int id = MessageBox(hWnd, "Are you sure?", "Warning", MB_OKCANCEL);
+		if (id == IDOK) {
+			BnClickedDrawDisconnect();
+			BnClickedMakeDisconnect();
+		}
+	}
 	else {
 		TCHAR* address = new TCHAR[1024], *port = new TCHAR[1024];
 		GetWindowText(eFile, address, 1024);
 		GetWindowText(eFileName, port, 1024);
 		char* cAddress = address;
-		int iPort = atoi(port);
+		u_short iPort = atoi(port);
 		if (CheckConnect(cAddress, iPort)) {
-			BnClickedMakeConnect();
+			BnClickedDrawConnect();
+			int status = BnClickedMakeConnect(cAddress, iPort);
+			if (status == -1) MessageBox(hWnd, "Version is not supported", "Annount", MB_OK);
+			else if (status == -2) MessageBox(hWnd, "Can not connect server", "Annount", MB_OK);
+			else if (status == 1) MessageBox(hWnd, "Connected to server", "Annount", MB_OK);
 		}
 		else {
 			MessageBox(hWnd, "Wrong IP address or port", "ERROR", MB_OK);
