@@ -7,6 +7,8 @@
 #include <process.h>
 #include "CONST.h"
 
+#pragma comment(lib, "Ws2_32.lib")
+
 struct RECEIVE_INFO;
 struct SEND_INFO;
 

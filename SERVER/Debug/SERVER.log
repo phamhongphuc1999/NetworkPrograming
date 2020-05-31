@@ -1,4 +1,24 @@
-﻿  stdafx.cpp
-  SERVER.cpp
-  SERVER.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_WIN32\Debug\SERVER.exe
-  SERVER.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_WIN32\Debug\SERVER.pdb (Full PDB)
+﻿  SERVER.cpp
+d:\documents\visualstudio\bai_tap_lon_win32\server\common.h(11): warning C4091: 'typedef ': ignored on left of 'SESSION' when no variable is declared
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(25): warning C4477: 'scanf_s' : format string '%d' requires an argument of type 'int *', but variadic argument 1 has type 'u_short *'
+  d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(25): note: consider using '%hd' in the format string
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(57): warning C4101: 'username': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(61): warning C4101: 'connSock': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(60): warning C4101: 'index': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(66): warning C4101: 'sockEvent': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(60): warning C4101: 'i': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(56): warning C4101: 'buff': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(57): warning C4101: 'password': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(56): warning C4101: 'buffSend': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(59): warning C4101: 'ret': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(55): warning C4101: 'clientAddr': unreferenced local variable
+  Common.cpp
+d:\documents\visualstudio\bai_tap_lon_win32\server\common.h(9): error C3646: 'connSock': unknown override specifier
+d:\documents\visualstudio\bai_tap_lon_win32\server\common.h(9): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+d:\documents\visualstudio\bai_tap_lon_win32\server\common.h(11): warning C4091: 'typedef ': ignored on left of 'SESSION' when no variable is declared
+d:\documents\visualstudio\bai_tap_lon_win32\server\common.cpp(24): error C2039: 'connSock': is not a member of 'SESSION'
+  d:\documents\visualstudio\bai_tap_lon_win32\server\common.h(8): note: see declaration of 'SESSION'
+d:\documents\visualstudio\bai_tap_lon_win32\server\common.cpp(25): error C2039: 'connSock': is not a member of 'SESSION'
+  d:\documents\visualstudio\bai_tap_lon_win32\server\common.h(8): note: see declaration of 'SESSION'
+  Generating Code...
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(67): error C4716: 'Handler': must return a value
