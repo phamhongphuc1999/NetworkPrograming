@@ -1,4 +1,15 @@
-﻿  TCP_SOCKET.h
+﻿  WinMain.cpp
+d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(25): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(30): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(163): warning C4101: 'hdc': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(162): warning C4101: 'ps': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(161): warning C4101: 'hwndButton': unreferenced local variable
+  TCP_SOCKET.h
+  TCP_SOCKET.cpp
+  InteractFile.cpp
+  InputAndData.cpp
+  Generating Code...
+d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(187): warning C4715: 'WndProc': not all control paths return a value
 Debug\TCP_SOCKET.obj : warning LNK4042: object specified more than once; extras ignored
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_WIN32\Debug\CLIENT.exe
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_WIN32\Debug\CLIENT.pdb (Partial PDB)

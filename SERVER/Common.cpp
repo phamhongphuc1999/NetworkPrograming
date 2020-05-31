@@ -3,6 +3,11 @@
 #include "CONST.h"
 #include <list>
 
+void InitiateSession(struct SESSION* session) {
+	session->connSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	session->connSock = 0;
+}
+
 string CreateRamdomID() {
 	int length = rand() % 6 + 5;
 	string result = "";
