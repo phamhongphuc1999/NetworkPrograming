@@ -10,6 +10,23 @@ using namespace std;
 
 unsigned _stdcall Handler(void* param);
 
+#pragma region COMMON
+struct SESSION {
+	SOCKET connSock;
+	list<SESSION*>::iterator position;
+};
+
+void InitiateSession(struct SESSION* session) {
+	session->connSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	session->connSock = 0;
+}
+
+//list of session
+list<SESSION*> listSession;
+
+int lockSession, isThreadFull;
+#pragma endregion
+
 int main()
 {
 	WSADATA wsaData;
@@ -60,8 +77,10 @@ unsigned _stdcall Handler(void* param) {
 	DWORD nEvents = MAKEWORD(0, 0), i, index;
 	SOCKET connSock;
 
-	SESSION client;
+	SESSION client[WSA_MAXIMUM_WAIT_EVENTS];
 	WSAEVENT events[WSA_MAXIMUM_WAIT_EVENTS];
 	events[0] = WSACreateEvent();
 	WSANETWORKEVENTS sockEvent;
+
+	return 0;
 }

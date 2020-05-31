@@ -3,12 +3,6 @@
 #include "CONST.h"
 #include <list>
 
-//typedef struct SESSION
-//{
-//	SOCKET connSock;
-//	list<SESSION*>::iterator position;
-//};
-
 string CreateRamdomID() {
 	int length = rand() % 6 + 5;
 	string result = "";
@@ -18,9 +12,4 @@ string CreateRamdomID() {
 		result += (char)element;
 	}
 	return result;
-}
-
-void InitiateSession(SESSION* session) {
-	session->connSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	session->connSock = 0;
 }
