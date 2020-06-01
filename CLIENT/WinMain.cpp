@@ -12,7 +12,7 @@ bool isConnect = false, isHide = true;
 
 struct ForwardInfo {
 	SOCKET client;
-	string pathToFile;
+	char* pathToFile;
 	char* parnerID;
 };
 
@@ -26,7 +26,7 @@ int ret;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -79,22 +79,7 @@ void InitializeController(HWND hWnd) {
 	sFileName = CreateWindow("STATIC", "Port", WS_VISIBLE | WS_CHILD | SS_RIGHT, 20, 200, 65, 20, hWnd, (HMENU)staticFileName, NULL, NULL);
 	sParnerId = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_RIGHT, 20, 120, 65, 20, hWnd, (HMENU)staticParnerId, NULL, NULL);
 	sID = CreateWindow("STATIC", "ID", WS_VISIBLE | WS_CHILD | SS_RIGHT, 450, 0, 20, 20, hWnd, (HMENU)staticId, NULL, NULL);
-	sIdDetail = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_RIGHT, 480, 0, 180, 20, hWnd, (HMENU)staticIdDetail, NULL, NULL);
-}
-
-unsigned _stdcall ListenServer(void* param) {
-	SOCKET client = (SOCKET)param;
-	char* opcode = new char[10];
-	char* buff = new char[BUFF_SIZE];
-	int ret;
-	while (true) {
-		int ret = RECEIVE_TCP(client, opcode, buff, 0);
-		if (ret != SOCKET_ERROR) {
-			buff[ret] = 0;
-			if (!strcmp(opcode, o_100)) SetWindowTextA(sIdDetail, buff);
-		}
-	}
-	return 0;
+	sIdDetail = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_LEFT, 480, 0, 180, 20, hWnd, (HMENU)staticIdDetail, NULL, NULL);
 }
 
 #pragma region BUTTON CONNECT
@@ -136,7 +121,13 @@ int BnClickedMakeConnect(char* address, u_short port) {
 	if (connect(client, (sockaddr*)&serverAddr, sizeof(serverAddr))) return -2;
 	ret = SEND_TCP(client, o_300, new char[1]{ 0 }, 0);
 	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
-	else return 1;
+
+	char* opcode = new char[10];
+	char* buff = new char[BUFF_SIZE];
+	ret = RECEIVE_TCP(client, opcode, buff, 0);
+	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
+	buff[ret] = 0;
+	if (!strcmp(opcode, o_100)) SetWindowTextA(sIdDetail, buff);
 }
 
 void BnClickedMakeDisconnect() {
@@ -163,10 +154,7 @@ void OnBnClickedConnect(HWND hWnd) {
 			if (status == -1) MessageBox(hWnd, "Version is not supported", "ERROR", MB_OK);
 			else if (status == -2) MessageBox(hWnd, "Can not connect server", "ERROR", MB_OK);
 			else if (status == SOCKET_ERROR) MessageBox(hWnd, "Can not get ID", "ERROR", MB_OK);
-			else if (status == 1) {
-				_beginthreadex(0, 0, ListenServer, (void*)client, 0, 0);
-				BnClickedDrawConnect();
-			}
+			else if (status == 1) BnClickedDrawConnect();
 		}
 		else {
 			MessageBox(hWnd, "Wrong IP address or port", "ERROR", MB_OK);
@@ -189,10 +177,17 @@ unsigned _stdcall ForwardFileToServer(void* param) {
 	}
 	ret = RECEIVE_TCP(info->client, opcode, data, 0);
 	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not receive from server", "ERROR", MB_OK);
-	else if (!strcmp(opcode, o_202)) MessageBox(hWnd, "Can not find ID", "ERROR", MB_OK);
-	else if (!strcmp(opcode, o_203)) {
+	else if (!strcmp(opcode, o_203)) MessageBox(hWnd, "Can not find ID", "ERROR", MB_OK);
+	else if (!strcmp(opcode, o_202)) {
 		MessageBox(hWnd, "Beginning upload file to server", "ANNOUNT", MB_OK);
-
+		string pathToFile(info->pathToFile);
+		list<string> payload = CreatePayload(pathToFile);
+		for (string data : payload) {
+			ret = SEND_TCP(info->client, o_401, StringToChars(data), 0);
+			if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not receive file from server", "ERROR", MB_OK);
+		}
+		ret = SEND_TCP(info->client, o_401, new char[1]{ 0 }, 0);
+		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not receive file from server", "ERROR", MB_OK);
 	}
 	return 0;
 }
@@ -212,9 +207,13 @@ void OnBnClickedForward(HWND hWnd) {
 		GetWindowText(eFile, pathToFile, 1024);
 		GetWindowText(eParnerId, parnerID, 1024);
 		if (IsFileExistOrValid(pathToFile) && (string)parnerID != "") {
-			ForwardInfo info; info.client = client; info.parnerID = parnerID;
-			info.pathToFile = pathToFile;
-			_beginthreadex(0, 0, ForwardFileToServer, (void*)parnerID, 0, 0);
+			ForwardInfo info;
+			info.parnerID = new char[BUFF_SIZE];
+			info.pathToFile = new char[BUFF_SIZE];
+			info.client = client;
+			strcpy_s(info.parnerID, strlen(parnerID) + 1, parnerID);
+			strcpy_s(info.pathToFile, strlen(pathToFile) + 1, pathToFile);
+			_beginthreadex(0, 0, ForwardFileToServer, (void*)&info, 0, 0);
 		}
 		else {
 			MessageBox(hWnd, "Wrong your path of file or parner ID", "ERROR", MB_OK);
@@ -252,7 +251,7 @@ void OnBnClickedHide(HWND hWnd) {
 }
 
 //handler event
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	HWND hwndButton;
 	PAINTSTRUCT ps;
 	HDC hdc;

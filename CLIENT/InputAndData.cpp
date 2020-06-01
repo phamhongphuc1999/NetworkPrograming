@@ -25,3 +25,11 @@ int CheckIP(char* IP) {
 bool CheckConnect(char* address, int port) {
 	return (port > 0) && CheckIP(address);
 }
+
+char* StringToChars(string input) {
+	int length = input.length();
+	char* result = new char[length];
+	for (int i = 0; i < length; i++) result[i] = input[i];
+	result[length] = 0;
+	return result;
+}

@@ -37,6 +37,7 @@ int RECEIVE_TCP(SOCKET s, char* opcode, char* data, int flag) {
 	int index = 0, ret, result = 0;
 	char* temp = new char[20];
 	ret = recv(s, temp, 13, flag);
+	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
 	temp[ret] = 0;
 	if (ret == 0) return 0;
 	else if (ret == SOCKET_ERROR) return SOCKET_ERROR;

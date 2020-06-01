@@ -93,11 +93,28 @@ unsigned _stdcall ReleaseSession(void* param) {
 unsigned _stdcall ForwardFile(void* param) {
 	ForwardInfo* info = (ForwardInfo*)param;
 	bool check = false;
+	SESSION* session;
 	for (SESSION* item : listSession) 
-		if (!strcmp(info->ID, item->ID)) check = true;
+		if (!strcmp(info->ID, item->ID)) {
+			check = true;
+			session = item;
+			break;
+		}
 	if (check) {
 		int ret = SEND_TCP(info->client, o_202, new char[1]{ 0 }, 0);
 		if (ret == SOCKET_ERROR) printf("Can not send from client[%s]", info->ID);
+		list<char*> payload;
+		char* opcode = new char[10];
+		char* data = new char[BUFF_SIZE];
+		while (true)
+		{
+			ret = RECEIVE_TCP(info->client, opcode, data, 0);
+			if (ret == SOCKET_ERROR || strcmp(opcode, o_401)) break;
+			data[ret] = 0;
+			if (!strcmp(data, "")) break;
+			payload.push_back(data);
+		}
+		printf("RECEIVE FINISH");
 	}
 	else {
 		int ret = SEND_TCP(info->client, o_203, new char[1]{ 0 }, 0);
@@ -176,8 +193,10 @@ unsigned _stdcall Handler(void* param) {
 					if (ret == SOCKET_ERROR) printf("Cause error\n");
 				}
 				else if (!strcmp(opcode, o_400)) {
-					ForwardInfo info; info.client = client[index].connSock;
-					info.ID = buffReceive;
+					ForwardInfo info; 
+					info.client = client[index].connSock;
+					info.ID = new char[BUFF_SIZE];
+					strcpy_s(info.ID, strlen(buffReceive) + 1, buffReceive);
 					_beginthreadex(0, 0, ForwardFile, (void*)&info, 0, 0);
 				}
 					
