@@ -5,5 +5,7 @@ d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(113): warning C410
 d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(116): warning C4101: 'i': unreferenced local variable
 d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(113): warning C4101: 'password': unreferenced local variable
 d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(112): warning C4101: 'buffSend': unreferenced local variable
+  Common.cpp
+  Generating Code...
   SERVER.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_WIN32\Debug\SERVER.exe
   SERVER.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_WIN32\Debug\SERVER.pdb (Full PDB)

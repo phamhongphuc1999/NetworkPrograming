@@ -9,9 +9,8 @@ void InitiateSession(struct SESSION* session) {
 }
 
 bool CheckRamdomID(list<SESSION*> listSession, char* ID) {
-	list<SESSION*>::iterator pointer;
-	for (pointer = listSession.begin(); pointer != listSession.end(); pointer++) 
-		if (!strcmp(ID, (*pointer)->ID)) return false;
+	for (SESSION* session : listSession)
+		if (!strcmp(ID, session->ID)) return false;
 	return true;
 }
 

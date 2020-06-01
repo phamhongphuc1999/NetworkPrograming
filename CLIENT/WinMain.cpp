@@ -82,6 +82,22 @@ void InitializeController(HWND hWnd) {
 	sIdDetail = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_RIGHT, 480, 0, 180, 20, hWnd, (HMENU)staticIdDetail, NULL, NULL);
 }
 
+unsigned _stdcall ListenServer(void* param) {
+	SOCKET client = (SOCKET)param;
+	char* opcode = new char[10];
+	char* buff = new char[BUFF_SIZE];
+	int ret;
+	while (true) {
+		int ret = RECEIVE_TCP(client, opcode, buff, 0);
+		if (ret != SOCKET_ERROR) {
+			buff[ret] = 0;
+			if (!strcmp(opcode, o_100)) SetWindowTextA(sIdDetail, buff);
+		}
+	}
+	return 0;
+}
+
+#pragma region BUTTON CONNECT
 void BnClickedDrawConnect() {
 	ShowWindow(btnBrowse, SW_SHOW);
 	ShowWindow(btnForward, SW_SHOW);
@@ -128,26 +144,11 @@ void BnClickedMakeDisconnect() {
 	WSACleanup();
 }
 
-unsigned _stdcall ListenServer(void* param) {
-	SOCKET client = (SOCKET)param;
-	char* opcode = new char[10];
-	char* buff = new char[BUFF_SIZE];
-	int ret;
-	while (true) {
-		int ret = RECEIVE_TCP(client, opcode, buff, 0);
-		if(ret != SOCKET_ERROR) {
-			buff[ret] = 0;
-			if (!strcmp(opcode, o_100)) SetWindowTextA(sIdDetail, buff);
-		}
-	}
-	return 0;
-}
-
 void OnBnClickedConnect(HWND hWnd) {
 	if (isConnect) {
 		int id = MessageBox(hWnd, "Are you sure?", "WARNING", MB_OKCANCEL);
 		if (id == IDOK) {
-		    BnClickedMakeDisconnect();
+			BnClickedMakeDisconnect();
 			BnClickedDrawDisconnect();
 		}
 	}
@@ -174,26 +175,9 @@ void OnBnClickedConnect(HWND hWnd) {
 		}
 	}
 }
+#pragma endregion
 
-void OnBnClickedBrowse(HWND hWnd) {
-	OPENFILENAME ofn;
-	char szFile[100];
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = NULL;
-	ofn.lpstrFile = szFile;
-	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = NULL;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrInitialDir = NULL;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-	GetOpenFileName(&ofn);
-	if (strcmp(ofn.lpstrFile, "")) SetWindowTextA(eFile, ofn.lpstrFile);
-}
-
+#pragma region BUTTON FORWARD
 unsigned _stdcall ForwardFileToServer(void* param) {
 	ForwardInfo* info = (ForwardInfo*)param;
 	char* opcode = new char[10];
@@ -204,25 +188,13 @@ unsigned _stdcall ForwardFileToServer(void* param) {
 		return 0;
 	}
 	ret = RECEIVE_TCP(info->client, opcode, data, 0);
-	if (ret == SOCKET_ERROR) {
-		MessageBox(hWnd, "Can not receive from server", "ERROR", MB_OK);
-		return 0;
-	}
-	if (!strcmp(opcode, o_202)) {
-		MessageBox(hWnd, "Can not find ID", "ANNOUNT", MB_OK);
-		return 0;
-	}
-	if (!strcmp(opcode, o_203)) {
-		MessageBox(hWnd, "ABC", "TEST", MB_OK);
+	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not receive from server", "ERROR", MB_OK);
+	else if (!strcmp(opcode, o_202)) MessageBox(hWnd, "Can not find ID", "ERROR", MB_OK);
+	else if (!strcmp(opcode, o_203)) {
+		MessageBox(hWnd, "Beginning upload file to server", "ANNOUNT", MB_OK);
+
 	}
 	return 0;
-	
-	/*TCHAR* pathToFile = (TCHAR*)param;
-	list<string> payload = CreatePayload(pathToFile);
-	list<string>::iterator pointer;
-	for (pointer = payload.begin(); pointer != payload.end(); pointer++) {
-
-	}*/
 }
 
 void OnBnClickedForward(HWND hWnd) {
@@ -250,6 +222,26 @@ void OnBnClickedForward(HWND hWnd) {
 			SetWindowTextA(eParnerId, "");
 		}
 	}
+}
+#pragma endregion
+
+void OnBnClickedBrowse(HWND hWnd) {
+	OPENFILENAME ofn;
+	char szFile[100];
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;
+	ofn.lpstrFile = szFile;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	GetOpenFileName(&ofn);
+	if (strcmp(ofn.lpstrFile, "")) SetWindowTextA(eFile, ofn.lpstrFile);
 }
 
 void OnBnClickedHide(HWND hWnd) {

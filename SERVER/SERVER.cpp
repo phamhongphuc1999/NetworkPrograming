@@ -97,11 +97,11 @@ unsigned _stdcall ForwardFile(void* param) {
 		if (!strcmp(info->ID, item->ID)) check = true;
 	if (check) {
 		int ret = SEND_TCP(info->client, o_202, new char[1]{ 0 }, 0);
-		if (ret == SOCKET_ERROR) printf("ABC");
+		if (ret == SOCKET_ERROR) printf("Can not send from client[%s]", info->ID);
 	}
 	else {
 		int ret = SEND_TCP(info->client, o_203, new char[1]{ 0 }, 0);
-		if (ret == SOCKET_ERROR) printf("ABC");
+		if (ret == SOCKET_ERROR) printf("Can not send from client[%s]", info->ID);
 	}
 	return 0;
 }
@@ -186,7 +186,7 @@ unsigned _stdcall Handler(void* param) {
 
 			if (sockEvent.lNetworkEvents & FD_WRITE) {
 				if (sockEvent.iErrorCode[FD_WRITE_BIT] != 0) {
-					printf("FD_READ failed with error %d\n", sockEvent.iErrorCode[FD_WRITE_BIT]);
+					printf("FD_WRITE failed with error %d\n", sockEvent.iErrorCode[FD_WRITE_BIT]);
 					break;
 				}
 
@@ -201,7 +201,8 @@ unsigned _stdcall Handler(void* param) {
 				closesocket(client[index].connSock);
 				InitiateSession(&client[index]);
 				WSACloseEvent(events[index]);
-				nEvents--; continue;
+				nEvents--; 
+				continue;
 			}
 		}
 	}
