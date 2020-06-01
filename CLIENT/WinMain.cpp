@@ -3,6 +3,7 @@
 #include "TCP_SOCKET.h"
 #include "InteractFile.h"
 
+HWND hWnd;
 HINSTANCE hInst;
 static HWND btnBrowse, btnForward, btnSearch, btnHide, btnConnect;
 static HWND eFile, eFileName, eParnerId;
@@ -40,11 +41,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	hInst = hInstance;
-	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 700, 400, NULL, NULL, hInstance, NULL);
-
+	hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 700, 400, NULL, NULL, hInstance, NULL);
 	if (!hWnd)
 	{
-		MessageBox(NULL, _T("Call to CreateWindow failed!"), _T("Win32 Guided Tour"), NULL);
+		MessageBox(NULL, "Call to CreateWindow failed!", "Win32 Guided Tour", NULL);
 		return 1;
 	}
 	ShowWindow(hWnd, nCmdShow);
@@ -73,7 +73,7 @@ void InitializeController(HWND hWnd) {
 	sFileName = CreateWindow("STATIC", "Port", WS_VISIBLE | WS_CHILD | SS_RIGHT, 20, 200, 65, 20, hWnd, (HMENU)staticFileName, NULL, NULL);
 	sParnerId = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_RIGHT, 20, 120, 65, 20, hWnd, (HMENU)staticParnerId, NULL, NULL);
 	sID = CreateWindow("STATIC", "ID", WS_VISIBLE | WS_CHILD | SS_RIGHT, 450, 0, 20, 20, hWnd, (HMENU)staticId, NULL, NULL);
-	sIdDetail = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_RIGHT, 480, 0, 200, 20, hWnd, (HMENU)staticIdDetail, NULL, NULL);
+	sIdDetail = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_RIGHT, 480, 0, 180, 20, hWnd, (HMENU)staticIdDetail, NULL, NULL);
 }
 
 void BnClickedDrawConnect() {
@@ -99,10 +99,11 @@ void BnClickedDrawDisconnect() {
 	SetWindowTextA(sFileName, "Port");
 	SetWindowTextA(eFile, "");
 	SetWindowTextA(eFileName, "");
+	SetWindowTextA(sIdDetail, "");
 	isConnect = false;
 }
 
-int BnClickedMakeConnect(char* address, int port) {
+int BnClickedMakeConnect(char* address, u_short port) {
 	if (WSAStartup(version, &wsaData)) return -1;
 	client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	int tv = 10000;
@@ -111,13 +112,14 @@ int BnClickedMakeConnect(char* address, int port) {
 	serverAddr.sin_port = htons(port);
 	serverAddr.sin_addr.s_addr = inet_addr(address);
 	if (connect(client, (sockaddr*)&serverAddr, sizeof(serverAddr))) return -2;
-	ret = SEND_TCP(client, new char[4]{ "300" }, new char[1]{ 0 }, 0);
+	ret = SEND_TCP(client, o_300, new char[1]{ 0 }, 0);
 	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
 	else return 1;
 }
 
 void BnClickedMakeDisconnect() {
-
+	closesocket(client);
+	WSACleanup();
 }
 
 unsigned _stdcall ListenServer(void* param) {
@@ -127,8 +129,9 @@ unsigned _stdcall ListenServer(void* param) {
 	int ret;
 	while (true) {
 		int ret = RECEIVE_TCP(client, opcode, buff, 0);
-		if (!strcmp(opcode, new char[4]{ "100" })) {
-			SetWindowTextA(sIdDetail, opcode);
+		if(ret != SOCKET_ERROR) {
+			buff[ret] = 0;
+			if (!strcmp(opcode, o_100)) SetWindowTextA(sIdDetail, buff);
 		}
 	}
 	return 0;
@@ -138,8 +141,8 @@ void OnBnClickedConnect(HWND hWnd) {
 	if (isConnect) {
 		int id = MessageBox(hWnd, "Are you sure?", "WARNING", MB_OKCANCEL);
 		if (id == IDOK) {
+		    BnClickedMakeDisconnect();
 			BnClickedDrawDisconnect();
-			BnClickedMakeDisconnect();
 		}
 	}
 	else {
@@ -149,7 +152,6 @@ void OnBnClickedConnect(HWND hWnd) {
 		char* cAddress = address;
 		u_short iPort = atoi(port);
 		if (CheckConnect(cAddress, iPort)) {
-			BnClickedDrawConnect();
 			int status = BnClickedMakeConnect(cAddress, iPort);
 			if (status == -1) MessageBox(hWnd, "Version is not supported", "Annount", MB_OK);
 			else if (status == -2) MessageBox(hWnd, "Can not connect server", "Annount", MB_OK);
@@ -157,6 +159,7 @@ void OnBnClickedConnect(HWND hWnd) {
 			else if (status == 1) {
 				MessageBox(hWnd, "Connected to server", "Annount", MB_OK);
 				_beginthreadex(0, 0, ListenServer, (void*)client, 0, 0);
+				BnClickedDrawConnect();
 			}
 		}
 		else {

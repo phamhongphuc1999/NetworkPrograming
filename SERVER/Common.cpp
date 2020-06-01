@@ -8,15 +8,20 @@ void InitiateSession(struct SESSION* session) {
 	session->connSock = 0;
 }
 
+bool CheckRamdomID(list<SESSION*> listSession, char* ID) {
+	list<SESSION*>::iterator pointer;
+	for (pointer = listSession.begin(); pointer != listSession.end(); pointer++) 
+		if (!strcmp(ID, (*pointer)->ID)) return false;
+	return true;
+}
+
 char* CreateRamdomID() {
-	int length = rand() % 2 + 9;
 	char* result = new char[20];
 	srand((int)time(0));
-	int i;
-	for (i = 0; i < length; i++) {
+	for (int i = 0; i < 20; i++) {
 		int element = rand() % 26 + 97;
 		result[i] = (char)element;
 	}
-	result[i] = 0;
+	result[20] = 0;
 	return result;
 }

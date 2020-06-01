@@ -125,7 +125,11 @@ unsigned _stdcall Handler(void* param) {
 				else {
 					for (int j = 1; j < WSA_MAXIMUM_WAIT_EVENTS; j++)
 						if (client[j].connSock == 0) {
+							char* tempId = CreateRamdomID();
+							while (!CheckRamdomID(listSession, tempId))
+								tempId = CreateRamdomID();
 							client[j].connSock = connSock;
+							client[j].ID = tempId;
 							events[j] = WSACreateEvent();
 							WSAEventSelect(client[j].connSock, events[j], FD_READ | FD_CLOSE);
 							HANDLE hCrSession = (HANDLE)_beginthreadex(0, 0, CreateSession, (void*)&client[j], 0, 0);
@@ -145,12 +149,8 @@ unsigned _stdcall Handler(void* param) {
 				}
 				ret = RECEIVE_TCP(client[index].connSock, opcode, buffReceive, 0);
 				buffReceive[ret] = 0;
-				if (!strcmp(opcode, new char[4]{ "300" })) {
-					ret = SEND_TCP(client[index].connSock, new char[4]{ "100" }, CreateRamdomID(), 0);
-				}
-
-				/*int ret = SEND_TCP(client[index].connSock, EncapsulateData(opcode, buffReceive), 0);
-				if (ret == SOCKET_ERROR) printf("can not send message\n");*/
+				if (!strcmp(opcode, o_300)) 
+					ret = SEND_TCP(client[index].connSock, o_100, client[index].ID, 0);
 				continue;
 			}
 
@@ -163,13 +163,9 @@ unsigned _stdcall Handler(void* param) {
 			}
 
 			if (sockEvent.lNetworkEvents & FD_CLOSE) {
-				if (sockEvent.iErrorCode[FD_CLOSE_BIT] != 0) {
-					printf("Connection shutdown\n");
-					
-				}
-				else {
-					printf("Client close connection\n");
-				}
+				if (sockEvent.iErrorCode[FD_CLOSE_BIT] != 0) printf("Connection shutdown\n");
+				else printf("Client close connection\n");
+
 				HANDLE hRelease = (HANDLE)_beginthreadex(0, 0, ReleaseSession, (void*)&client[index], 0, 0);
 				WaitForSingleObject(hRelease, INFINITE);
 				closesocket(client[index].connSock);
