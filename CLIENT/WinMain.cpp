@@ -6,8 +6,8 @@
 HWND hWnd;
 HINSTANCE hInst;
 static HWND btnBrowse, btnForward, btnSearch, btnHide, btnConnect;
-static HWND eFile, eFileName, eParnerId;
-static HWND sFile, sFileName, sParnerId, sID, sIdDetail;
+static HWND eFile, eFileName, eParnerId, eIdDetail;
+static HWND sFile, sFileName, sParnerId, sID;
 bool isConnect = false, isHide = true;
 
 struct ForwardInfo {
@@ -74,12 +74,12 @@ void InitializeController(HWND hWnd) {
 	eFile = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 90, 350, 20, hWnd, (HMENU)editFile, NULL, NULL);
 	eFileName = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 200, 350, 20, hWnd, (HMENU)editFileName, NULL, NULL);
 	eParnerId = CreateWindow("Edit", "", WS_CHILD | SW_HIDE | WS_BORDER, 100, 120, 350, 20, hWnd, (HMENU)editParnerId, NULL, NULL);
+	eIdDetail = CreateWindow("Edit", "", WS_VISIBLE | WS_CHILD, 480, 0, 180, 20, hWnd, (HMENU)editIdDetail, NULL, NULL);
 
 	sFile = CreateWindow("STATIC", "Address", WS_VISIBLE | WS_CHILD | SS_RIGHT, 30, 90, 55, 20, hWnd, (HMENU)staticFile, NULL, NULL);
 	sFileName = CreateWindow("STATIC", "Port", WS_VISIBLE | WS_CHILD | SS_RIGHT, 20, 200, 65, 20, hWnd, (HMENU)staticFileName, NULL, NULL);
 	sParnerId = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_RIGHT, 20, 120, 65, 20, hWnd, (HMENU)staticParnerId, NULL, NULL);
 	sID = CreateWindow("STATIC", "ID", WS_VISIBLE | WS_CHILD | SS_RIGHT, 450, 0, 20, 20, hWnd, (HMENU)staticId, NULL, NULL);
-	sIdDetail = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_LEFT, 480, 0, 180, 20, hWnd, (HMENU)staticIdDetail, NULL, NULL);
 }
 
 #pragma region BUTTON CONNECT
@@ -106,7 +106,7 @@ void BnClickedDrawDisconnect() {
 	SetWindowTextA(sFileName, "Port");
 	SetWindowTextA(eFile, "");
 	SetWindowTextA(eFileName, "");
-	SetWindowTextA(sIdDetail, "");
+	SetWindowTextA(eIdDetail, "");
 	isConnect = false;
 }
 
@@ -127,7 +127,7 @@ int BnClickedMakeConnect(char* address, u_short port) {
 	ret = RECEIVE_TCP(client, opcode, buff, 0);
 	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
 	buff[ret] = 0;
-	if (!strcmp(opcode, o_100)) SetWindowTextA(sIdDetail, buff);
+	if (!strcmp(opcode, o_100)) SetWindowTextA(eIdDetail, buff);
 }
 
 void BnClickedMakeDisconnect() {
