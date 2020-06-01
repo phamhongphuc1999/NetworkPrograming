@@ -29,13 +29,16 @@
 - 120: gửi yêu cầu tìm kiếm file đến client
 - 200: yêu cầu chuyển tiếp file về client
 - 201: tải file chuyển tiếp về client
+- 202: ID do client gửi lên có thể kết nối
+- 203: ID do client gửi lên không thể kết nối
 #### CLIENT:
 - 300: yêu cầu kết nối và gửi ID
 - 310: gửi yêu cầu tìm kiếm file
 - 311: tải file từ client được chỉ định bởi client khác lên server
 - 320: không tìm thấy tên file trong trường data
 - 321: tìm thấy tên file trong trường data
-- 400: yêu cầu chuyển tiếp file và tải file lên server
+- 400: gửi ID của người cần chuyển tiếp file đến, chuẩn bị truyền file lên server
+- 401: yêu cầu chuyển tiếp file và tải file lên server
 - 410: không cho chuyển tiếp file về client
 - 411: cho phép chuyển tiếp file về client
 
