@@ -5,7 +5,9 @@
 char* EncapsulateData(char* opcode, char* data) {
 	int length = strlen(data);
 	char* result = new char[BUFF_SIZE];
-	result[0] = opcode[0]; result[1] = opcode[1]; result[2] = opcode[2];
+	result[0] = opcode[0];
+	result[1] = opcode[1];
+	result[2] = opcode[2];
 	int index = 3;
 	while (length > 0) {
 		int temp = length % 10;
@@ -19,7 +21,7 @@ char* EncapsulateData(char* opcode, char* data) {
 	return result;
 }
 
-int DecapsulationData(char* buff, char* opcode) {
+int DecapsulateData(char* opcode, char* buff) {
 	int result = 0, index = 12;
 	while (!('0' <= buff[index] && buff[index] <= '9')) { index--; }
 	for (int i = index; i >= 3; i--) {
@@ -32,16 +34,16 @@ int DecapsulationData(char* buff, char* opcode) {
 	return result;
 }
 
-int RECEIVE_TCP(SOCKET s, char* opcode, char* buff, int flag) {
+int RECEIVE_TCP(SOCKET s, char* opcode, char* data, int flag) {
 	int index = 0, ret, result = 0;
 	char* temp = new char[13];
 	ret = recv(s, temp, 13, flag);
 	if (ret == 0) return 0;
 	else if (ret == SOCKET_ERROR) return SOCKET_ERROR;
 	else {
-		int length = DecapsulationData(temp, opcode);
+		int length = DecapsulateData(temp, opcode);
 		while (length > 0) {
-			ret = recv(s, &buff[index], length, 0);
+			ret = recv(s, &data[index], length, 0);
 			if (ret == SOCKET_ERROR) return SOCKET_ERROR;
 			else result += ret;
 			index += ret;
@@ -51,7 +53,8 @@ int RECEIVE_TCP(SOCKET s, char* opcode, char* buff, int flag) {
 	}
 }
 
-int SEND_TCP(SOCKET s, char* buff, int flag) {
+int SEND_TCP(SOCKET s, char* opcode, char* data, int flag) {
+	char* buff = EncapsulateData(opcode, data);
 	int nLeft = strlen(buff), index = 0, ret, result = 0;
 	while (nLeft > 0) {
 		ret = send(s, &buff[index], nLeft, flag);

@@ -1,5 +1,7 @@
-#include "TCP_SOCKET.h"
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "InputAndData.h"
+#include "TCP_SOCKET.h"
+#include "InteractFile.h"
 
 HINSTANCE hInst;
 static HWND btnBrowse, btnForward, btnSearch, btnHide, btnConnect;
@@ -12,13 +14,13 @@ WSADATA wsaData;
 WORD version = MAKEWORD(2, 2);
 SOCKET client;
 sockaddr_in serverAddr;
+int ret;
 #pragma endregion
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
 	WNDCLASSEX wcex;
-
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc = WndProc;
@@ -38,8 +40,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	hInst = hInstance;
-	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-		700, 400, NULL, NULL, hInstance, NULL);
+	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 700, 400, NULL, NULL, hInstance, NULL);
 
 	if (!hWnd)
 	{
@@ -101,25 +102,41 @@ void BnClickedDrawDisconnect() {
 	isConnect = false;
 }
 
-int BnClickedMakeConnect(char* address, u_short port) {
+int BnClickedMakeConnect(char* address, int port) {
 	if (WSAStartup(version, &wsaData)) return -1;
-	SOCKET client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	int tv = 10000;
 	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (const char*)(&tv), sizeof(int));
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(port);
 	serverAddr.sin_addr.s_addr = inet_addr(address);
 	if (connect(client, (sockaddr*)&serverAddr, sizeof(serverAddr))) return -2;
-	return 1;
+	ret = SEND_TCP(client, new char[4]{ "300" }, new char[1]{ 0 }, 0);
+	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
+	else return 1;
 }
 
 void BnClickedMakeDisconnect() {
 
 }
 
+unsigned _stdcall ListenServer(void* param) {
+	SOCKET client = (SOCKET)param;
+	char* opcode = new char[10];
+	char* buff = new char[BUFF_SIZE];
+	int ret;
+	while (true) {
+		int ret = RECEIVE_TCP(client, opcode, buff, 0);
+		if (!strcmp(opcode, new char[4]{ "100" })) {
+			SetWindowTextA(sIdDetail, opcode);
+		}
+	}
+	return 0;
+}
+
 void OnBnClickedConnect(HWND hWnd) {
 	if (isConnect) {
-		int id = MessageBox(hWnd, "Are you sure?", "Warning", MB_OKCANCEL);
+		int id = MessageBox(hWnd, "Are you sure?", "WARNING", MB_OKCANCEL);
 		if (id == IDOK) {
 			BnClickedDrawDisconnect();
 			BnClickedMakeDisconnect();
@@ -136,7 +153,11 @@ void OnBnClickedConnect(HWND hWnd) {
 			int status = BnClickedMakeConnect(cAddress, iPort);
 			if (status == -1) MessageBox(hWnd, "Version is not supported", "Annount", MB_OK);
 			else if (status == -2) MessageBox(hWnd, "Can not connect server", "Annount", MB_OK);
-			else if (status == 1) MessageBox(hWnd, "Connected to server", "Annount", MB_OK);
+			else if (status == SOCKET_ERROR) MessageBox(hWnd, "Can not get ID", "Annount", MB_OK);
+			else if (status == 1) {
+				MessageBox(hWnd, "Connected to server", "Annount", MB_OK);
+				_beginthreadex(0, 0, ListenServer, (void*)client, 0, 0);
+			}
 		}
 		else {
 			MessageBox(hWnd, "Wrong IP address or port", "ERROR", MB_OK);
@@ -186,6 +207,7 @@ void OnBnClickedHide(HWND hWnd) {
 	isHide = true;
 }
 
+//handler event
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 	HWND hwndButton;
 	PAINTSTRUCT ps;

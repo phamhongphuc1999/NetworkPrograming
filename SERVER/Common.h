@@ -13,4 +13,4 @@ struct SESSION {
 };
 
 void InitiateSession(struct SESSION* session);
-string CreateRamdomID();
+char* CreateRamdomID();

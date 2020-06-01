@@ -145,9 +145,12 @@ unsigned _stdcall Handler(void* param) {
 				}
 				ret = RECEIVE_TCP(client[index].connSock, opcode, buffReceive, 0);
 				buffReceive[ret] = 0;
+				if (!strcmp(opcode, new char[4]{ "300" })) {
+					ret = SEND_TCP(client[index].connSock, new char[4]{ "100" }, CreateRamdomID(), 0);
+				}
 
-				int ret = SEND_TCP(client[index].connSock, EncapsulateData(opcode, buffReceive), 0);
-				if (ret == SOCKET_ERROR) printf("can not send message\n");
+				/*int ret = SEND_TCP(client[index].connSock, EncapsulateData(opcode, buffReceive), 0);
+				if (ret == SOCKET_ERROR) printf("can not send message\n");*/
 				continue;
 			}
 

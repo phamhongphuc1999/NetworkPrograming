@@ -24,9 +24,6 @@
     <ClCompile Include="InteractFile.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="TCP_SOCKET.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="TCP_SOCKET.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
@@ -39,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="InteractFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TCP_SOCKET.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

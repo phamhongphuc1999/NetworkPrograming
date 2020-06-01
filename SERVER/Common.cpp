@@ -8,13 +8,15 @@ void InitiateSession(struct SESSION* session) {
 	session->connSock = 0;
 }
 
-string CreateRamdomID() {
-	int length = rand() % 6 + 5;
-	string result = "";
+char* CreateRamdomID() {
+	int length = rand() % 2 + 9;
+	char* result = new char[20];
 	srand((int)time(0));
-	for (int i = 0; i < length; i++) {
+	int i;
+	for (i = 0; i < length; i++) {
 		int element = rand() % 26 + 97;
-		result += (char)element;
+		result[i] = (char)element;
 	}
+	result[i] = 0;
 	return result;
 }

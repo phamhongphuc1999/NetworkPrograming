@@ -8,6 +8,6 @@
 #pragma comment(lib, "Ws2_32.lib")
 
 char* EncapsulateData(char* opcode, char* data);
-int DecapsulationData(char* buff, char* opcode);
-int RECEIVE_TCP(SOCKET s, char* opcode, char* buff, int flag);
-int SEND_TCP(SOCKET s, char* buff, int flag);
+int DecapsulateData(char* opcode, char* buff);
+int RECEIVE_TCP(SOCKET s, char* opcode, char* data, int flag);
+int SEND_TCP(SOCKET s, char* opcode, char* data, int flag);
