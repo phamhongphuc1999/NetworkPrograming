@@ -36,7 +36,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
 	if (!RegisterClassEx(&wcex))
 	{
-		MessageBox(NULL, _T("Call to RegisterClassEx failed!"), _T("Win32 Guided Tour"), NULL);
+		MessageBox(NULL, "Call to RegisterClassEx failed!", "Win32 Guided Tour", NULL);
 		return 1;
 	}
 
@@ -153,11 +153,11 @@ void OnBnClickedConnect(HWND hWnd) {
 		u_short iPort = atoi(port);
 		if (CheckConnect(cAddress, iPort)) {
 			int status = BnClickedMakeConnect(cAddress, iPort);
-			if (status == -1) MessageBox(hWnd, "Version is not supported", "Annount", MB_OK);
-			else if (status == -2) MessageBox(hWnd, "Can not connect server", "Annount", MB_OK);
-			else if (status == SOCKET_ERROR) MessageBox(hWnd, "Can not get ID", "Annount", MB_OK);
+			if (status == -1) MessageBox(hWnd, "Version is not supported", "ERROR", MB_OK);
+			else if (status == -2) MessageBox(hWnd, "Can not connect server", "ERROR", MB_OK);
+			else if (status == SOCKET_ERROR) MessageBox(hWnd, "Can not get ID", "ERROR", MB_OK);
 			else if (status == 1) {
-				MessageBox(hWnd, "Connected to server", "Annount", MB_OK);
+				MessageBox(hWnd, "Connected to server", "ANNOUNT", MB_OK);
 				_beginthreadex(0, 0, ListenServer, (void*)client, 0, 0);
 				BnClickedDrawConnect();
 			}
@@ -191,7 +191,7 @@ void OnBnClickedBrowse(HWND hWnd) {
 
 void OnBnClickedForward(HWND hWnd) {
 	if (isHide) {
-		MessageBox(hWnd, "Enter my parner ID", "Annount", MB_OK);
+		MessageBox(hWnd, "Enter my parner ID", "ANNOUNT", MB_OK);
 		ShowWindow(btnHide, SW_SHOW);
 		ShowWindow(eParnerId, SW_SHOW);
 		ShowWindow(sParnerId, SW_SHOW);
