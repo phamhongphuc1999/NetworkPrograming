@@ -13,6 +13,11 @@ unsigned _stdcall Handler(void* param);
 list<SESSION*> listSession;
 int lockSession, isThreadFull;
 
+struct ForwardInfo {
+	SOCKET client;
+	char* ID;
+};
+
 int main()
 {
 	WSADATA wsaData;
@@ -85,6 +90,22 @@ unsigned _stdcall ReleaseSession(void* param) {
 	return 0;
 }
 
+unsigned _stdcall ForwardFile(void* param) {
+	ForwardInfo* info = (ForwardInfo*)param;
+	bool check = false;
+	for (SESSION* item : listSession) 
+		if (!strcmp(info->ID, item->ID)) check = true;
+	if (check) {
+		int ret = SEND_TCP(info->client, o_202, new char[1]{ 0 }, 0);
+		if (ret == SOCKET_ERROR) printf("ABC");
+	}
+	else {
+		int ret = SEND_TCP(info->client, o_203, new char[1]{ 0 }, 0);
+		if (ret == SOCKET_ERROR) printf("ABC");
+	}
+	return 0;
+}
+
 unsigned _stdcall Handler(void* param) {
 	SOCKET listenSocket = (SOCKET)param;
 	sockaddr_in clientAddr;
@@ -112,6 +133,7 @@ unsigned _stdcall Handler(void* param) {
 		index = index - WSA_WAIT_EVENT_0;
 		if (index != WSA_WAIT_FAILED && index != WSA_WAIT_TIMEOUT) {
 			WSAEnumNetworkEvents(client[index].connSock, events[index], &sockEvent);
+
 			if (sockEvent.lNetworkEvents & FD_ACCEPT) {
 				if (sockEvent.iErrorCode[FD_ACCEPT_BIT] != 0) {
 					printf("FD_ACCEPT failed with error %d\n", sockEvent.iErrorCode[FD_READ_BIT]);
@@ -149,8 +171,16 @@ unsigned _stdcall Handler(void* param) {
 				}
 				ret = RECEIVE_TCP(client[index].connSock, opcode, buffReceive, 0);
 				buffReceive[ret] = 0;
-				if (!strcmp(opcode, o_300)) 
+				if (!strcmp(opcode, o_300)) {
 					ret = SEND_TCP(client[index].connSock, o_100, client[index].ID, 0);
+					if (ret == SOCKET_ERROR) printf("Cause error\n");
+				}
+				else if (!strcmp(opcode, o_400)) {
+					ForwardInfo info; info.client = client[index].connSock;
+					info.ID = buffReceive;
+					_beginthreadex(0, 0, ForwardFile, (void*)&info, 0, 0);
+				}
+					
 				continue;
 			}
 

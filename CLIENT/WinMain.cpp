@@ -10,6 +10,12 @@ static HWND eFile, eFileName, eParnerId;
 static HWND sFile, sFileName, sParnerId, sID, sIdDetail;
 bool isConnect = false, isHide = true;
 
+struct ForwardInfo {
+	SOCKET client;
+	string pathToFile;
+	char* parnerID;
+};
+
 #pragma region CONNECT SERVER
 WSADATA wsaData;
 WORD version = MAKEWORD(2, 2);
@@ -157,7 +163,6 @@ void OnBnClickedConnect(HWND hWnd) {
 			else if (status == -2) MessageBox(hWnd, "Can not connect server", "ERROR", MB_OK);
 			else if (status == SOCKET_ERROR) MessageBox(hWnd, "Can not get ID", "ERROR", MB_OK);
 			else if (status == 1) {
-				MessageBox(hWnd, "Connected to server", "ANNOUNT", MB_OK);
 				_beginthreadex(0, 0, ListenServer, (void*)client, 0, 0);
 				BnClickedDrawConnect();
 			}
@@ -189,6 +194,37 @@ void OnBnClickedBrowse(HWND hWnd) {
 	if (strcmp(ofn.lpstrFile, "")) SetWindowTextA(eFile, ofn.lpstrFile);
 }
 
+unsigned _stdcall ForwardFileToServer(void* param) {
+	ForwardInfo* info = (ForwardInfo*)param;
+	char* opcode = new char[10];
+	char* data = new char[BUFF_SIZE];
+	ret = SEND_TCP(info->client, o_400, info->parnerID, 0);
+	if (ret == SOCKET_ERROR) {
+		MessageBox(hWnd, "Can not send ID to server", "ERROR", MB_OK);
+		return 0;
+	}
+	ret = RECEIVE_TCP(info->client, opcode, data, 0);
+	if (ret == SOCKET_ERROR) {
+		MessageBox(hWnd, "Can not receive from server", "ERROR", MB_OK);
+		return 0;
+	}
+	if (!strcmp(opcode, o_202)) {
+		MessageBox(hWnd, "Can not find ID", "ANNOUNT", MB_OK);
+		return 0;
+	}
+	if (!strcmp(opcode, o_203)) {
+		MessageBox(hWnd, "ABC", "TEST", MB_OK);
+	}
+	return 0;
+	
+	/*TCHAR* pathToFile = (TCHAR*)param;
+	list<string> payload = CreatePayload(pathToFile);
+	list<string>::iterator pointer;
+	for (pointer = payload.begin(); pointer != payload.end(); pointer++) {
+
+	}*/
+}
+
 void OnBnClickedForward(HWND hWnd) {
 	if (isHide) {
 		MessageBox(hWnd, "Enter my parner ID", "ANNOUNT", MB_OK);
@@ -199,7 +235,20 @@ void OnBnClickedForward(HWND hWnd) {
 		isHide = false;
 	}
 	else {
-		
+		TCHAR* pathToFile = new TCHAR[1024];
+		TCHAR* parnerID = new TCHAR[1024];
+		GetWindowText(eFile, pathToFile, 1024);
+		GetWindowText(eParnerId, parnerID, 1024);
+		if (IsFileExistOrValid(pathToFile) && (string)parnerID != "") {
+			ForwardInfo info; info.client = client; info.parnerID = parnerID;
+			info.pathToFile = pathToFile;
+			_beginthreadex(0, 0, ForwardFileToServer, (void*)parnerID, 0, 0);
+		}
+		else {
+			MessageBox(hWnd, "Wrong your path of file or parner ID", "ERROR", MB_OK);
+			SetWindowTextA(eFile, "");
+			SetWindowTextA(eParnerId, "");
+		}
 	}
 }
 

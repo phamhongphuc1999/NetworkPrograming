@@ -1,2 +1,9 @@
-﻿  SERVER.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_WIN32\Debug\SERVER.exe
+﻿  SERVER.cpp
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(33): warning C4477: 'scanf_s' : format string '%d' requires an argument of type 'int *', but variadic argument 1 has type 'u_short *'
+  d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(33): note: consider using '%hd' in the format string
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(113): warning C4101: 'username': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(116): warning C4101: 'i': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(113): warning C4101: 'password': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\server\server.cpp(112): warning C4101: 'buffSend': unreferenced local variable
+  SERVER.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_WIN32\Debug\SERVER.exe
   SERVER.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_WIN32\Debug\SERVER.pdb (Full PDB)

@@ -32,6 +32,8 @@ static char* o_112 = new char[4]{ "112" };
 static char* o_120 = new char[4]{ "120" };
 static char* o_200 = new char[4]{ "200" };
 static char* o_201 = new char[4]{ "201" };
+static char* o_202 = new char[4]{ "202" };
+static char* o_203 = new char[4]{ "203" };
 
 //client
 static char* o_300 = new char[4]{ "300" };
@@ -40,5 +42,6 @@ static char* o_311 = new char[4]{ "311" };
 static char* o_320 = new char[4]{ "320" };
 static char* o_321 = new char[4]{ "321" };
 static char* o_400 = new char[4]{ "400" };
+static char* o_401 = new char[4]{ "401" };
 static char* o_410 = new char[4]{ "410" };
 static char* o_411 = new char[4]{ "411" };
