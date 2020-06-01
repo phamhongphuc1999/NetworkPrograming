@@ -9,18 +9,17 @@
 - Nhận danh sách  các client có file mà client yêu cầu tìm kiếm
 - Lựa chọn một client trong kết quả server gửi về để yêu cầu download file
 
-## Khuôn dạng gói tin
-### Định dạng mảng char(char*)
+## Khuôn dạng gói tin: định dạng mảng char
 #### Có ba trường opcode, length, data
 - opcode: 3 phần tử đầu trong mảng, chỉ định chức năng sẽ thực hiện
 - length: 10 phần tử tiếp theo trong mảng, chứa kích thức của data
-- data: phần còn lại của gói tin gửi đi, chứ dữ liệu cần truyền
-### mỗi client có ít nhất 2 kết nối(TCP) đến server
-- Kết nối 1: chỉ dùng để nhận yêu cầu mới của server, có một luồng chính, khi có yêu cầu tới, tạo mới một luồng riêng xử lý yêu cầu đó luồng chính tiếp tục đợi yêu cầu từ server
-- Kết nối 2: chỉ dùng để gửi yêu cầu tới server, sử dụng thread nếu có nhiều yêu cầu gửi tới server
+- data: phần còn lại của gói tin gửi đi, chứa dữ liệu cần truyền
+### mỗi client có ít nhất 1 kết nối(TCP) đến server
+- Luồng nhận dữ liệu: có một luồng nhận chính chỉ lắng nghe yêu cầu của server, nếu có yêu cầu mới thì tạo luồng khác xử lý yêu cầu đó
+- Luồng gửi dữ liệu: nếu tác vụ gửi dữ liệu kéo dài(như gửi file lên server) thì tạo luồng khác để xử lý yêu cầu đó
 ### Định nghĩa opcode
-#### 1, 2: server gửi tín hiệu cho client
-#### 3, 4: client gửi tín hiệu cho server
+#### 1xx, 2xx: server gửi tín hiệu cho client
+#### 3xx, 4xx: client gửi tín hiệu cho server
 #### SERVER:
 - 100: kết nối thành công, gửi ID lại client
 - 110: gửi danh sách các client đang kết nối
