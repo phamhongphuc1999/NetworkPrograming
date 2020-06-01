@@ -1,5 +1,3 @@
-#include <windows.h>
-#include "CONST.h"
 #include "TCP_SOCKET.h"
 #include "InputAndData.h"
 
@@ -215,4 +213,5 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 		return DefWindowProc(hWnd, message, wParam, lParam);
 		break;
 	}
+	return 0;
 }

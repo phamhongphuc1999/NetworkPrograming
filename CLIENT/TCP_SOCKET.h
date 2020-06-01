@@ -1,10 +1,10 @@
 #pragma once
+
+#ifndef TCP_SOCKET
+
+#define TCP_SOCKET
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
-#include <conio.h>
-#include <stdio.h>
-#include <winsock2.h>
-#include <WS2tcpip.h>
-#include <process.h>
+#include <Windows.h>
 #include "CONST.h"
 
 #pragma comment(lib, "Ws2_32.lib")
@@ -20,3 +20,5 @@ unsigned _stdcall HANDLER_RECEIVE_TCP(void* param);
 unsigned _stdcall HANDLER_SEND_TCP(void* param);
 void RECEIVE_THREAD_TCP(RECEIVE_INFO* param);
 void SEND_THREAD_TCP(SEND_INFO* param);
+
+#endif // !TCP_SOCKET

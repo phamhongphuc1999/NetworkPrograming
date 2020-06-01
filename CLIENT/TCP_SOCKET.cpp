@@ -1,5 +1,5 @@
+#include <process.h>
 #include "TCP_SOCKET.h"
-#include "CONST.h"
 
 struct RECEIVE_INFO
 {
