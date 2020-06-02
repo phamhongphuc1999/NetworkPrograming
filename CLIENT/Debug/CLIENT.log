@@ -1,12 +1,9 @@
-﻿cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
-  InteractFile.cpp
-  WinMain.cpp
+﻿  WinMain.cpp
 d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(32): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
 d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(37): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(295): warning C4101: 'hdc': unreferenced local variable
-d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(294): warning C4101: 'ps': unreferenced local variable
-d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(293): warning C4101: 'hwndButton': unreferenced local variable
-  Generating Code...
-d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(187): warning C4715: 'BnClickedMakeConnect': not all control paths return a value
+d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(313): warning C4101: 'hdc': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(312): warning C4101: 'ps': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(311): warning C4101: 'hwndButton': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_win32\client\winmain.cpp(205): warning C4715: 'BnClickedMakeConnect': not all control paths return a value
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_WIN32\Debug\CLIENT.exe
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_WIN32\Debug\CLIENT.pdb (Partial PDB)

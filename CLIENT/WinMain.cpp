@@ -90,6 +90,11 @@ unsigned _stdcall ForwardFile(void* param) {
 	return 0;
 }
 
+unsigned _stdcall ForwardFileToClient(void* param) {
+
+	return 0;
+}
+
 unsigned _stdcall SearchFile(void* param) {
 	char* fileName = (char*)param;
 	string sFileName(fileName);
@@ -129,9 +134,22 @@ unsigned _stdcall ListenServer(void* param) {
 				ret = SEND_TCP(client, o_320, new char[1]{ 0 }, 0);
 				if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 			}
+			else if (id == IDOK) _beginthreadex(0, 0, SearchFile, (void*)data, 0, 0);
+			
+		}
+		else if (!strcmp(opcode, o_200)) {
+			data[ret] = 0;
+			char* temp = "Request forward from client: ";
+			strcat_s(temp, strlen(temp) + strlen(data) + 2, data);
+			int id = MessageBox(hWnd, _T(temp), "ANNOUNT", MB_OKCANCEL);
+			if (id == IDCANCEL) {
+				ret = SEND_TCP(client, o_410, new char[1]{ 0 }, 0);
+				if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+			}
 			else if (id == IDOK) {
-				data[ret] = 0;
-				_beginthreadex(0, 0, SearchFile, (void*)data, 0, 0);
+				ret = SEND_TCP(client, o_411, new char[1]{ 0 }, 0);
+				if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+
 			}
 		}
 	}

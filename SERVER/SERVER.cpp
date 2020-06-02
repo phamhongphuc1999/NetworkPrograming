@@ -99,11 +99,11 @@ unsigned _stdcall ReleaseSession(void* param) {
 unsigned _stdcall ForwardFile(void* param) {
 	ForwardInfo* info = (ForwardInfo*)param;
 	bool check = false;
-	SESSION* session;
+	SESSION session;
 	for (SESSION* item : listSession) 
 		if (!strcmp(info->ID, item->ID)) {
 			check = true;
-			session = item;
+			session = *item;
 			break;
 		}
 	if (check) {
@@ -115,12 +115,15 @@ unsigned _stdcall ForwardFile(void* param) {
 		while (true)
 		{
 			ret = RECEIVE_TCP(info->client, opcode, data, 0);
-			if (ret == SOCKET_ERROR || strcmp(opcode, o_401)) break;
+			if (ret == SOCKET_ERROR) break;
 			data[ret] = 0;
 			if (!strcmp(data, "")) break;
 			payload.push_back(data);
 		}
 		printf("RECEIVE FINISH");
+		ret = SEND_TCP(session.connSock, o_200, info->ID, 0);
+		if (ret == SOCKET_ERROR) printf("Can not send from client[%s]", session.ID);
+
 	}
 	else {
 		int ret = SEND_TCP(info->client, o_203, new char[1]{ 0 }, 0);
@@ -247,7 +250,7 @@ unsigned _stdcall Handler(void* param) {
 					printf("FD_WRITE failed with error %d\n", sockEvent.iErrorCode[FD_WRITE_BIT]);
 					break;
 				}
-
+				continue;
 			}
 
 			if (sockEvent.lNetworkEvents & FD_CLOSE) {
