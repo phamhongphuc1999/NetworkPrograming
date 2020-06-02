@@ -20,3 +20,21 @@ list<string> CreatePayload(string pathToFile) {
 	file.close();
 	return result;
 }
+
+list<string> read_directory(const string& pathToFile)
+{
+	list<string> v;
+	string pattern(pathToFile);
+	pattern.append("\\*");
+	WIN32_FIND_DATA data;
+	HANDLE hFind;
+	if ((hFind = FindFirstFile(pattern.c_str(), &data)) != INVALID_HANDLE_VALUE) {
+		while (true)
+		{
+			v.push_back(data.cFileName);
+			if (FindNextFile(hFind, &data) == 0) break;
+		}
+		FindClose(hFind);
+	}
+	return v;
+}

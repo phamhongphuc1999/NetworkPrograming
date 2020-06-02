@@ -187,6 +187,7 @@ unsigned _stdcall Handler(void* param) {
 					break;
 				}
 				ret = RECEIVE_TCP(client[index].connSock, opcode, buffReceive, 0);
+				if (ret == SOCKET_ERROR) continue;
 				buffReceive[ret] = 0;
 				if (!strcmp(opcode, o_300)) {
 					ret = SEND_TCP(client[index].connSock, o_100, client[index].ID, 0);
@@ -198,6 +199,9 @@ unsigned _stdcall Handler(void* param) {
 					info.ID = new char[BUFF_SIZE];
 					strcpy_s(info.ID, strlen(buffReceive) + 1, buffReceive);
 					_beginthreadex(0, 0, ForwardFile, (void*)&info, 0, 0);
+				}
+				else if (!strcmp(opcode, o_310)) {
+					printf("%s\n", buffReceive);
 				}
 					
 				continue;
