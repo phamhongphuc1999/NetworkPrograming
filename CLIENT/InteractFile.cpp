@@ -38,3 +38,19 @@ list<string> read_directory(const string& pathToFile)
 	}
 	return v;
 }
+
+bool SearchFileByName(string fileName) {
+	string pattern("./data");
+	pattern.append("\\*");
+	WIN32_FIND_DATA data;
+	HANDLE hFind;
+	if ((hFind = FindFirstFile(pattern.c_str(), &data)) != INVALID_HANDLE_VALUE) {
+		while (true)
+		{
+			if (fileName == data.cFileName) return true;
+			if (FindNextFile(hFind, &data) == 0) break;
+		}
+		FindClose(hFind);
+	}
+	return false;
+}

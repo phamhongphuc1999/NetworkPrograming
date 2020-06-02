@@ -90,6 +90,21 @@ unsigned _stdcall ForwardFile(void* param) {
 	return 0;
 }
 
+unsigned _stdcall SearchFile(void* param) {
+	char* fileName = (char*)param;
+	string sFileName(fileName);
+	bool check = SearchFileByName(sFileName);
+	if (check) {
+		ret = SEND_TCP(client, o_321, fileName, 0);
+		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+	}
+	else {
+		ret = SEND_TCP(client, o_320, new char[1]{ 0 }, 0);
+		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+	}
+	return 0;
+}
+
 unsigned _stdcall ListenServer(void* param) {
 	int ret;
 	char* opcode = new char[10];
@@ -102,6 +117,22 @@ unsigned _stdcall ListenServer(void* param) {
 		else if (!strcmp(opcode, o_202)) {
 			MessageBox(hWnd, "Beginning upload file to server", "ANNOUNT", MB_OK);
 			_beginthreadex(0, 0, ForwardFile, NULL, 0, 0);
+		}
+		else if (!strcmp(opcode, o_120)) {
+			data[ret] = 0;
+			char* temp = "Request find file with name: ";
+			char* temp1 = "Do you allow find?";
+			strcat_s(temp, strlen(data) + strlen(temp) + 2, data);
+			strcat_s(temp, strlen(temp) + strlen(temp1) + 2, temp1);
+			int id = MessageBox(hWnd, _T(temp), "ANNOUNT", MB_OKCANCEL);
+			if (id == IDCANCEL) {
+				ret = SEND_TCP(client, o_320, new char[1]{ 0 }, 0);
+				if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+			}
+			else if (id == IDOK) {
+				data[ret] = 0;
+				_beginthreadex(0, 0, SearchFile, (void*)data, 0, 0);
+			}
 		}
 	}
 }
@@ -210,7 +241,7 @@ void OnBnClickedForward(HWND hWnd) {
 		if (IsFileExistOrValid(pathToFile) && (string)parnerID != "") {
 			strcpy_s(cPathToFile, strlen(pathToFile) + 1, pathToFile);
 			ret = SEND_TCP(client, o_400, parnerID, 0);
-			if (ret = SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+			if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 		}
 		else {
 			MessageBox(hWnd, "Wrong your path of file or parner ID", "ERROR", MB_OK);
@@ -224,10 +255,10 @@ void OnBnClickedSearch(HWND hWnd) {
 	TCHAR* fileName = new TCHAR[BUFF_SIZE];
 	GetWindowText(eFileName, fileName, BUFF_SIZE);
 	char* cFileName = fileName;
-	if (strcmp(cFileName, fileName)) MessageBox(hWnd, "Must be enter file name", "ANNOUNT", MB_OK);
+	if (!strcmp(cFileName, "")) MessageBox(hWnd, "Must be enter file name", "ANNOUNT", MB_OK);
 	else {
-		ret = SEND_TCP(client, o_310, fileName, 0);
-		if (ret = SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+		ret = SEND_TCP(client, o_310, cFileName, 0);
+		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 	}
 }
 

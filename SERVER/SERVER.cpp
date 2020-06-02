@@ -18,6 +18,12 @@ struct ForwardInfo {
 	char* ID;
 };
 
+struct SearchInfo {
+	SOCKET client;
+	char* ID;
+	char* fileName;
+};
+
 int main()
 {
 	WSADATA wsaData;
@@ -123,6 +129,29 @@ unsigned _stdcall ForwardFile(void* param) {
 	return 0;
 }
 
+unsigned _stdcall SearchFile(void* param) {
+	SearchInfo* info = (SearchInfo*)param;
+	char* opcode = new char[10];
+	char* data = new char[BUFF_SIZE];
+	list<char*> lClient;
+	int ret;
+	for (SESSION* item : listSession) {
+		if (strcmp(item->ID, info->ID)) {
+			ret = SEND_TCP(item->connSock, o_120, info->fileName, 0);
+			if (ret == SOCKET_ERROR) continue;
+		}
+	}
+	for (SESSION* item : listSession) {
+		if (strcmp(item->ID, info->ID)) {
+			ret = RECEIVE_TCP(item->connSock, opcode, data, 0);
+			if (ret == SOCKET_ERROR) continue;
+			if (!strcmp(opcode, o_321)) lClient.push_back(item->ID);
+		}
+	}
+
+	return 0;
+}
+
 unsigned _stdcall Handler(void* param) {
 	SOCKET listenSocket = (SOCKET)param;
 	sockaddr_in clientAddr;
@@ -201,7 +230,13 @@ unsigned _stdcall Handler(void* param) {
 					_beginthreadex(0, 0, ForwardFile, (void*)&info, 0, 0);
 				}
 				else if (!strcmp(opcode, o_310)) {
-					printf("%s\n", buffReceive);
+					SearchInfo info;
+					info.client = client[index].connSock;
+					info.ID = new char[BUFF_SIZE];
+					info.fileName = new char[BUFF_SIZE];
+					strcpy_s(info.ID, strlen(client[index].ID) + 1, client[index].ID);
+					strcpy_s(info.fileName, strlen(buffReceive) + 1, buffReceive);
+					_beginthreadex(0, 0, SearchFile, (void*)&info, 0, 0);
 				}
 					
 				continue;
