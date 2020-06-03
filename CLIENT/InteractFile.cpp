@@ -21,10 +21,10 @@ list<string> CreatePayload(string pathToFile) {
 	return result;
 }
 
-list<string> read_directory(const string& pathToFile)
+list<string> read_directory(const string& pathToFolder)
 {
 	list<string> v;
-	string pattern(pathToFile);
+	string pattern(pathToFolder);
 	pattern.append("\\*");
 	WIN32_FIND_DATA data;
 	HANDLE hFind;
@@ -37,6 +37,13 @@ list<string> read_directory(const string& pathToFile)
 		FindClose(hFind);
 	}
 	return v;
+}
+
+string GetFileName(const string& str)
+{
+	size_t found;
+	found = str.find_last_of("/\\");
+	return str.substr(found + 1);
 }
 
 bool SearchFileByName(string fileName) {

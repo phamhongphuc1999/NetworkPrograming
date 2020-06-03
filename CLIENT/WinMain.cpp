@@ -69,7 +69,7 @@ void InitializeController(HWND hWnd) {
 	eFile = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 90, 350, 20, hWnd, (HMENU)editFile, NULL, NULL);
 	eFileName = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 200, 350, 20, hWnd, (HMENU)editFileName, NULL, NULL);
 	eParnerId = CreateWindow("Edit", "", WS_CHILD | SW_HIDE | WS_BORDER, 100, 120, 350, 20, hWnd, (HMENU)editParnerId, NULL, NULL);
-	eIdDetail = CreateWindow("Edit", "", WS_VISIBLE | WS_CHILD, 480, 0, 180, 20, hWnd, (HMENU)editIdDetail, NULL, NULL);
+	eIdDetail = CreateWindow("Edit", "", WS_VISIBLE | WS_CHILD | ES_READONLY, 480, 0, 180, 20, hWnd, (HMENU)editIdDetail, NULL, NULL);
 
 	sFile = CreateWindow("STATIC", "Address", WS_VISIBLE | WS_CHILD | SS_RIGHT, 30, 90, 55, 20, hWnd, (HMENU)staticFile, NULL, NULL);
 	sFileName = CreateWindow("STATIC", "Port", WS_VISIBLE | WS_CHILD | SS_RIGHT, 20, 200, 65, 20, hWnd, (HMENU)staticFileName, NULL, NULL);
@@ -78,20 +78,33 @@ void InitializeController(HWND hWnd) {
 }
 
 #pragma region LISTEN SERVER
-unsigned _stdcall ForwardFile(void* param) {
-	string pathToFile(cPathToFile);
-	list<string> payload = CreatePayload(pathToFile);
-	for (string data : payload) {
-		ret = SEND_TCP(client, o_401, StringToChars(data), 0);
-		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not receive file from server", "ERROR", MB_OK);
+unsigned _stdcall ForwardFileToClient(void* param) {
+	list<char*> payload;
+	char* opcode = new char[10];
+	char* data = new char[BUFF_SIZE];
+	while (true)
+	{
+		ret = RECEIVE_TCP(client, opcode, data, 0);
+		if (ret == SOCKET_ERROR) break;
+		data[ret] = 0;
+		if (!strcmp(data, "")) break;
+		payload.push_back(data);
 	}
-	ret = SEND_TCP(client, o_401, new char[1]{ 0 }, 0);
-	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not receive file from server", "ERROR", MB_OK);
+	
 	return 0;
 }
 
-unsigned _stdcall ForwardFileToClient(void* param) {
-
+unsigned _stdcall ForwardFile(void* param) {
+	string pathToFile(cPathToFile);
+	list<string> payload = CreatePayload(pathToFile);
+	SEND_TCP(client, o_401, StringToChars(GetFileName(pathToFile)), 0);
+	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send file from server", "ERROR", MB_OK);
+	for (string data : payload) {
+		ret = SEND_TCP(client, o_401, StringToChars(data), 0);
+		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send file from server", "ERROR", MB_OK);
+	}
+	ret = SEND_TCP(client, o_401, new char[1]{ 0 }, 0);
+	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send file from server", "ERROR", MB_OK);
 	return 0;
 }
 
@@ -118,7 +131,10 @@ unsigned _stdcall ListenServer(void* param) {
 	{
 		ret = RECEIVE_TCP(client, opcode, data, 0);
 		if (ret == SOCKET_ERROR) continue;
-		else if (!strcmp(opcode, o_203)) MessageBox(hWnd, "Can not find ID", "ERROR", MB_OK);
+		else if (!strcmp(opcode, o_203)) {
+			MessageBox(hWnd, "Can not find ID", "ERROR", MB_OK);
+			SetWindowTextA(eParnerId, "");
+		}
 		else if (!strcmp(opcode, o_202)) {
 			MessageBox(hWnd, "Beginning upload file to server", "ANNOUNT", MB_OK);
 			_beginthreadex(0, 0, ForwardFile, NULL, 0, 0);
@@ -135,7 +151,6 @@ unsigned _stdcall ListenServer(void* param) {
 				if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 			}
 			else if (id == IDOK) _beginthreadex(0, 0, SearchFile, (void*)data, 0, 0);
-			
 		}
 		else if (!strcmp(opcode, o_200)) {
 			data[ret] = 0;
@@ -149,7 +164,7 @@ unsigned _stdcall ListenServer(void* param) {
 			else if (id == IDOK) {
 				ret = SEND_TCP(client, o_411, new char[1]{ 0 }, 0);
 				if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
-
+				_beginthreadex(0, 0, ForwardFileToClient, NULL, 0, 0);
 			}
 		}
 	}
@@ -281,6 +296,7 @@ void OnBnClickedSearch(HWND hWnd) {
 }
 
 void OnBnClickedBrowse(HWND hWnd) {
+	
 	OPENFILENAME ofn;
 	char szFile[100];
 	ZeroMemory(&ofn, sizeof(ofn));

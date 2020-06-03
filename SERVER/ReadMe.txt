@@ -22,8 +22,8 @@ data: phần còn lại của gói tin gửi đi, chứ dữ liệu cần truy�
 120: gửi yêu cầu tìm kiếm file đến client
 200: yêu cầu chuyển tiếp file về client
 201: tải file chuyển tiếp về client
-202: ID do client gửi lên có thể kết nối
-203: ID do client gửi lên không thể kết nối
+202: ID do client gửi lên có thể kết nối và được phép chuyển tiếp
+203: ID do client gửi lên không thể kết nối hoặc bị từ chối chuyển tiếp
 *CLIENT:
 300: yêu cầu kết nối và gửi ID
 310: gửi yêu cầu tìm kiếm file
@@ -31,6 +31,6 @@ data: phần còn lại của gói tin gửi đi, chứ dữ liệu cần truy�
 320: không tìm thấy tên file trong trường data
 321: tìm thấy tên file trong trường data
 400: gửi ID của người cần chuyển tiếp file đến, chuẩn bị truyền file lên server
-401: yêu cầu chuyển tiếp file và tải file lên server
+401: yêu cầu chuyển tiếp file và tải file lên server, lần tải đầu tiên sẽ tải tên file lên server
 410: không cho chuyển tiếp file về client
 411: cho phép chuyển tiếp file về client

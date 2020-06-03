@@ -98,6 +98,9 @@ unsigned _stdcall ReleaseSession(void* param) {
 
 unsigned _stdcall ForwardFile(void* param) {
 	ForwardInfo* info = (ForwardInfo*)param;
+	char* data = new char[BUFF_SIZE];
+	char* fileName = new char[BUFF_SIZE];
+	char* opcode = new char[10];
 	bool check = false;
 	SESSION session;
 	for (SESSION* item : listSession) 
@@ -107,27 +110,35 @@ unsigned _stdcall ForwardFile(void* param) {
 			break;
 		}
 	if (check) {
-		int ret = SEND_TCP(info->client, o_202, new char[1]{ 0 }, 0);
-		if (ret == SOCKET_ERROR) printf("Can not send from client[%s]", info->ID);
-		list<char*> payload;
-		char* opcode = new char[10];
-		char* data = new char[BUFF_SIZE];
-		while (true)
-		{
-			ret = RECEIVE_TCP(info->client, opcode, data, 0);
-			if (ret == SOCKET_ERROR) break;
-			data[ret] = 0;
-			if (!strcmp(data, "")) break;
-			payload.push_back(data);
+		int ret = SEND_TCP(session.connSock, o_200, info->ID, 0);
+		if (ret == SOCKET_ERROR) printf("Can not send from client[%s]\n", session.ID);
+		ret = RECEIVE_TCP(session.connSock, opcode, data, 0);
+		if (ret == SOCKET_ERROR) printf("Can not receive from client[%s]\n", session.ID);
+		if (!strcmp(opcode, o_410)) {
+			int ret = SEND_TCP(info->client, o_203, new char[1]{ 0 }, 0);
+			if (ret == SOCKET_ERROR) printf("Can not send from client[%s]\n", info->ID);
 		}
-		printf("RECEIVE FINISH");
-		ret = SEND_TCP(session.connSock, o_200, info->ID, 0);
-		if (ret == SOCKET_ERROR) printf("Can not send from client[%s]", session.ID);
-
+		else {
+			list<char*> payload;
+			ret = SEND_TCP(info->client, o_202, new char[1]{ 0 }, 0);
+			if (ret == SOCKET_ERROR) printf("Can not send from client[%s]\n", info->ID);
+			ret = RECEIVE_TCP(info->client, opcode, fileName, 0);
+			if (ret == SOCKET_ERROR) printf("Can not receive to client[%s]\n", info->ID);
+			fileName[ret] = 0;
+			while (true)
+			{
+				ret = RECEIVE_TCP(info->client, opcode, data, 0);
+				if (ret == SOCKET_ERROR) printf("Can not receive to client[%s]\n", info->ID);
+				data[ret] = 0;
+				if (!strcmp(data, "")) break;
+				payload.push_back(data);
+			}
+			printf("RECEIVE FINISH\n");
+		}
 	}
 	else {
 		int ret = SEND_TCP(info->client, o_203, new char[1]{ 0 }, 0);
-		if (ret == SOCKET_ERROR) printf("Can not send from client[%s]", info->ID);
+		if (ret == SOCKET_ERROR) printf("Can not send from client[%s]\n", info->ID);
 	}
 	return 0;
 }
