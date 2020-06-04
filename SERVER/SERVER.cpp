@@ -156,6 +156,49 @@ unsigned _stdcall SEND(void* param) {
 	return 0;
 }
 
+unsigned _stdcall ForwardFile(void* param) {
+	SESSION* client = (SESSION*)param;
+	char* data = new char[BUFF_SIZE];
+	char* opcode = new char[20];
+	char* parnerID = new char[30];
+	char* fileName = new char[BUFF_SIZE];
+	list<char*> payload;
+	int ret = RECEIVE_TCP(client->connSock, opcode, parnerID, 0);
+	if (ret == SOCKET_ERROR) printf("can not receive from client[%s]\n", client->ID);
+	parnerID[ret] = 0;
+	ret = RECEIVE_TCP(client->connSock, opcode, fileName, 0);
+	if (ret == SOCKET_ERROR) printf("can not receive from client[%s]\n", client->ID);
+	fileName[ret] = 0;
+	while (true)
+	{
+		ret = RECEIVE_TCP(client->connSock, opcode, data, 0);
+		if (ret == SOCKET_ERROR) break;
+		data[ret] = 0;
+		if (!strcmp(data, "")) break;
+		payload.push_back(data);
+	}
+	printf("RECEIVE FILE FINISH\n");
+	SESSION parner;
+	for (SESSION* item : listSession) {
+		if (!strcmp(item->ID, parnerID)) {
+			parner = *item;
+			break;
+		}
+	}
+	ret = SEND_TCP(parner.connSock, o_201, new char[1]{ 0 }, 0);
+	if (ret == SOCKET_ERROR) printf("can not send from client[%s]\n", parner.ID);
+	ret = SEND_TCP(parner.connSock, o_201, fileName, 0);
+	if (ret == SOCKET_ERROR) printf("can not send from client[%s]\n", parner.ID);
+	for (char* item : payload) {
+		ret = SEND_TCP(parner.connSock, o_201, item, 0);
+		if (ret == SOCKET_ERROR) printf("can not send from client[%s]\n", parner.ID);
+	}
+	ret = SEND_TCP(parner.connSock, o_201, new char[1]{ 0 }, 0);
+	if (ret == SOCKET_ERROR) printf("can not send from client[%s]\n", parner.ID);
+
+	return 0;
+}
+
 unsigned _stdcall Handler(void* param) {
 	SOCKET listenSocket = (SOCKET)param;
 	sockaddr_in clientAddr;
@@ -243,6 +286,10 @@ unsigned _stdcall Handler(void* param) {
 					info.parnerID = new char[BUFF_SIZE];
 					strcpy_s(info.parnerID, strlen(buffReceive) + 1, buffReceive);
 					_beginthreadex(0, 0, SearchSessionByID, (void*)&info, 0, 0);
+				}
+
+				else if (!strcmp(opcode, o_401)) {
+					_beginthreadex(0, 0, ForwardFile, (void*)&client[index], 0, 0);
 				}
 
 				else if (!strcmp(opcode, o_410)) {
