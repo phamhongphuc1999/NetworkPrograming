@@ -100,24 +100,7 @@ unsigned _stdcall GetForwardFile(void* param) {
 }
 
 unsigned _stdcall ForwardFile(void* param) {
-	TCHAR* pathToFile = new TCHAR[1024];
-	TCHAR* parnerID = new TCHAR[1024];
-	GetWindowText(eFile, pathToFile, 1024);
-	GetWindowText(eParnerId, parnerID, 1024);
-	string sPathToFile(pathToFile);
-	list<string> payload = CreatePayload(sPathToFile);
-	ret = SEND_TCP(client, o_401, new char[1]{ 0 }, 0);
-	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send file from server", "ERROR", MB_OK);
-	ret = SEND_TCP(client, o_401, parnerID, 0);
-	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send file from server", "ERROR", MB_OK);
-	ret = SEND_TCP(client, o_401, StringToChars(GetFileName(sPathToFile)), 0);
-	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send file from server", "ERROR", MB_OK);
-	for (string data : payload) {
-		ret = SEND_TCP(client, o_401, StringToChars(data), 0);
-		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send file from server", "ERROR", MB_OK);
-	}
-	ret = SEND_TCP(client, o_401, new char[1]{ 0 }, 0);
-	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send file from server", "ERROR", MB_OK);
+
 	return 0;
 }
 
@@ -174,7 +157,7 @@ unsigned _stdcall ListenServer(void* param) {
 			}
 		}
 
-		else if (!strcmp(opcode, o_201)) {
+		else if (!strcmp(opcode, o_204)) {
 			_beginthreadex(0, 0, GetForwardFile, NULL, 0, 0);
 		}
 
