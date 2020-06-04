@@ -4,6 +4,9 @@
 #include <list>
 
 void InitiateSession(struct SESSION* session) {
+	session->info.fileName = new char[BUFF_SIZE];
+	session->info.parnerID = new char[BUFF_SIZE];
+	session->info.payload.clear();
 	session->connSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	session->connSock = 0;
 }

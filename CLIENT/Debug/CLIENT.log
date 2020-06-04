@@ -1,9 +1,3 @@
-﻿  WinMain.cpp
-d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(33): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(38): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(334): warning C4101: 'hdc': unreferenced local variable
-d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(333): warning C4101: 'ps': unreferenced local variable
-d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(332): warning C4101: 'hwndButton': unreferenced local variable
-d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(224): warning C4715: 'BnClickedMakeConnect': not all control paths return a value
+﻿  TCP_SOCKET.cpp
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\CLIENT.exe
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\CLIENT.pdb (Partial PDB)

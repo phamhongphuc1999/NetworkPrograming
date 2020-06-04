@@ -98,19 +98,20 @@ unsigned _stdcall ReleaseSession(void* param) {
 
 unsigned _stdcall SearchFile(void* param) {
 	SearchInfo* info = (SearchInfo*)param;
+	int offset = 0;
 	char* opcode = new char[10];
 	char* data = new char[BUFF_SIZE];
 	list<char*> lClient;
 	int ret;
 	for (SESSION* item : listSession) {
 		if (strcmp(item->ID, info->ID)) {
-			ret = SEND_TCP(item->connSock, o_120, info->fileName, 0);
+			ret = SEND_TCP(item->connSock, o_120, info->fileName, 0, 0);
 			if (ret == SOCKET_ERROR) continue;
 		}
 	}
 	for (SESSION* item : listSession) {
 		if (strcmp(item->ID, info->ID)) {
-			ret = RECEIVE_TCP(item->connSock, opcode, data, 0);
+			ret = RECEIVE_TCP(item->connSock, opcode, data, 0, &offset);
 			if (ret == SOCKET_ERROR) continue;
 			if (!strcmp(opcode, o_321)) lClient.push_back(item->ID);
 		}
@@ -131,14 +132,35 @@ unsigned _stdcall SearchSessionByID(void* param) {
 		}
 	}
 	if (check) {
-		int ret = SEND_TCP(session.connSock, o_200, info->client->ID, 0);
+		strcpy_s(info->client->info.parnerID, strlen(info->parnerID), info->parnerID);
+		int ret = SEND_TCP(session.connSock, o_200, info->client->ID, 0, 0);
 		if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", info->parnerID);
 	}
 	else {
-		int ret = SEND_TCP(info->client->connSock, o_203, info->parnerID, 0);
+		int ret = SEND_TCP(info->client->connSock, o_203, info->parnerID, 0, 0);
 		if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", info->client->ID);
 	}
 
+	return 0;
+}
+
+unsigned _stdcall ForwardFileToClient(void* param) {
+	SESSION* session = (SESSION*)param;
+	SESSION parnerSession;
+	for (SESSION* item : listSession) {
+		if (!strcmp(item->ID, session->info.parnerID)) {
+			parnerSession = *item;
+			break;
+		}
+	}
+	int ret = SEND_TCP(parnerSession.connSock, o_201, session->info.fileName, 0, 0);
+	if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", parnerSession.ID);
+	for (char* data : session->info.payload) {
+		ret = SEND_TCP(parnerSession.connSock, o_201, data, 0, 1);
+		if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", parnerSession.ID);
+	}
+	ret = SEND_TCP(parnerSession.connSock, o_201, new char[1]{ 0 }, 0, 1);
+	if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", parnerSession.ID);
 	return 0;
 }
 
@@ -151,13 +173,8 @@ unsigned _stdcall SEND(void* param) {
 			break;
 		}
 	}
-	int ret = SEND_TCP(session.connSock, info[1], info[2], 0);
+	int ret = SEND_TCP(session.connSock, info[1], info[2], 0, 0);
 	if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", session.ID);
-	return 0;
-}
-
-unsigned _stdcall ForwardFile(void* param) {
-	
 	return 0;
 }
 
@@ -167,7 +184,7 @@ unsigned _stdcall Handler(void* param) {
 	char buffReceive[BUFF_SIZE], buffSend[BUFF_SIZE], opcode[BUFF_SIZE];
 	char username[2048], password[2048];
 	char* result = new char[10];
-	int ret, clientAddrLen = sizeof(clientAddr);
+	int ret, offset = 0, clientAddrLen = sizeof(clientAddr);
 	DWORD nEvents = MAKEWORD(0, 0), i, index;
 	SOCKET connSock;
 
@@ -224,11 +241,11 @@ unsigned _stdcall Handler(void* param) {
 					printf("FD_READ failed with error %d\n", sockEvent.iErrorCode[FD_READ_BIT]);
 					break;
 				}
-				ret = RECEIVE_TCP(client[index].connSock, opcode, buffReceive, 0);
+				ret = RECEIVE_TCP(client[index].connSock, opcode, buffReceive, 0, &offset);
 				if (ret == SOCKET_ERROR) continue;
 				buffReceive[ret] = 0;
 				if (!strcmp(opcode, o_300)) {
-					ret = SEND_TCP(client[index].connSock, o_100, client[index].ID, 0);
+					ret = SEND_TCP(client[index].connSock, o_100, client[index].ID, 0, 0);
 					if (ret == SOCKET_ERROR) printf("Cause error\n");
 				}
 
@@ -243,15 +260,20 @@ unsigned _stdcall Handler(void* param) {
 				}
 
 				else if (!strcmp(opcode, o_400)) {
-					ForwardInfo info;
-					info.client = &client[index];
-					info.parnerID = new char[BUFF_SIZE];
-					strcpy_s(info.parnerID, strlen(buffReceive) + 1, buffReceive);
-					_beginthreadex(0, 0, SearchSessionByID, (void*)&info, 0, 0);
+					if (offset == 0) {
+						strcpy_s(client[index].info.parnerID, strlen(buffReceive), buffReceive);
+						printf("%s\n", buffReceive);
+					}
+					else if (offset == 1) {
+						strcpy_s(client[index].info.fileName, strlen(buffReceive), buffReceive);
+						printf("%s\n", buffReceive);
+					}
 				}
 
-				else if (!strcmp(opcode, o_402)) {
-					_beginthreadex(0, 0, ForwardFile, (void*)&client[index], 0, 0);
+				else if (!strcmp(opcode, o_401)) {
+					if (!strcmp(buffReceive, "")) 
+						_beginthreadex(0, 0, ForwardFileToClient, (void*)&client[index], 0, 0);
+					else client[index].info.payload.push_back(buffReceive);
 				}
 
 				else if (!strcmp(opcode, o_410)) {

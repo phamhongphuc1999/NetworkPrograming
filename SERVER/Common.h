@@ -7,8 +7,16 @@
 #include <WS2tcpip.h>
 using namespace std;
 
+struct ForwardSession
+{
+	char* parnerID;
+	char* fileName;
+	list<char*> payload;
+};
+
 struct SESSION {
 	char* ID;
+	ForwardSession info;
 	SOCKET connSock;
 	list<SESSION*>::iterator position;
 };

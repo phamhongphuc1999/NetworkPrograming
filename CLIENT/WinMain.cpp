@@ -18,6 +18,7 @@ sockaddr_in serverAddr;
 int ret;
 char* cPathToFile = new char[BUFF_SIZE];
 char* cParnerID = new char[BUFF_SIZE];
+list<char*> payload;
 #pragma endregion
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -79,28 +80,16 @@ void InitializeController(HWND hWnd) {
 }
 
 #pragma region LISTEN SERVER
-unsigned _stdcall GetForwardFile(void* param) {
-	list<char*> payload;
-	char* opcode = new char[10];
-	char* data = new char[BUFF_SIZE];
-	char* fileName = new char[BUFF_SIZE];
-	ret = RECEIVE_TCP(client, opcode, fileName, 0);
-	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not receive from server", "ERROR", MB_OK);
-	fileName[ret] = 0;
-	while (true)
-	{
-		ret = RECEIVE_TCP(client, opcode, data, 0);
-		if (ret == SOCKET_ERROR) break;
-		data[ret] = 0;
-		if (!strcmp(data, "")) break;
-		payload.push_back(data);
-	}
-	MessageBox(hWnd, "RECEIVE FORWARD FILE FINISH", "ANNOUNT", MB_OK);
-	return 0;
-}
-
 unsigned _stdcall ForwardFile(void* param) {
-	
+	TCHAR* pathToFile = new TCHAR[1024];
+	GetWindowText(eFile, pathToFile, 1024);
+	list<string> payload = CreatePayload(pathToFile);
+	for (string data : payload) {
+		ret = SEND_TCP(client, o_401, StringToChars(data), 0, 0);
+		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+	}
+	ret = SEND_TCP(client, o_401, new char[1]{ 0 }, 0, 0);
+	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 	return 0;
 }
 
@@ -109,23 +98,23 @@ unsigned _stdcall SearchFile(void* param) {
 	string sFileName(fileName);
 	bool check = SearchFileByName(sFileName);
 	if (check) {
-		ret = SEND_TCP(client, o_321, fileName, 0);
+		ret = SEND_TCP(client, o_321, fileName, 0, 0);
 		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 	}
 	else {
-		ret = SEND_TCP(client, o_320, new char[1]{ 0 }, 0);
+		ret = SEND_TCP(client, o_320, new char[1]{ 0 }, 0, 0);
 		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 	}
 	return 0;
 }
 
 unsigned _stdcall ListenServer(void* param) {
-	int ret;
+	int ret, offset;
 	char* opcode = new char[10];
 	char* data = new char[BUFF_SIZE];
 	while (true)
 	{
-		ret = RECEIVE_TCP(client, opcode, data, 0);
+		ret = RECEIVE_TCP(client, opcode, data, 0, &offset);
 		if (ret == SOCKET_ERROR) continue;
 
 		else if (!strcmp(opcode, o_120)) {
@@ -136,7 +125,7 @@ unsigned _stdcall ListenServer(void* param) {
 			strcat_s(temp, strlen(temp) + strlen(temp1) + 1, temp1);
 			int id = MessageBox(hWnd, _T(temp), "ANNOUNT", MB_OKCANCEL);
 			if (id == IDCANCEL) {
-				ret = SEND_TCP(client, o_320, new char[1]{ 0 }, 0);
+				ret = SEND_TCP(client, o_320, new char[1]{ 0 }, 0, 0);
 				if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 			}
 			else if (id == IDOK) _beginthreadex(0, 0, SearchFile, (void*)data, 0, 0);
@@ -148,17 +137,17 @@ unsigned _stdcall ListenServer(void* param) {
 			strcat_s(temp, strlen(temp) + strlen(data) + 1, data);
 			int id = MessageBox(hWnd, _T(temp), "ANNOUNT", MB_OKCANCEL);
 			if (id == IDCANCEL) {
-				ret = SEND_TCP(client, o_410, data, 0);
+				ret = SEND_TCP(client, o_410, data, 0, 0);
 				if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 			}
 			else if (id == IDOK) {
-				ret = SEND_TCP(client, o_411, data, 0);
+				ret = SEND_TCP(client, o_411, data, 0, 0);
 				if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 			}
 		}
 
-		else if (!strcmp(opcode, o_204)) {
-			_beginthreadex(0, 0, GetForwardFile, NULL, 0, 0);
+		else if (!strcmp(opcode, o_201)) {
+
 		}
 
 		else if (!strcmp(opcode, o_203)) {
@@ -212,12 +201,13 @@ int BnClickedMakeConnect(char* address, u_short port) {
 	serverAddr.sin_port = htons(port);
 	serverAddr.sin_addr.s_addr = inet_addr(address);
 	if (connect(client, (sockaddr*)&serverAddr, sizeof(serverAddr))) return -2;
-	ret = SEND_TCP(client, o_300, new char[1]{ 0 }, 0);
+	ret = SEND_TCP(client, o_300, new char[1]{ 0 }, 0, 0);
 	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
 
+	int offset = 0;
 	char* opcode = new char[10];
 	char* buff = new char[BUFF_SIZE];
-	ret = RECEIVE_TCP(client, opcode, buff, 0);
+	ret = RECEIVE_TCP(client, opcode, buff, 0, &offset);
 	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
 	buff[ret] = 0;
 	if (!strcmp(opcode, o_100)) SetWindowTextA(eIdDetail, buff);
@@ -278,7 +268,9 @@ void OnBnClickedForward(HWND hWnd) {
 		if (IsFileExistOrValid(pathToFile) && (string)parnerID != "") {
 			strcpy_s(cPathToFile, strlen(pathToFile) + 1, pathToFile);
 			strcpy_s(cParnerID, strlen(parnerID) + 1, parnerID);
-			ret = SEND_TCP(client, o_400, parnerID, 0);
+			ret = SEND_TCP(client, o_400, cParnerID, 0, 0);
+			if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+			ret = SEND_TCP(client, o_400, StringToChars(GetFileName(pathToFile)), 0, 1);
 			if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 		}
 		else {
@@ -295,7 +287,7 @@ void OnBnClickedSearch(HWND hWnd) {
 	char* cFileName = fileName;
 	if (!strcmp(cFileName, "")) MessageBox(hWnd, "Must be enter file name", "ANNOUNT", MB_OK);
 	else {
-		ret = SEND_TCP(client, o_310, cFileName, 0);
+		ret = SEND_TCP(client, o_310, cFileName, 0, 0);
 		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 	}
 }
