@@ -27,9 +27,10 @@
 - 112: tải file từ server về client
 - 120: gửi yêu cầu tìm kiếm file đến client
 - 200: yêu cầu chuyển tiếp file về client
-- 201: tải file chuyển tiếp về client, lần đầu không có dữ liệu để thông báo, lần hai tải tên file, các lần sau là dữ liệu của file, lần cuối không mang dữ liệu để thông báo kết thúc
+- 201: tải file chuyển tiếp về client, lần đầu tải tên file, các lần sau là dữ liệu của file, lần cuối không mang dữ liệu để thông báo kết thúc
 - 202: ID do client gửi lên có thể kết nối và được phép chuyển tiếp
 - 203: ID do client gửi lên không thể kết nối hoặc bị từ chối chuyển tiếp
+- 204: thông báo chuẩn bị tải file chuyển tiếp về client
 #### CLIENT:
 - 300: yêu cầu kết nối và gửi ID
 - 310: gửi yêu cầu tìm kiếm file
@@ -37,8 +38,8 @@
 - 320: không tìm thấy tên file trong trường data
 - 321: tìm thấy tên file trong trường data
 - 400: gửi ID của người cần chuyển tiếp file đến, chuẩn bị truyền file lên server
-- 401: yêu cầu chuyển tiếp file và tải file lên server, lần tải đầu tiên không có dữ liệu để thông báo, lần hai tải id người nhận, lần ba tải tên file, các lần sau là dữ liệu của file, lần cuối không có dữ liệu
-	   để thông báo kết thúc
+- 401: lần đầu tải id người nhận, lần hai tải tên file, các lần sau là dữ liệu của file, lần cuối không có dữ liệu để thông báo kết thúc
+- 402: thông báo chuẩn bị tải file chuyển tiếp lên server
 - 410: không cho chuyển tiếp file về client
 - 411: cho phép chuyển tiếp file về client
 
