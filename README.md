@@ -1,9 +1,9 @@
 # bài tập lớn môn lập trình mạng
 ## Server có các chức năng sau:
-- Nhận yêu cầu tìm kiếm file (theo tên file) của client A nào đó
+- Nhận yêu cầu tìm kiếm file (theo tên file) của client nào đó
 - Gửi lệnh tìm kiếm tới các client khác đang kết nối
-- Gửi lại cho client A danh sách các client có file mà client A tìm kiếm
-- Chuyển tiếp file khi client A yêu cầu 
+- Gửi lại cho client danh sách các client có file mà client tìm kiếm
+- Chuyển tiếp file khi client yêu cầu 
 ## Client có các chức năng sau:
 - Gửi yêu cầu tìm kiếm một file lên server
 - Nhận danh sách  các client có file mà client yêu cầu tìm kiếm
@@ -15,9 +15,7 @@
 - offset: 1 phần tử tiếp theo, là phần mở rộng chức năng cho opcode
 - length: 10 phần tử tiếp theo trong mảng, chứa kích thức của data
 - data: phần còn lại của gói tin gửi đi, chứa dữ liệu cần truyền
-### mỗi client có ít nhất 1 kết nối(TCP) đến server
-- Luồng nhận dữ liệu: có một luồng nhận chính chỉ lắng nghe yêu cầu của server, nếu có yêu cầu mới thì tạo luồng khác xử lý yêu cầu đó
-- Luồng gửi dữ liệu: nếu tác vụ gửi dữ liệu kéo dài(như gửi file lên server) thì tạo luồng khác để xử lý yêu cầu đó
+
 ### Định nghĩa opcode
 #### 1xx, 2xx: server gửi tín hiệu cho client
 #### 3xx, 4xx: client gửi tín hiệu cho server
@@ -28,7 +26,9 @@
 - 112: tải file từ server về client
 - 120: gửi yêu cầu tìm kiếm file đến client
 - 200: yêu cầu chuyển tiếp file về client
-- 201: tải file chuyển tiếp về client, lần đầu tải tên file, các lần sau là dữ liệu của file, lần cuối không mang dữ liệu để thông báo kết thúc
+- 201: tải file chuyển tiếp về client, 
+       lần đầu tải tên file có offset bằng 0, 
+       các lần sau là dữ liệu của file, lần cuối không mang dữ liệu để thông báo kết thúc có offset bằng 1
 - 202: ID do client gửi lên có thể kết nối và được phép chuyển tiếp
 - 203: ID do client gửi lên không thể kết nối hoặc bị từ chối chuyển tiếp
 #### CLIENT:
@@ -37,7 +37,8 @@
 - 311: tải file từ client được chỉ định bởi client khác lên server
 - 320: không tìm thấy tên file trong trường data
 - 321: tìm thấy tên file trong trường data
-- 400: gửi ID của người cần chuyển tiếp file đến, sau đó gửi file name
+- 400: gửi ID của người nhận có offset bằng 0
+       sau đó gửi fileName có offset bằng 1
 - 401: gửi lần lượt từng gói dữ liệu đến server, lần cuối không có dữ liệu để thông báo kết thúc
 - 410: không cho chuyển tiếp file về client
 - 411: cho phép chuyển tiếp file về client
@@ -45,3 +46,4 @@
 ## tài liệu tham khảo
 - https://docs.microsoft.com/en-us/windows/win32/controls/user-controls-intro
 - https://stackoverflow.com/questions/7598067/how-to-create-a-windows-style-textbox-in-a-c-win32-application
+- https://stackoverflow.com/questions/8520560/get-a-file-name-from-a-path
