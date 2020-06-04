@@ -21,6 +21,11 @@ char* cParnerID = new char[BUFF_SIZE];
 list<char*> payload;
 #pragma endregion
 
+struct PAYLOAD
+{
+	list<char*> data;
+};
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
@@ -93,6 +98,21 @@ unsigned _stdcall ForwardFile(void* param) {
 	return 0;
 }
 
+unsigned _stdcall SaveForwardFile(void* param) {
+	PAYLOAD* payload = (PAYLOAD*)param;
+	string fileName(*payload->data.begin());
+	fstream f; f.open(fileName, ios::out);
+	list<char*>::iterator pointer = payload->data.begin();
+	pointer++;
+	for (; pointer != payload->data.end(); pointer++) {
+		string temp(*pointer);
+		f << temp;
+	}
+	f.close();
+	MessageBox(hWnd, "RECEIVE FORWARD FILE FINISH", "ANNOUNT", MB_OK);
+	return 0;
+}
+
 unsigned _stdcall SearchFile(void* param) {
 	char* fileName = (char*)param;
 	string sFileName(fileName);
@@ -112,13 +132,14 @@ unsigned _stdcall ListenServer(void* param) {
 	int ret, offset;
 	char* opcode = new char[10];
 	char* data = new char[BUFF_SIZE];
+	//char* fileName = new char[BUFF_SIZE];
+	PAYLOAD payload;
 	while (true)
 	{
 		ret = RECEIVE_TCP(client, opcode, data, 0, &offset);
 		if (ret == SOCKET_ERROR) continue;
-
-		else if (!strcmp(opcode, o_120)) {
-			data[ret] = 0;
+		data[ret] = 0;
+		if (!strcmp(opcode, o_120)) {
 			char* temp = new char[100]{ "Request find file with name: " };
 			char* temp1 = new char[100]{ "Do you allow find?" };
 			strcat_s(temp, strlen(data) + strlen(temp) + 1, data);
@@ -132,7 +153,6 @@ unsigned _stdcall ListenServer(void* param) {
 		}
 
 		else if (!strcmp(opcode, o_200)) {
-			data[ret] = 0;
 			char* temp = new char[100]{ "Request forward from client: " };
 			strcat_s(temp, strlen(temp) + strlen(data) + 1, data);
 			int id = MessageBox(hWnd, _T(temp), "ANNOUNT", MB_OKCANCEL);
@@ -147,7 +167,11 @@ unsigned _stdcall ListenServer(void* param) {
 		}
 
 		else if (!strcmp(opcode, o_201)) {
-
+			if (offset == 0) payload.data.push_back(data);
+			else {
+				if (!strcmp(data, "")) _beginthreadex(0, 0, SaveForwardFile, (void*)&payload, 0, 0);
+				else payload.data.push_back(data);
+			}
 		}
 
 		else if (!strcmp(opcode, o_203)) {
@@ -159,7 +183,6 @@ unsigned _stdcall ListenServer(void* param) {
 			MessageBox(hWnd, "Beginning upload file to server", "ANNOUNT", MB_OK);
 			_beginthreadex(0, 0, ForwardFile, NULL, 0, 0);
 		}
-
 	}
 }
 #pragma endregion
@@ -266,7 +289,9 @@ void OnBnClickedForward(HWND hWnd) {
 		GetWindowText(eFile, pathToFile, 1024);
 		GetWindowText(eParnerId, parnerID, 1024);
 		if (IsFileExistOrValid(pathToFile) && (string)parnerID != "") {
-			ret = SEND_TCP(client, o_400, parnerID, 0, 0);
+			strcpy_s(cPathToFile, strlen(pathToFile) + 1, pathToFile);
+			strcpy_s(cParnerID, strlen(parnerID) + 1, parnerID);
+			ret = SEND_TCP(client, o_400, cParnerID, 0, 0);
 			if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 			ret = SEND_TCP(client, o_400, StringToChars(GetFileName(pathToFile)), 0, 1);
 			if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);

@@ -13,11 +13,6 @@ unsigned _stdcall Handler(void* param);
 list<SESSION*> listSession;
 int lockSession, isThreadFull;
 
-struct ForwardInfo {
-	SESSION* client;
-	char* parnerID;
-};
-
 struct SearchInfo {
 	SOCKET client;
 	char* ID;
@@ -121,26 +116,24 @@ unsigned _stdcall SearchFile(void* param) {
 }
 
 unsigned _stdcall SearchSessionByID(void* param) {
-	ForwardInfo* info = (ForwardInfo*)param;
+	SESSION* currentSession = (SESSION*)param;
 	SESSION session;
 	bool check = false;
 	for (SESSION* item : listSession) {
-		if (!strcmp(item->ID, info->parnerID)) {
+		if (!strcmp(item->ID, currentSession->info.parnerID)) {
 			session = *item;
 			check = true;
 			break;
 		}
 	}
 	if (check) {
-		strcpy_s(info->client->info.parnerID, strlen(info->parnerID), info->parnerID);
-		int ret = SEND_TCP(session.connSock, o_200, info->client->ID, 0, 0);
-		if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", info->parnerID);
+		int ret = SEND_TCP(session.connSock, o_200, currentSession->ID, 0, 0);
+		if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", session.ID);
 	}
 	else {
-		int ret = SEND_TCP(info->client->connSock, o_203, info->parnerID, 0, 0);
-		if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", info->client->ID);
+		int ret = SEND_TCP(currentSession->connSock, o_203, currentSession->info.parnerID, 0, 0);
+		if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", currentSession->ID);
 	}
-
 	return 0;
 }
 
@@ -244,6 +237,7 @@ unsigned _stdcall Handler(void* param) {
 				ret = RECEIVE_TCP(client[index].connSock, opcode, buffReceive, 0, &offset);
 				if (ret == SOCKET_ERROR) continue;
 				buffReceive[ret] = 0;
+
 				if (!strcmp(opcode, o_300)) {
 					ret = SEND_TCP(client[index].connSock, o_100, client[index].ID, 0, 0);
 					if (ret == SOCKET_ERROR) printf("Cause error\n");
@@ -261,18 +255,21 @@ unsigned _stdcall Handler(void* param) {
 
 				else if (!strcmp(opcode, o_400)) {
 					if (offset == 0) {
-						strcpy_s(client[index].info.parnerID, strlen(buffReceive), buffReceive);
+						strcpy_s(client[index].info.parnerID, strlen(buffReceive) + 1, buffReceive);
 						printf("%s\n", buffReceive);
 					}
 					else if (offset == 1) {
-						strcpy_s(client[index].info.fileName, strlen(buffReceive), buffReceive);
+						strcpy_s(client[index].info.fileName, strlen(buffReceive) + 1, buffReceive);
 						printf("%s\n", buffReceive);
+						_beginthreadex(0, 0, SearchSessionByID, (void*)&client[index], 0, 0);
 					}
 				}
 
 				else if (!strcmp(opcode, o_401)) {
-					if (!strcmp(buffReceive, "")) 
+					if (!strcmp(buffReceive, "")) {
+						printf("RECEIVE FORWARD FILE FINISH\n");
 						_beginthreadex(0, 0, ForwardFileToClient, (void*)&client[index], 0, 0);
+					}	
 					else client[index].info.payload.push_back(buffReceive);
 				}
 
