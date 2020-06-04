@@ -6,11 +6,7 @@
 opcode: 3 phần tử đầu trong mảng, chỉ định chức năng sẽ thực hiện
 length: 10 phần tử tiếp theo trong mảng, chứa kích thức của data
 data: phần còn lại của gói tin gửi đi, chứ dữ liệu cần truyền
---- mỗi client có ít nhất 2 kết nối(TCP) đến server
-*Kết nối 1: chỉ dùng để nhận yêu cầu mới của server
-   --: có một luồng chính, khi có yêu cầu tới, tạo mới một luồng riêng xử lý yêu cầu đó
-       luồng chính tiếp tục đợi yêu cầu từ server
-*Kết nối 2: chỉ dùng để gửi yêu cầu tới server, sử dụng thread nếu có nhiều yêu cầu gửi tới server
+
 --- Định nghĩa opcode
 1, 2: server gửi tín hiệu cho client
 3, 4: client gửi tín hiệu cho server

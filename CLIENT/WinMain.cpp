@@ -18,12 +18,13 @@ sockaddr_in serverAddr;
 int ret;
 char* cPathToFile = new char[BUFF_SIZE];
 char* cParnerID = new char[BUFF_SIZE];
-list<char*> payload;
+
 #pragma endregion
 
 struct PAYLOAD
 {
 	list<char*> data;
+	char* fileName;
 };
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -100,13 +101,10 @@ unsigned _stdcall ForwardFile(void* param) {
 
 unsigned _stdcall SaveForwardFile(void* param) {
 	PAYLOAD* payload = (PAYLOAD*)param;
-	string fileName(*payload->data.begin());
-	fstream f; f.open(fileName, ios::out);
-	list<char*>::iterator pointer = payload->data.begin();
-	pointer++;
-	for (; pointer != payload->data.end(); pointer++) {
-		string temp(*pointer);
-		f << temp;
+	string fileName(payload->fileName);
+	fstream f; f.open("Data/" + fileName, ios::out);
+	for (char* data : payload->data) {
+		f << data;
 	}
 	f.close();
 	MessageBox(hWnd, "RECEIVE FORWARD FILE FINISH", "ANNOUNT", MB_OK);
@@ -133,7 +131,7 @@ unsigned _stdcall ListenServer(void* param) {
 	char* opcode = new char[10];
 	char* data = new char[BUFF_SIZE];
 	//char* fileName = new char[BUFF_SIZE];
-	PAYLOAD payload;
+	PAYLOAD payload; payload.fileName = new char[BUFF_SIZE];
 	while (true)
 	{
 		ret = RECEIVE_TCP(client, opcode, data, 0, &offset);
@@ -167,7 +165,7 @@ unsigned _stdcall ListenServer(void* param) {
 		}
 
 		else if (!strcmp(opcode, o_201)) {
-			if (offset == 0) payload.data.push_back(data);
+			if (offset == 0) strcpy_s(payload.fileName, strlen(data) + 1, data);
 			else {
 				if (!strcmp(data, "")) _beginthreadex(0, 0, SaveForwardFile, (void*)&payload, 0, 0);
 				else payload.data.push_back(data);
@@ -316,7 +314,7 @@ void OnBnClickedSearch(HWND hWnd) {
 }
 
 void OnBnClickedBrowse(HWND hWnd) {
-	
+
 	OPENFILENAME ofn;
 	char szFile[100];
 	ZeroMemory(&ofn, sizeof(ofn));
