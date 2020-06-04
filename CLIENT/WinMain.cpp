@@ -95,18 +95,22 @@ unsigned _stdcall GetForwardFile(void* param) {
 		if (!strcmp(data, "")) break;
 		payload.push_back(data);
 	}
-	
+	MessageBox(hWnd, "RECEIVE FORWARD FILE FINISH", "ANNOUNT", MB_OK);
 	return 0;
 }
 
 unsigned _stdcall ForwardFile(void* param) {
-	string pathToFile(cPathToFile);
-	list<string> payload = CreatePayload(pathToFile);
+	TCHAR* pathToFile = new TCHAR[1024];
+	TCHAR* parnerID = new TCHAR[1024];
+	GetWindowText(eFile, pathToFile, 1024);
+	GetWindowText(eParnerId, parnerID, 1024);
+	string sPathToFile(pathToFile);
+	list<string> payload = CreatePayload(sPathToFile);
 	ret = SEND_TCP(client, o_401, new char[1]{ 0 }, 0);
 	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send file from server", "ERROR", MB_OK);
-	ret = SEND_TCP(client, o_401, cParnerID, 0);
+	ret = SEND_TCP(client, o_401, parnerID, 0);
 	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send file from server", "ERROR", MB_OK);
-	ret = SEND_TCP(client, o_401, StringToChars(GetFileName(pathToFile)), 0);
+	ret = SEND_TCP(client, o_401, StringToChars(GetFileName(sPathToFile)), 0);
 	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send file from server", "ERROR", MB_OK);
 	for (string data : payload) {
 		ret = SEND_TCP(client, o_401, StringToChars(data), 0);
@@ -175,7 +179,7 @@ unsigned _stdcall ListenServer(void* param) {
 		}
 
 		else if (!strcmp(opcode, o_203)) {
-			MessageBox(hWnd, "Can not find ID", "ERROR", MB_OK);
+			MessageBox(hWnd, "Can not find ID or not allow forward", "ERROR", MB_OK);
 			SetWindowTextA(eParnerId, "");
 		}
 

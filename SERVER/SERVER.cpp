@@ -295,7 +295,7 @@ unsigned _stdcall Handler(void* param) {
 				else if (!strcmp(opcode, o_410)) {
 					char** info = new char*[3];
 					info[0] = new char[BUFF_SIZE];
-					info[1] = new char[BUFF_SIZE] {"410"};
+					info[1] = new char[BUFF_SIZE] {"203"};
 					info[2] = new char[BUFF_SIZE];
 					strcpy_s(info[0], strlen(buffReceive) + 1, buffReceive);
 					strcpy_s(info[2], strlen(client[index].ID) + 1, client[index].ID);
@@ -303,9 +303,10 @@ unsigned _stdcall Handler(void* param) {
 				}
 
 				else if (!strcmp(opcode, o_411)) {
-					char** info = new char*[2];
+					char** info = new char*[3];
 					info[0] = new char[BUFF_SIZE];
-					info[1] = new char[BUFF_SIZE] {"411"};
+					info[1] = new char[BUFF_SIZE] {"202"};
+					info[2] = new char[BUFF_SIZE];
 					strcpy_s(info[0], strlen(buffReceive) + 1, buffReceive);
 					strcpy_s(info[2], strlen(client[index].ID) + 1, client[index].ID);
 					_beginthreadex(0, 0, SEND, (void*)info, 0, 0);
