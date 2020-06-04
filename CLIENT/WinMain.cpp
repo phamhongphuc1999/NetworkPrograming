@@ -131,14 +131,7 @@ unsigned _stdcall ListenServer(void* param) {
 	{
 		ret = RECEIVE_TCP(client, opcode, data, 0);
 		if (ret == SOCKET_ERROR) continue;
-		else if (!strcmp(opcode, o_203)) {
-			MessageBox(hWnd, "Can not find ID", "ERROR", MB_OK);
-			SetWindowTextA(eParnerId, "");
-		}
-		else if (!strcmp(opcode, o_202)) {
-			MessageBox(hWnd, "Beginning upload file to server", "ANNOUNT", MB_OK);
-			_beginthreadex(0, 0, ForwardFile, NULL, 0, 0);
-		}
+
 		else if (!strcmp(opcode, o_120)) {
 			data[ret] = 0;
 			char* temp = "Request find file with name: ";
@@ -152,21 +145,33 @@ unsigned _stdcall ListenServer(void* param) {
 			}
 			else if (id == IDOK) _beginthreadex(0, 0, SearchFile, (void*)data, 0, 0);
 		}
+
 		else if (!strcmp(opcode, o_200)) {
 			data[ret] = 0;
-			char* temp = "Request forward from client: ";
-			strcat_s(temp, strlen(temp) + strlen(data) + 2, data);
+			char* temp = new char[100]{ "Request forward from client: " };
+			strcat_s(temp, strlen(temp) + strlen(data) + 1, data);
 			int id = MessageBox(hWnd, _T(temp), "ANNOUNT", MB_OKCANCEL);
 			if (id == IDCANCEL) {
-				ret = SEND_TCP(client, o_410, new char[1]{ 0 }, 0);
+				ret = SEND_TCP(client, o_410, data, 0);
 				if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 			}
 			else if (id == IDOK) {
-				ret = SEND_TCP(client, o_411, new char[1]{ 0 }, 0);
+				ret = SEND_TCP(client, o_411, data, 0);
 				if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 				_beginthreadex(0, 0, ForwardFileToClient, NULL, 0, 0);
 			}
 		}
+
+		else if (!strcmp(opcode, o_203)) {
+			MessageBox(hWnd, "Can not find ID", "ERROR", MB_OK);
+			SetWindowTextA(eParnerId, "");
+		}
+
+		else if (!strcmp(opcode, o_202)) {
+			MessageBox(hWnd, "Beginning upload file to server", "ANNOUNT", MB_OK);
+			_beginthreadex(0, 0, ForwardFile, NULL, 0, 0);
+		}
+
 	}
 }
 #pragma endregion
