@@ -10,8 +10,9 @@
 - Lựa chọn một client trong kết quả server gửi về để yêu cầu download file
 
 ## Khuôn dạng gói tin: định dạng mảng char
-#### Có ba trường opcode, length, data
+#### Có bốn trường opcode, length, data
 - opcode: 3 phần tử đầu trong mảng, chỉ định chức năng sẽ thực hiện
+- offset: 1 phần tử tiếp theo, là phần mở rộng chức năng cho opcode
 - length: 10 phần tử tiếp theo trong mảng, chứa kích thức của data
 - data: phần còn lại của gói tin gửi đi, chứa dữ liệu cần truyền
 ### mỗi client có ít nhất 1 kết nối(TCP) đến server
@@ -30,16 +31,14 @@
 - 201: tải file chuyển tiếp về client, lần đầu tải tên file, các lần sau là dữ liệu của file, lần cuối không mang dữ liệu để thông báo kết thúc
 - 202: ID do client gửi lên có thể kết nối và được phép chuyển tiếp
 - 203: ID do client gửi lên không thể kết nối hoặc bị từ chối chuyển tiếp
-- 204: thông báo chuẩn bị tải file chuyển tiếp về client
 #### CLIENT:
 - 300: yêu cầu kết nối và gửi ID
 - 310: gửi yêu cầu tìm kiếm file
 - 311: tải file từ client được chỉ định bởi client khác lên server
 - 320: không tìm thấy tên file trong trường data
 - 321: tìm thấy tên file trong trường data
-- 400: gửi ID của người cần chuyển tiếp file đến, chuẩn bị truyền file lên server
-- 401: lần đầu tải id người nhận, lần hai tải tên file, các lần sau là dữ liệu của file, lần cuối không có dữ liệu để thông báo kết thúc
-- 402: thông báo chuẩn bị tải file chuyển tiếp lên server
+- 400: gửi ID của người cần chuyển tiếp file đến, sau đó gửi file name
+- 401: gửi lần lượt từng gói dữ liệu đến server, lần cuối không có dữ liệu để thông báo kết thúc
 - 410: không cho chuyển tiếp file về client
 - 411: cho phép chuyển tiếp file về client
 
