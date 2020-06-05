@@ -14,10 +14,19 @@ list<SESSION*> listSession;
 int lockSession, isThreadFull;
 
 struct SearchInfo {
-	SOCKET client;
-	char* ID;
+	SESSION* client;
 	char* fileName;
 };
+
+struct SearchFileInfo
+{
+	SearchInfo* info;
+	list<char*> Yes;
+	list<char*> No;
+	list<SearchFileInfo*>::iterator position;
+};
+
+list<SearchFileInfo*> listSearchFile;
 
 int main()
 {
@@ -91,30 +100,6 @@ unsigned _stdcall ReleaseSession(void* param) {
 	return 0;
 }
 
-unsigned _stdcall SearchFile(void* param) {
-	SearchInfo* info = (SearchInfo*)param;
-	int offset = 0;
-	char* opcode = new char[10];
-	char* data = new char[BUFF_SIZE];
-	list<char*> lClient;
-	int ret;
-	for (SESSION* item : listSession) {
-		if (strcmp(item->ID, info->ID)) {
-			ret = SEND_TCP(item->connSock, o_120, info->fileName, 0, 0);
-			if (ret == SOCKET_ERROR) continue;
-		}
-	}
-	for (SESSION* item : listSession) {
-		if (strcmp(item->ID, info->ID)) {
-			ret = RECEIVE_TCP(item->connSock, opcode, data, 0, &offset);
-			if (ret == SOCKET_ERROR) continue;
-			if (!strcmp(opcode, o_321)) lClient.push_back(item->ID);
-		}
-	}
-
-	return 0;
-}
-
 unsigned _stdcall SearchSessionByID(void* param) {
 	SESSION* currentSession = (SESSION*)param;
 	SESSION session;
@@ -168,6 +153,24 @@ unsigned _stdcall SEND(void* param) {
 	}
 	int ret = SEND_TCP(session.connSock, info[1], info[2], 0, 0);
 	if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", session.ID);
+	return 0;
+}
+
+unsigned _stdcall SearchFile(void* param) {
+	SearchInfo* info = (SearchInfo*)param;
+	SearchFileInfo searchInfo;
+	searchInfo.info = info;
+	listSearchFile.push_back(&searchInfo);
+	searchInfo.position = --listSearchFile.end();
+	int ret;
+	for (SESSION* session : listSession) {
+		if (strcmp(session->ID, info->client->ID)) {
+			ret = SEND_TCP(session->connSock, o_120, info->fileName, 0, 0);
+			if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", session->ID);
+			ret = SEND_TCP(session->connSock, o_120, info->client->ID, 0, 1);
+			if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", session->ID);
+		}
+	}
 	return 0;
 }
 
@@ -245,12 +248,18 @@ unsigned _stdcall Handler(void* param) {
 
 				else if (!strcmp(opcode, o_310)) {
 					SearchInfo info;
-					info.client = client[index].connSock;
-					info.ID = new char[BUFF_SIZE];
+					info.client = &client[index];
 					info.fileName = new char[BUFF_SIZE];
-					strcpy_s(info.ID, strlen(client[index].ID) + 1, client[index].ID);
 					strcpy_s(info.fileName, strlen(buffReceive) + 1, buffReceive);
 					_beginthreadex(0, 0, SearchFile, (void*)&info, 0, 0);
+				}
+
+				else if (!strcmp(opcode, o_320)) {
+
+				}
+
+				else if (!strcmp(opcode, o_321)) {
+
 				}
 
 				else if (!strcmp(opcode, o_400)) {

@@ -12,6 +12,7 @@ static int bForward = 11;
 static int bBrowse = 12;
 static int bSearch = 13;
 static int bHide = 14;
+static int bClean = 15;
 
 static int editFile = 100;
 static int editFileName = 101;
