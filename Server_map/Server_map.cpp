@@ -13,6 +13,12 @@ unsigned _stdcall Handler(void* param);
 map<string, SESSION*> mapSession;
 int lockSession, isThreadFull;
 
+struct SEARCH_EXTEND
+{
+	SESSION* session;
+	char* fileName;
+};
+
 int main()
 {
 	WSADATA wsaData;
@@ -134,12 +140,26 @@ unsigned _stdcall SearchFile(void* param) {
 				if (strcmp(session->ID, parner.second->ID)) {
 					ret = SEND_TCP(parner.second->connSock, o_120, item.second.fileName, 0, 0);
 					if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", parner.second->ID);
-					ret = SEND_TCP(parner.second->connSock, o_120, session->ID, 0, 0);
+					ret = SEND_TCP(parner.second->connSock, o_120, session->ID, 0, 1);
 					if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", parner.second->ID);
 				}
 			}
+			item.second.status = 1;
 		}
 	}
+	return 0;
+}
+
+unsigned _stdcall SendListClient(void* param) {
+	SEARCH_EXTEND* s = (SEARCH_EXTEND*)param;
+	string fileName(s->fileName);
+	int ret = SEND_TCP(s->session->connSock, o_111, s->fileName, 0, 0);
+	for (char* ID : s->session->searchInfo[fileName].Yes) {
+		ret = SEND_TCP(s->session->connSock, o_111, ID, 0, 1);
+		if (ret == SOCKET_ERROR) printf("Can send to client[%s]\n", s->session->ID);
+	}
+	ret = SEND_TCP(s->session->connSock, o_111, new char[1]{ 0 }, 0, 1);
+	if (ret == SOCKET_ERROR) printf("Can send to client[%s]\n", s->session->ID);
 	return 0;
 }
 
@@ -162,7 +182,7 @@ unsigned _stdcall Handler(void* param) {
 	client[0].connSock = listenSocket;
 	WSAEventSelect(client[0].connSock, events[0], FD_ACCEPT | FD_CLOSE);
 	nEvents++;
-
+	string ID = "";
 	while (true)
 	{
 		index = WSAWaitForMultipleEvents(nEvents, events, FALSE, WSA_INFINITE, FALSE);
@@ -225,11 +245,43 @@ unsigned _stdcall Handler(void* param) {
 				}
 
 				else if (!strcmp(opcode, o_320)) {
-
+					if (offset == 0) {
+						string temp(buffReceive);
+						ID = temp;
+					}
+					else {
+						string fileName(buffReceive);
+						mapSession[ID]->searchInfo[fileName].No.push_back(client[index].ID);
+						int yesSize = mapSession[ID]->searchInfo[fileName].Yes.size();
+						int noSize = mapSession[ID]->searchInfo[fileName].No.size();
+						if (yesSize + noSize == mapSession.size()) {
+							SEARCH_EXTEND s;
+							s.session = mapSession[ID];
+							s.fileName = new char[BUFF_SIZE];
+							strcpy_s(s.fileName, strlen(buffReceive) + 1, buffReceive);
+							_beginthreadex(0, 0, SendListClient, (void*)mapSession[ID], 0, 0);
+						}
+					}
 				}
 
 				else if (!strcmp(opcode, o_321)) {
-
+					if (offset == 0) {
+						string temp(buffReceive);
+						ID = temp;
+					}
+					else {
+						string fileName(buffReceive);
+						mapSession[ID]->searchInfo[fileName].No.push_back(client[index].ID);
+						int yesSize = mapSession[ID]->searchInfo[fileName].Yes.size();
+						int noSize = mapSession[ID]->searchInfo[fileName].No.size();
+						if (yesSize + noSize == mapSession.size()) {
+							SEARCH_EXTEND s;
+							s.session = mapSession[ID];
+							s.fileName = new char[BUFF_SIZE];
+							strcpy_s(s.fileName, strlen(buffReceive) + 1, buffReceive);
+							_beginthreadex(0, 0, SendListClient, (void*)mapSession[ID], 0, 0);
+						}
+					}
 				}
 
 				else if (!strcmp(opcode, o_400)) {

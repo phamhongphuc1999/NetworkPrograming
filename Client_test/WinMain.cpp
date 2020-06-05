@@ -3,12 +3,16 @@
 #include "TCP_SOCKET.h"
 #include "InteractFile.h"
 
-HWND hWnd;
+HWND hMain, hSearch;
 HINSTANCE hInst;
 static HWND btnBrowse, btnForward, btnSearch, btnHide, btnConnect, btnClean;
 static HWND eFile, eFileName, eParnerId, eIdDetail;
 static HWND sFile, sFileName, sParnerId, sID;
 bool isConnect = false, isHide = true;
+int count = 0;
+
+HWND btn;
+UINT g = 101010;
 
 #pragma region CONNECT SERVER
 WSADATA wsaData;
@@ -23,6 +27,11 @@ char* cParnerID = new char[BUFF_SIZE];
 
 struct PAYLOAD
 {
+	list<char*> data;
+	char* fileName;
+};
+
+struct SEARCH {
 	list<char*> data;
 	char* fileName;
 };
@@ -55,14 +64,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	hInst = hInstance;
-	hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 700, 400, NULL, NULL, hInstance, NULL);
-	if (!hWnd)
+	hMain = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 700, 400, NULL, NULL, hInstance, NULL);
+	hSearch = CreateWindow(szWindowClass, szSearch, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 700, 400, NULL, NULL, hInstance, NULL);
+	if (!hMain)
 	{
 		MessageBox(NULL, "Call to CreateWindow failed!", "Win32 Guided Tour", NULL);
 		return 1;
 	}
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
+	if (!hSearch) {
+		MessageBox(NULL, "Call to CreateWindow failed!", "Win32 Guided Tour", NULL);
+		return 1;
+	}
+	ShowWindow(hMain, nCmdShow);
+	UpdateWindow(hMain);
+
+	ShowWindow(hSearch, nCmdShow);
+	UpdateWindow(hSearch);
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -91,6 +108,10 @@ void InitializeController(HWND hWnd) {
 	sID = CreateWindow("STATIC", "ID", WS_VISIBLE | WS_CHILD | SS_RIGHT, 450, 0, 20, 20, hWnd, (HMENU)staticId, NULL, NULL);
 }
 
+//void DrawSearchWindown(HWND hWnd) {
+//	btn = CreateWindow("button", "Connect", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 315, 20, 80, 30, hWnd, (HMENU)g, hInst, NULL);
+//}
+
 #pragma region LISTEN SERVER
 unsigned _stdcall ForwardFile(void* param) {
 	TCHAR* pathToFile = new TCHAR[1024];
@@ -98,10 +119,10 @@ unsigned _stdcall ForwardFile(void* param) {
 	list<string> payload = CreatePayload(pathToFile);
 	for (string data : payload) {
 		ret = SEND_TCP(client, o_401, StringToChars(data), 0, 0);
-		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
 	}
 	ret = SEND_TCP(client, o_401, new char[1]{ 0 }, 0, 0);
-	if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+	if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
 	return 0;
 }
 
@@ -113,11 +134,32 @@ unsigned _stdcall SaveForwardFile(void* param) {
 		f << data;
 	}
 	f.close();
-	MessageBox(hWnd, "RECEIVE FORWARD FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_OK);
+	MessageBox(hMain, "RECEIVE FORWARD FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_OK);
 	return 0;
 }
 
 unsigned _stdcall SearchFile(void* param) {
+	SEARCH_FILE* searchFile = (SEARCH_FILE*)param;
+	string fileName(searchFile->fileName);
+	int ret;
+	bool check = SearchFileInDirectory("/Data", fileName);
+	if (check) {
+		ret = SEND_TCP(client, o_321, searchFile->parnerID, 0, 0);
+		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+		ret = SEND_TCP(client, o_321, searchFile->fileName, 0, 1);
+		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+	}
+	else {
+		ret = SEND_TCP(client, o_320, searchFile->parnerID, 0, 0);
+		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+		ret = SEND_TCP(client, o_320, searchFile->fileName, 0, 1);
+		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+	}
+	return 0;
+}
+
+unsigned _stdcall DrawIDSearch(void* param) {
+	SEARCH* s = (SEARCH*)param;
 
 	return 0;
 }
@@ -127,6 +169,7 @@ unsigned _stdcall ListenServer(void* param) {
 	char* opcode = new char[10];
 	char* data = new char[BUFF_SIZE];
 	PAYLOAD payload; payload.fileName = new char[BUFF_SIZE];
+	SEARCH s;
 	SEARCH_FILE searchFile;
 	searchFile.fileName = new char[BUFF_SIZE];
 	searchFile.parnerID = new char[BUFF_SIZE];
@@ -146,28 +189,36 @@ unsigned _stdcall ListenServer(void* param) {
 				strcat_s(temp1, strlen(temp2) + strlen(temp1) + 1, temp2);
 				strcat_s(temp1, strlen(searchFile.parnerID) + strlen(temp1) + 1, searchFile.parnerID);
 				strcat_s(temp1, strlen(temp3) + strlen(temp1) + 1, temp3);
-				int id = MessageBox(hWnd, temp1, "ANNOUNT", MB_OKCANCEL);
+				int id = MessageBox(hMain, temp1, "ANNOUNT", MB_OKCANCEL);
 				if (id == IDCANCEL) {
 					ret = SEND_TCP(client, o_320, searchFile.fileName, 0, 0);
-					if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+					if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
 					ret = SEND_TCP(client, o_320, searchFile.parnerID, 0, 1);
-					if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+					if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
 				}
 				else if (id == IDOK) _beginthreadex(0, 0, SearchFile, (void*)&searchFile, 0, 0);
+			}
+		}
+
+		else if (!strcmp(opcode, o_111)) {
+			if (offset == 0) strcpy_s(s.fileName, strlen(data) + 1, data);
+			else {
+				if (!strcmp(data, "")) _beginthreadex(0, 0, DrawIDSearch, (void*)&s, 0, 0);
+				else s.data.push_back(data);
 			}
 		}
 
 		else if (!strcmp(opcode, o_200)) {
 			char* temp = new char[100]{ "Request forward from client: " };
 			strcat_s(temp, strlen(temp) + strlen(data) + 1, data);
-			int id = MessageBox(hWnd, _T(temp), "ANNOUNT", MB_OKCANCEL);
+			int id = MessageBox(hMain, temp, "ANNOUNT", MB_OKCANCEL);
 			if (id == IDCANCEL) {
 				ret = SEND_TCP(client, o_410, data, 0, 0);
-				if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
 			}
 			else if (id == IDOK) {
 				ret = SEND_TCP(client, o_411, data, 0, 0);
-				if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
 			}
 		}
 
@@ -180,12 +231,12 @@ unsigned _stdcall ListenServer(void* param) {
 		}
 
 		else if (!strcmp(opcode, o_203)) {
-			MessageBox(hWnd, "Can not find ID or not allow forward", "ERROR", MB_OK);
+			MessageBox(hMain, "Can not find ID or not allow forward", "ERROR", MB_OK);
 			SetWindowTextA(eParnerId, "");
 		}
 
 		else if (!strcmp(opcode, o_202)) {
-			MessageBox(hWnd, "Beginning upload file to server", "ANNOUNT", MB_OK);
+			MessageBox(hMain, "Beginning upload file to server", "ANNOUNT", MB_OK);
 			_beginthreadex(0, 0, ForwardFile, NULL, 0, 0);
 		}
 	}
@@ -356,9 +407,6 @@ void OnBnClickedClean(HWND hWnd) {
 
 //handler event
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-	HWND hwndButton;
-	PAINTSTRUCT ps;
-	HDC hdc;
 	switch (message)
 	{
 	case WM_COMMAND:
@@ -373,7 +421,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		}
 		break;
 	case WM_CREATE:
-		InitializeController(hWnd);
+		InitializeController(hSearch);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);

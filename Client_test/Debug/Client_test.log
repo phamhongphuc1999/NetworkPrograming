@@ -1,9 +1,13 @@
 ﻿  WinMain.cpp
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(45): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(50): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(361): warning C4101: 'hdc': unreferenced local variable
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(360): warning C4101: 'ps': unreferenced local variable
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(359): warning C4101: 'hwndButton': unreferenced local variable
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(244): warning C4715: 'BnClickedMakeConnect': not all control paths return a value
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(54): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(59): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+  Generating Code...
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(295): warning C4715: 'BnClickedMakeConnect': not all control paths return a value
+  Compiling...
+  TCP_SOCKET.cpp
+  InteractFile.cpp
+  InputAndData.cpp
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\inputanddata.cpp(55): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...
   Client_test.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\Client_test.exe
   Client_test.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\Client_test.pdb (Partial PDB)

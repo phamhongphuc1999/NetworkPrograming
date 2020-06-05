@@ -5,6 +5,7 @@
 
 static TCHAR szWindowClass[] = _T("win32app");
 static TCHAR szTitle[] = _T("Client_test");
+static TCHAR szSearch[] = _T("Client_test_search");
 
 //define ID of controller
 static int bConnect = 10;

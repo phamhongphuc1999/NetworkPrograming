@@ -40,6 +40,22 @@ list<string> read_directory(const string& pathToFolder)
 	return v;
 }
 
+bool SearchFileInDirectory(const string& pathToFolder, string fileName) {
+	string pattern(pathToFolder);
+	pattern.append("\\*");
+	WIN32_FIND_DATA data;
+	HANDLE hFind;
+	if ((hFind = FindFirstFile(pattern.c_str(), &data)) != INVALID_HANDLE_VALUE) {
+		while (true)
+		{
+			if (fileName == data.cFileName) return true;
+			if (FindNextFile(hFind, &data) == 0) break;
+		}
+		FindClose(hFind);
+	}
+	return false;
+}
+
 string GetFileName(const string& str)
 {
 	size_t found;
