@@ -6,7 +6,7 @@
 static TCHAR szWindowClass[] = _T("win32app");
 static TCHAR szWindowSearch[] = _T("win32app_search");
 static TCHAR szTitle[] = _T("Client test");
-static TCHAR szSearch[] = _T("client list test");
+static TCHAR szSearch[] = _T("Search test");
 
 //define ID of controller
 static int bConnect = 10;
@@ -15,11 +15,13 @@ static int bBrowse = 12;
 static int bSearch = 13;
 static int bHide = 14;
 static int bClean = 15;
+static int bSend = 16;
 
 static int editFile = 100;
 static int editFileName = 101;
 static int editParnerId = 102;
 static int editIdDetail = 103;
+static int editID = 104;
 
 static int staticFile = 200;
 static int staticFileName = 201;

@@ -154,6 +154,7 @@ unsigned _stdcall SendListClient(void* param) {
 	SEARCH_EXTEND* s = (SEARCH_EXTEND*)param;
 	string fileName(s->fileName);
 	int ret = SEND_TCP(s->session->connSock, o_111, s->fileName, 0, 0);
+	if (ret == SOCKET_ERROR) printf("Can send to client[%s]\n", s->session->ID);
 	for (char* ID : s->session->searchInfo[fileName].Yes) {
 		ret = SEND_TCP(s->session->connSock, o_111, ID, 0, 1);
 		if (ret == SOCKET_ERROR) printf("Can send to client[%s]\n", s->session->ID);
@@ -254,12 +255,12 @@ unsigned _stdcall Handler(void* param) {
 						mapSession[ID]->searchInfo[fileName].No.push_back(client[index].ID);
 						int yesSize = mapSession[ID]->searchInfo[fileName].Yes.size();
 						int noSize = mapSession[ID]->searchInfo[fileName].No.size();
-						if (yesSize + noSize == mapSession.size()) {
+						if (yesSize + noSize == mapSession.size() - 1) {
 							SEARCH_EXTEND s;
 							s.session = mapSession[ID];
 							s.fileName = new char[BUFF_SIZE];
 							strcpy_s(s.fileName, strlen(buffReceive) + 1, buffReceive);
-							_beginthreadex(0, 0, SendListClient, (void*)mapSession[ID], 0, 0);
+							_beginthreadex(0, 0, SendListClient, (void*)&s, 0, 0);
 						}
 					}
 				}
@@ -274,12 +275,12 @@ unsigned _stdcall Handler(void* param) {
 						mapSession[ID]->searchInfo[fileName].No.push_back(client[index].ID);
 						int yesSize = mapSession[ID]->searchInfo[fileName].Yes.size();
 						int noSize = mapSession[ID]->searchInfo[fileName].No.size();
-						if (yesSize + noSize == mapSession.size()) {
+						if (yesSize + noSize == mapSession.size() - 1) {
 							SEARCH_EXTEND s;
 							s.session = mapSession[ID];
 							s.fileName = new char[BUFF_SIZE];
 							strcpy_s(s.fileName, strlen(buffReceive) + 1, buffReceive);
-							_beginthreadex(0, 0, SendListClient, (void*)mapSession[ID], 0, 0);
+							_beginthreadex(0, 0, SendListClient, (void*)&s, 0, 0);
 						}
 					}
 				}

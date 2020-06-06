@@ -5,14 +5,15 @@
 
 HWND hMain, hSearch;
 HINSTANCE hInst;
+//controller in main window
 static HWND btnBrowse, btnForward, btnSearch, btnHide, btnConnect, btnClean;
 static HWND eFile, eFileName, eParnerId, eIdDetail;
 static HWND sFile, sFileName, sParnerId, sID;
 bool isConnect = false, isHide = true;
-int count = 0;
 
-HWND btn;
-UINT g = 101010;
+//controller in search window
+static HWND btnSend;
+static HWND eID;
 
 #pragma region CONNECT SERVER
 WSADATA wsaData;
@@ -22,7 +23,6 @@ sockaddr_in serverAddr;
 int ret;
 char* cPathToFile = new char[BUFF_SIZE];
 char* cParnerID = new char[BUFF_SIZE];
-
 #pragma endregion
 
 struct PAYLOAD
@@ -95,17 +95,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		MessageBox(NULL, "Call to RegisterClassEx failed!", "Win32 Guided Tour", NULL);
 		return 1;
 	}
-	hSearch = CreateWindow(w_search.lpszClassName, szSearch, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 700, 400, NULL, NULL, hInstance, NULL);
+	hSearch = CreateWindow(w_search.lpszClassName, szSearch, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 400, 200, NULL, NULL, hInstance, NULL);
 	if (!hSearch)
 	{
 		MessageBox(NULL, "Call to CreateWindow failed!", "Win32 Guided Tour", NULL);
 		return 1;
 	}
-	ShowWindow(hSearch, nCmdShow);
 	UpdateWindow(hSearch);
-
-
-
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -115,7 +111,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	return (int)msg.wParam;
 }
 
-void InitializeController(HWND hWnd) {
+void DrawMainWindow(HWND hWnd) {
 	btnConnect = CreateWindow("button", "Connect", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 315, 20, 80, 30, hWnd, (HMENU)bConnect, hInst, NULL);
 	btnBrowse = CreateWindow("button", "Browse", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 460, 90, 70, 20, hWnd, (HMENU)bBrowse, hInst, NULL);
 	btnForward = CreateWindow("button", "Forward", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 540, 90, 70, 20, hWnd, (HMENU)bForward, hInst, NULL);
@@ -134,8 +130,9 @@ void InitializeController(HWND hWnd) {
 	sID = CreateWindow("STATIC", "ID", WS_VISIBLE | WS_CHILD | SS_RIGHT, 450, 0, 20, 20, hWnd, (HMENU)staticId, NULL, NULL);
 }
 
-void DrawSearchWindown(HWND hWnd) {
-	btn = CreateWindow("button", "Connect", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 400, 20, 80, 30, hWnd, (HMENU)g, hInst, NULL);
+void DrawSearchWindow(HWND hWnd) {
+	btnSend = CreateWindow("button", "SEND", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 160, 20, 80, 30, hWnd, (HMENU)bSend, hInst, NULL);
+	eID = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 90, 200, 20, hWnd, (HMENU)editID, NULL, NULL);
 }
 
 #pragma region LISTEN SERVER
@@ -186,7 +183,16 @@ unsigned _stdcall SearchFile(void* param) {
 
 unsigned _stdcall DrawIDSearch(void* param) {
 	SEARCH* s = (SEARCH*)param;
-
+	char* result = new char[22 * s->data.size()];
+	char* space = new char[2]{ "\n" };
+	for (char* ID : s->data) {
+		strcat_s(result, strlen(ID) + strlen(result) + 1, ID);
+		strcat_s(result, strlen(result) + strlen(space) + 1, space);
+	}
+	char* fileName = new char[BUFF_SIZE] {"IDs have file: "};
+	strcat_s(fileName, strlen(fileName) + strlen(s->fileName) + 1, s->fileName);
+	MessageBox(hMain, result, fileName, MB_OK);
+	ShowWindow(hSearch, SW_SHOW);
 	return 0;
 }
 
@@ -195,7 +201,7 @@ unsigned _stdcall ListenServer(void* param) {
 	char* opcode = new char[10];
 	char* data = new char[BUFF_SIZE];
 	PAYLOAD payload; payload.fileName = new char[BUFF_SIZE];
-	SEARCH s;
+	SEARCH s; s.fileName = new char[BUFF_SIZE];
 	SEARCH_FILE searchFile;
 	searchFile.fileName = new char[BUFF_SIZE];
 	searchFile.parnerID = new char[BUFF_SIZE];
@@ -229,8 +235,8 @@ unsigned _stdcall ListenServer(void* param) {
 		else if (!strcmp(opcode, o_111)) {
 			if (offset == 0) strcpy_s(s.fileName, strlen(data) + 1, data);
 			else {
-				if (!strcmp(data, "")) _beginthreadex(0, 0, DrawIDSearch, (void*)&s, 0, 0);
-				else s.data.push_back(data);
+				if (strcmp(data, "")) s.data.push_back(data);
+				else _beginthreadex(0, 0, DrawIDSearch, (void*)&s, 0, 0);
 			}
 		}
 
@@ -431,7 +437,11 @@ void OnBnClickedClean(HWND hWnd) {
 	SetWindowTextA(eParnerId, "");
 }
 
-//handler event
+void OnBnClickedSend(HWND hWnd) {
+
+}
+
+//handler hMain event
 LRESULT CALLBACK WndProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message)
 	{
@@ -447,29 +457,30 @@ LRESULT CALLBACK WndProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		}
 		break;
 	case WM_CREATE:
-		InitializeController(hWnd);
+		DrawMainWindow(hWnd);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		break;
-	case WM_DRAWITEM:
 		break;
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
+//handler hSearch event
 LRESULT CALLBACK WndProcSearch(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message)
 	{
 	case WM_COMMAND:
+		if ((HWND)lParam && (HIWORD(wParam)) == BN_CLICKED) {
+			int id = LOWORD(wParam);
+			if (id == bSend) OnBnClickedSend(hWnd);
+		}
 		break;
 	case WM_CREATE:
-		DrawSearchWindown(hWnd);
+		DrawSearchWindow(hWnd);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		break;
-	case WM_DRAWITEM:
 		break;
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);

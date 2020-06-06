@@ -3,6 +3,6 @@ d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(56): warning C4302:
 d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(61): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
 d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(87): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
 d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(92): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(321): warning C4715: 'BnClickedMakeConnect': not all control paths return a value
+d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(327): warning C4715: 'BnClickedMakeConnect': not all control paths return a value
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\CLIENT.exe
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\CLIENT.pdb (Partial PDB)
