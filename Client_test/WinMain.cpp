@@ -183,16 +183,25 @@ unsigned _stdcall SearchFile(void* param) {
 
 unsigned _stdcall DrawIDSearch(void* param) {
 	SEARCH* s = (SEARCH*)param;
-	char* result = new char[22 * s->data.size()];
-	char* space = new char[2]{ "\n" };
-	for (char* ID : s->data) {
-		strcat_s(result, strlen(ID) + strlen(result) + 1, ID);
-		strcat_s(result, strlen(result) + strlen(space) + 1, space);
+	if (s->data.size() == 0) {
+		char* fileName = new char[BUFF_SIZE] {"do not find the file: "};
+		strcat_s(fileName, strlen(fileName) + strlen(s->fileName) + 1, s->fileName);
+		MessageBox(hMain, fileName, "ANNOUNT", MB_OK);
 	}
-	char* fileName = new char[BUFF_SIZE] {"IDs have file: "};
-	strcat_s(fileName, strlen(fileName) + strlen(s->fileName) + 1, s->fileName);
-	MessageBox(hMain, result, fileName, MB_OK);
-	ShowWindow(hSearch, SW_SHOW);
+	else {
+		char* result = new char[22 * s->data.size()];
+		char* space = new char[2]{ "\n" };
+		for (char* ID : s->data) {
+			strcat_s(result, strlen(ID) + strlen(result) + 1, ID);
+			strcat_s(result, strlen(result) + strlen(space) + 1, space);
+		}
+		char* fileName = new char[BUFF_SIZE] {"IDs have the file: "};
+		strcat_s(fileName, strlen(fileName) + strlen(s->fileName) + 1, s->fileName);
+		ShowWindow(hSearch, SW_SHOW);
+	node:
+		int id = MessageBox(hMain, result, fileName, MB_OK);
+		if (id == IDOK && IsWindowVisible(hSearch)) goto node;
+	}
 	return 0;
 }
 
@@ -438,7 +447,12 @@ void OnBnClickedClean(HWND hWnd) {
 }
 
 void OnBnClickedSend(HWND hWnd) {
+	TCHAR* id = new TCHAR[30];
+	GetWindowText(eID, id, 30);
+	if (string(id) == "") MessageBox(hWnd, "Enter parner ID to download file", "ANNOUNT", MB_OK);
+	else {
 
+	}
 }
 
 //handler hMain event
