@@ -1,4 +1,8 @@
 # bài tập lớn môn lập trình mạng
+## môi trường phát triển: visual studio 2015, ngôn ngữ c++
+## miêu tả solution:
+- project SERVER: là console, không có giao diện
+- project CLIENT: là empty project, sử dụng Win32(hàm WinMain thay cho hàm main để tạo giao diện)
 ## Server có các chức năng sau:
 - Nhận yêu cầu tìm kiếm file (theo tên file) của client nào đó
 - Gửi lệnh tìm kiếm tới các client khác đang kết nối
