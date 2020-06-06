@@ -8,6 +8,8 @@
 - Gửi yêu cầu tìm kiếm một file lên server
 - Nhận danh sách  các client có file mà client yêu cầu tìm kiếm
 - Lựa chọn một client trong kết quả server gửi về để yêu cầu download file
+##### mỗi client có sau khi kết nối thành công đến server sẽ được server tạo một ID và gửi về cho client
+##### => nâng cấp chương trình bằng việc thay thế ID bằng username, password
 
 ## Khuôn dạng gói tin: định dạng mảng char
 #### Có bốn trường opcode, length, data
@@ -48,3 +50,4 @@
 - https://stackoverflow.com/questions/7598067/how-to-create-a-windows-style-textbox-in-a-c-win32-application
 - https://stackoverflow.com/questions/8520560/get-a-file-name-from-a-path
 - https://stackoverflow.com/questions/2886609/how-to-make-multiple-windows-using-win32-api#:~:text=5%20Answers&text=You%20can%20hit%20CreateWindow(),1st%20one%20if%20you%20want.
+- https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox
