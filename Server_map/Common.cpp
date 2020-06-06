@@ -4,9 +4,10 @@
 #include <list>
 
 void InitiateSession(struct SESSION* session) {
-	session->forwardInfo.fileName = new char[BUFF_SIZE];
-	session->forwardInfo.parnerID = new char[BUFF_SIZE];
-	session->forwardInfo.payload.clear();
+	session->forwardInfo = new ForwardInfo[1];
+	session->forwardInfo->fileName = new char[BUFF_SIZE];
+	session->forwardInfo->parnerID = new char[BUFF_SIZE];
+	session->forwardInfo->payload.clear();
 	session->connSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	session->connSock = 0;
 }

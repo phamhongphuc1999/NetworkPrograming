@@ -17,8 +17,8 @@ list<string> CreatePayload(string pathToFile) {
 			temp = temp.substr(BUFF_SIZE);
 		}
 	}
-	result.push_back(temp);
 	file.close();
+	result.push_back(temp);
 	return result;
 }
 

@@ -24,7 +24,7 @@ struct SearchInfo {
 
 struct SESSION {
 	char* ID;
-	ForwardInfo forwardInfo;
+	ForwardInfo* forwardInfo;
 	map<string, SearchInfo> searchInfo;
 	SOCKET connSock;
 };
