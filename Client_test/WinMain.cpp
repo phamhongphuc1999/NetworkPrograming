@@ -41,45 +41,71 @@ struct SEARCH_FILE {
 	char* parnerID;
 };
 
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK WndProcMain(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK WndProcSearch(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-	WNDCLASSEX wcex;
-	wcex.cbSize = sizeof(WNDCLASSEX);
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
-	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = NULL;
-	wcex.lpszClassName = szWindowClass;
-	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
-	if (!RegisterClassEx(&wcex))
+	WNDCLASSEX w_main;
+	ZeroMemory(&w_main, sizeof(WNDCLASSEX));
+	w_main.cbSize = sizeof(WNDCLASSEX);
+	w_main.style = CS_HREDRAW | CS_VREDRAW;
+	w_main.lpfnWndProc = WndProcMain;
+	w_main.cbClsExtra = 0;
+	w_main.cbWndExtra = 0;
+	w_main.hInstance = hInstance;
+	w_main.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+	w_main.hCursor = LoadCursor(NULL, IDC_ARROW);
+	w_main.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	w_main.lpszMenuName = NULL;
+	w_main.lpszClassName = szWindowClass;
+	w_main.hIconSm = LoadIcon(w_main.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+	if (!RegisterClassEx(&w_main))
 	{
 		MessageBox(NULL, "Call to RegisterClassEx failed!", "Win32 Guided Tour", NULL);
 		return 1;
 	}
 
 	hInst = hInstance;
-	hMain = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 700, 400, NULL, NULL, hInstance, NULL);
-	hSearch = CreateWindow(szWindowClass, szSearch, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 700, 400, NULL, NULL, hInstance, NULL);
+	hMain = CreateWindow(w_main.lpszClassName, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 700, 400, NULL, NULL, hInstance, NULL);
 	if (!hMain)
 	{
-		MessageBox(NULL, "Call to CreateWindow failed!", "Win32 Guided Tour", NULL);
-		return 1;
-	}
-	if (!hSearch) {
 		MessageBox(NULL, "Call to CreateWindow failed!", "Win32 Guided Tour", NULL);
 		return 1;
 	}
 	ShowWindow(hMain, nCmdShow);
 	UpdateWindow(hMain);
 
+
+	WNDCLASSEX w_search;
+	ZeroMemory(&w_search, sizeof(WNDCLASSEX));
+	w_search.cbSize = sizeof(WNDCLASSEX);
+	w_search.style = CS_HREDRAW | CS_VREDRAW;
+	w_search.lpfnWndProc = WndProcSearch;
+	w_search.cbClsExtra = 0;
+	w_search.cbWndExtra = 0;
+	w_search.hInstance = hInstance;
+	w_search.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+	w_search.hCursor = LoadCursor(NULL, IDC_ARROW);
+	w_search.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	w_search.lpszMenuName = NULL;
+	w_search.lpszClassName = szWindowSearch;
+	w_search.hIconSm = LoadIcon(w_search.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
+	if (!RegisterClassEx(&w_search))
+	{
+		MessageBox(NULL, "Call to RegisterClassEx failed!", "Win32 Guided Tour", NULL);
+		return 1;
+	}
+	hSearch = CreateWindow(w_search.lpszClassName, szSearch, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 700, 400, NULL, NULL, hInstance, NULL);
+	if (!hSearch)
+	{
+		MessageBox(NULL, "Call to CreateWindow failed!", "Win32 Guided Tour", NULL);
+		return 1;
+	}
 	ShowWindow(hSearch, nCmdShow);
 	UpdateWindow(hSearch);
+
+
+
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -108,9 +134,9 @@ void InitializeController(HWND hWnd) {
 	sID = CreateWindow("STATIC", "ID", WS_VISIBLE | WS_CHILD | SS_RIGHT, 450, 0, 20, 20, hWnd, (HMENU)staticId, NULL, NULL);
 }
 
-//void DrawSearchWindown(HWND hWnd) {
-//	btn = CreateWindow("button", "Connect", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 315, 20, 80, 30, hWnd, (HMENU)g, hInst, NULL);
-//}
+void DrawSearchWindown(HWND hWnd) {
+	btn = CreateWindow("button", "Connect", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 400, 20, 80, 30, hWnd, (HMENU)g, hInst, NULL);
+}
 
 #pragma region LISTEN SERVER
 unsigned _stdcall ForwardFile(void* param) {
@@ -406,7 +432,7 @@ void OnBnClickedClean(HWND hWnd) {
 }
 
 //handler event
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK WndProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message)
 	{
 	case WM_COMMAND:
@@ -421,16 +447,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		}
 		break;
 	case WM_CREATE:
-		InitializeController(hSearch);
+		InitializeController(hWnd);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 	case WM_DRAWITEM:
 		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+LRESULT CALLBACK WndProcSearch(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	switch (message)
+	{
+	case WM_COMMAND:
+		break;
+	case WM_CREATE:
+		DrawSearchWindown(hWnd);
+		break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	case WM_DRAWITEM:
 		break;
 	}
-	return 0;
+	return DefWindowProc(hWnd, message, wParam, lParam);
 }

@@ -4,8 +4,9 @@
 #define BUFF_SIZE 2048
 
 static TCHAR szWindowClass[] = _T("win32app");
-static TCHAR szTitle[] = _T("Client_test");
-static TCHAR szSearch[] = _T("Client_test_search");
+static TCHAR szWindowSearch[] = _T("win32app_search");
+static TCHAR szTitle[] = _T("Client test");
+static TCHAR szSearch[] = _T("client list test");
 
 //define ID of controller
 static int bConnect = 10;

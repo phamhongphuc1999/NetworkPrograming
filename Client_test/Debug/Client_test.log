@@ -1,8 +1,10 @@
 ﻿  WinMain.cpp
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(54): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(59): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(56): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(61): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(87): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(92): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
   Generating Code...
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(295): warning C4715: 'BnClickedMakeConnect': not all control paths return a value
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(321): warning C4715: 'BnClickedMakeConnect': not all control paths return a value
   Compiling...
   TCP_SOCKET.cpp
   InteractFile.cpp

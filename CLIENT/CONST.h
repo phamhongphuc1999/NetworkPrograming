@@ -4,6 +4,7 @@
 #define BUFF_SIZE 2048
 
 static TCHAR szWindowClass[] = _T("win32app");
+static TCHAR szWindowSearch[] = _T("win32app_search");
 static TCHAR szTitle[] = _T("Client");
 static TCHAR szSearch[] = _T("client list");
 
