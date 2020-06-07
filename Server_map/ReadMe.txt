@@ -12,7 +12,6 @@ data: phần còn lại của gói tin gửi đi, chứ dữ liệu cần truy�
 3, 4: client gửi tín hiệu cho server
 *SERVER:
 100: kết nối thành công, gửi ID lại client
-101: gửi searchID và fileName về cho client
 110: gửi danh sách các client đang kết nối
 111: gửi danh sách các client có file yêu cầu
 112: tải file từ server về client

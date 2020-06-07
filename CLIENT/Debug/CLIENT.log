@@ -1,8 +1,14 @@
 ﻿  WinMain.cpp
-d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(49): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(54): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(79): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(84): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(352): warning C4715: 'BnClickedMakeConnect': not all control paths return a value
+d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(57): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(62): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(87): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(92): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+  TCP_SOCKET.cpp
+  InteractFile.cpp
+  InputAndData.cpp
+d:\documents\visualstudio\bai_tap_lon_ltm\client\inputanddata.cpp(55): warning C4018: '<': signed/unsigned mismatch
+  Generating Code...
+d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(342): warning C4715: 'BnClickedMakeConnect': not all control paths return a value
+  LINK : D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\CLIENT.exe not found or not built by the last incremental link; performing full link
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\CLIENT.exe
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\CLIENT.pdb (Partial PDB)

@@ -1,4 +1,8 @@
-﻿  InputAndData.cpp
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\inputanddata.cpp(63): warning C4018: '<': signed/unsigned mismatch
+﻿  WinMain.cpp
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(57): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(62): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(87): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(92): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(342): warning C4715: 'BnClickedMakeConnect': not all control paths return a value
   Client_test.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\Client_test.exe
   Client_test.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\Client_test.pdb (Partial PDB)

@@ -11,33 +11,9 @@ void InitiateSession(struct SESSION* session) {
 	session->connSock = 0;
 }
 
-void InitiateSearchInfo(struct SearchInfo* info) {
-	info->fileName = new char[BUFF_SIZE];
-	info->searchID = new char[30];
-	info->requestID = new char[30];
-	info->parnerID = new char[30];
-	info->Yes.clear();
-	info->No.clear();
-	info->payload.clear();
-}
-
-bool CheckRamdomIDForSESSION(map<string, SESSION*> mapSession, char* ID) {
-	string id(ID);
-	for (pair<string, SESSION*> data : mapSession)
-		if (id == data.first) return false;
-	return true;
-}
-
-bool CheckRamdomIDForSearch(map<string, SearchInfo*> mapSearch, char* ID) {
-	string id(ID);
-	for (pair<string, SearchInfo*> data : mapSearch)
-		if (id == data.first) return false;
-	return true;
-}
-bool CheckRamdomIDForForward(map<string, ForwardInfo*> mapForward, char* ID) {
-	string id(ID);
-	for (pair<string, ForwardInfo*> data : mapForward)
-		if (id == data.first) return false;
+bool CheckRamdomID(map<string, SESSION*> listSession, char* ID) {
+	for (pair<string, SESSION*> session : listSession)
+		if (!strcmp(ID, session.second->ID)) return false;
 	return true;
 }
 
@@ -86,3 +62,4 @@ char* CreateDATA(char* ID, char* fileName) {
 	strcat_s(result, strlen(result) + strlen(fileName) + 1, fileName);
 	return result;
 }
+

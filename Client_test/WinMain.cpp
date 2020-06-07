@@ -32,7 +32,15 @@ struct PAYLOAD
 	char* fileName;
 };
 
-map<string, SearchInfo*> mapSearch;
+struct SEARCH {
+	list<string> listID;
+	char* fileName;
+};
+
+struct SEARCH_FILE {
+	char* fileName;
+	char* parnerID;
+};
 
 LRESULT CALLBACK WndProcMain(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WndProcSearch(HWND, UINT, WPARAM, LPARAM);
@@ -158,39 +166,43 @@ unsigned _stdcall SaveForwardFile(void* param) {
 }
 
 unsigned _stdcall SearchFile(void* param) {
-	char** info = (char**)param;
-	string fileName(info[1]);
+	SEARCH_FILE* searchFile = (SEARCH_FILE*)param;
+	string fileName(searchFile->fileName);
 	int ret;
 	bool check = SearchFileInDirectory("Data", fileName);
 	if (check) {
-		ret = SEND_TCP(client, o_321, info[0], 0, 0);
+		ret = SEND_TCP(client, o_321, searchFile->parnerID, 0, 0);
+		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+		ret = SEND_TCP(client, o_321, searchFile->fileName, 0, 1);
 		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
 	}
 	else {
-		ret = SEND_TCP(client, o_320, info[0], 0, 0);
+		ret = SEND_TCP(client, o_320, searchFile->parnerID, 0, 0);
+		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+		ret = SEND_TCP(client, o_320, searchFile->fileName, 0, 1);
 		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
 	}
 	return 0;
 }
 
 unsigned _stdcall DrawIDSearch(void* param) {
-	SearchInfo* info = (SearchInfo*)param;
-	if (info->listID.size() == 0) {
+	SEARCH* s = (SEARCH*)param;
+	if (s->listID.size() == 0) {
 		char* fileName = new char[BUFF_SIZE] {"do not find the file: "};
-		strcat_s(fileName, strlen(fileName) + strlen(info->fileName) + 1, info->fileName);
+		strcat_s(fileName, strlen(fileName) + strlen(s->fileName) + 1, s->fileName);
 		MessageBox(hMain, fileName, "ANNOUNT", MB_OK);
 	}
 	else {
-		char* result = new char[22 * info->listID.size()]{ 0 };
+		char* result = new char[22 * s->listID.size()]{ 0 };
 		char* space = new char[2]{ "\n" };
-		for (string ID : info->listID) {
+		for (string ID : s->listID) {
 			char* temp = StringToChars(ID);
 			strcat_s(result, strlen(temp) + strlen(result) + 1, temp);
 			strcat_s(result, strlen(result) + strlen(space) + 1, space);
 		}
 		char* fileName = new char[BUFF_SIZE] {"IDs have the file: "};
-		strcat_s(fileName, strlen(fileName) + strlen(info->fileName) + 1, info->fileName);
-		SetWindowTextA(sFileNameSearch, info->searchID);
+		strcat_s(fileName, strlen(fileName) + strlen(s->fileName) + 1, s->fileName);
+		SetWindowTextA(sFileNameSearch, s->fileName);
 		ShowWindow(hSearch, SW_SHOW);
 	node:
 		int id = MessageBox(hMain, result, fileName, MB_OK);
@@ -199,70 +211,48 @@ unsigned _stdcall DrawIDSearch(void* param) {
 	return 0;
 }
 
-unsigned _stdcall UploadFileToServer(void* param) {
-	char** info = (char**)param;
-	char* d = new char[BUFF_SIZE] {"Data/"};
-	strcat_s(d, strlen(d) + strlen(info[1]) + 1, info[1]);
-	list<string> payload = CreatePayload(d);
-	ret = SEND_TCP(client, o_311, info[0], 0, 0);
-	if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
-	for (string data : payload) {
-		ret = SEND_TCP(client, o_311, StringToChars(data), 0, 1);
-		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
-	}
-	ret = SEND_TCP(client, o_311, new char[1]{ 0 }, 0, 1);
-	if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
-	return 0;
-}
-
 unsigned _stdcall ListenServer(void* param) {
 	int ret, offset;
 	char* opcode = new char[10];
 	char* data = new char[BUFF_SIZE];
 	PAYLOAD payload; payload.fileName = new char[BUFF_SIZE];
-	char* searchID = new char[BUFF_SIZE];
+	SEARCH s; s.fileName = new char[BUFF_SIZE];
+	SEARCH_FILE searchFile;
+	searchFile.fileName = new char[BUFF_SIZE];
+	searchFile.parnerID = new char[BUFF_SIZE];
 	while (true)
 	{
 		ret = RECEIVE_TCP(client, opcode, data, 0, &offset);
 		if (ret == SOCKET_ERROR) continue;
 		data[ret] = 0;
-		if (!strcmp(opcode, o_101)) {
-			SearchInfo info; InitiateSearchInfo(&info);
-			CreateDATA(info.searchID, info.fileName, data);
-			mapSearch.insert({ string(info.searchID), &info });
+		if (!strcmp(opcode, o_120)) {
+			if (offset == 0) strcpy_s(searchFile.fileName, strlen(data) + 1, data);
+			else {
+				strcpy_s(searchFile.parnerID, strlen(data) + 1, data);
+				char* temp1 = new char[100]{ "Require find the file with name: " };
+				char* temp2 = new char[20]{ " to client[" };
+				char* temp3 = new char[100]{ "]\nDo you allow find?" };
+				strcat_s(temp1, strlen(searchFile.fileName) + strlen(temp1) + 1, searchFile.fileName);
+				strcat_s(temp1, strlen(temp2) + strlen(temp1) + 1, temp2);
+				strcat_s(temp1, strlen(searchFile.parnerID) + strlen(temp1) + 1, searchFile.parnerID);
+				strcat_s(temp1, strlen(temp3) + strlen(temp1) + 1, temp3);
+				int id = MessageBox(hMain, temp1, "ANNOUNT", MB_OKCANCEL);
+				if (id == IDCANCEL) {
+					ret = SEND_TCP(client, o_320, searchFile.fileName, 0, 0);
+					if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+					ret = SEND_TCP(client, o_320, searchFile.parnerID, 0, 1);
+					if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+				}
+				else if (id == IDOK) _beginthreadex(0, 0, SearchFile, (void*)&searchFile, 0, 0);
+			}
 		}
 
 		else if (!strcmp(opcode, o_111)) {
-			if (offset == 0) strcpy_s(searchID, strlen(data) + 1, data);
+			if (offset == 0) strcpy_s(s.fileName, strlen(data) + 1, data);
 			else {
-				if (strcmp(data, "")) mapSearch[searchID]->listID.push_back(string(data));
-				else _beginthreadex(0, 0, DrawIDSearch, (void*)&mapSearch[searchID], 0, 0);
+				if (strcmp(data, "")) s.listID.push_back(string(data));
+				else _beginthreadex(0, 0, DrawIDSearch, (void*)&s, 0, 0);
 			}
-		}
-
-		else if (!strcmp(opcode, o_120)) {
-			char** info = new char*[2];
-			info[0] = new char[BUFF_SIZE];
-			info[1] = new char[BUFF_SIZE];
-			CreateDATA(info[0], info[1], data);
-			char* temp1 = new char[100]{ "Require find the file with name: " };
-			char* temp2 = new char[100]{ "\nDo you allow find?" };
-			strcat_s(temp1, strlen(info[1]) + strlen(temp1) + 1, info[0]);
-			strcat_s(temp1, strlen(temp2) + strlen(temp1) + 1, temp2);
-			int id = MessageBox(hMain, temp1, "ANNOUNT", MB_OKCANCEL);
-			if (id == IDCANCEL) {
-				ret = SEND_TCP(client, o_320, info[0], 0, 0);
-				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
-			}
-			else if (id == IDOK) _beginthreadex(0, 0, SearchFile, (void*)&info, 0, 0);
-		}
-
-		else if (!strcmp(opcode, o_121)) {
-			char** info = new char*[2];
-			info[0] = new char[BUFF_SIZE];
-			info[1] = new char[BUFF_SIZE];
-			CreateDATA(info[0], info[1], data);
-			_beginthreadex(0, 0, UploadFileToServer, (void*)info, 0, 0);
 		}
 
 		else if (!strcmp(opcode, o_200)) {
@@ -471,9 +461,11 @@ void OnBnClickedSend(HWND hWnd) {
 	GetWindowText(eID, id, 30);
 	if (string(id) == "") MessageBox(hWnd, "Enter parner ID to download file", "ANNOUNT", MB_OK);
 	else {
-		TCHAR* searchID = new char[BUFF_SIZE];
-		GetWindowText(sFileNameSearch, searchID, BUFF_SIZE);
-		ret = SEND_TCP(client, o_312, CreateDATA(searchID, id), 0, 0);
+		TCHAR* fileName = new char[BUFF_SIZE];
+		GetWindowText(sFileNameSearch, fileName, BUFF_SIZE);
+		ret = SEND_TCP(client, o_312, fileName, 0, 0);
+		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+		ret = SEND_TCP(client, o_312, fileName, 0, 1);
 		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 	}
 }
