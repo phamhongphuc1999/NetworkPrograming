@@ -33,6 +33,7 @@ static int staticIDSearch = 205;
 //define opcode
 //server
 static char* o_100 = new char[4]{ "100" };
+static char* o_101 = new char[4]{ "101" };
 static char* o_110 = new char[4]{ "110" };
 static char* o_111 = new char[4]{ "111" };
 static char* o_112 = new char[4]{ "112" };

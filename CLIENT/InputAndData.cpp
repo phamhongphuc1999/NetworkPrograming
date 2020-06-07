@@ -1,5 +1,6 @@
 #include "InputAndData.h"
 #include <WS2tcpip.h>
+#include <time.h>
 
 int CheckIP(char* IP) {
 	int index = 0, sum = 0, countPoint = 0;
@@ -25,6 +26,13 @@ int CheckIP(char* IP) {
 
 bool CheckConnect(char* address, int port) {
 	return (port > 0) && CheckIP(address);
+}
+
+void InitiateSearchInfo(struct SearchInfo* info) {
+	info->fileName = new char[BUFF_SIZE];
+	info->searchID = new char[BUFF_SIZE];
+	info->listID.clear();
+	info->payload.clear();
 }
 
 char* StringToChars(string input) {
@@ -59,4 +67,31 @@ wchar_t* StringToWchar(string str)
 	}
 	ws_str[index] = 0;
 	return ws_str;
+}
+
+void CreateDATA(char* ID, char* fileName, char* data) {
+	int index = 0;
+	while (true) {
+		if (data[index] == ' ') break;
+		ID[index] = data[index];
+		index++;
+	}
+	ID[index++] = 0;
+	int index1 = 0;
+	while (true)
+	{
+		if (data[index] == 0) break;
+		fileName[index1] = data[index];
+		index++; index1++;
+	}
+	fileName[index1] = 0;
+}
+
+char* CreateDATA(char* ID, char* fileName) {
+	char* result = new char[BUFF_SIZE] {0};
+	strcat_s(result, strlen(result) + strlen(ID) + 1, ID);
+	int l = strlen(result);
+	result[l] = ' '; result[l + 1] = 0;
+	strcat_s(result, strlen(result) + strlen(fileName) + 1, fileName);
+	return result;
 }

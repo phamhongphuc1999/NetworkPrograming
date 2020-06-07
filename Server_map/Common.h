@@ -16,20 +16,27 @@ struct ForwardInfo
 };
 
 struct SearchInfo {
+	char* searchID;
+	char* requestID;
+	char* parnerID;
 	char* fileName;
 	list<string> Yes;
 	list<string> No;
-	int status;
+	list<string> payload;
 };
 
 struct SESSION {
 	char* ID;
 	ForwardInfo forwardInfo;
-	map<string, SearchInfo> searchInfo;
 	SOCKET connSock;
 };
 
 void InitiateSession(struct SESSION* session);
-bool CheckRamdomID(map<string, SESSION*> listSession, char* ID);
+void InitiateSearchInfo(struct SearchInfo* info);
+bool CheckRamdomIDForSESSION(map<string, SESSION*> mapSession, char* ID);
+bool CheckRamdomIDForSearch(map<string, SearchInfo*> mapSearch, char* ID);
+bool CheckRamdomIDForForward(map<string, ForwardInfo*> mapForward, char* ID);
 char* CreateRamdomID();
 char* StringToChars(string input);
+void CreateDATA(char* ID, char* fileName, char* data);
+char* CreateDATA(char* ID, char* fileName);
