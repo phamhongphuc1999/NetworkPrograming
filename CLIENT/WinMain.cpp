@@ -14,6 +14,7 @@ bool isConnect = false, isHide = true;
 //controller in search window
 static HWND btnSend;
 static HWND eID;
+static HWND sFileNameSearch, sIDSearch;
 
 #pragma region CONNECT SERVER
 WSADATA wsaData;
@@ -27,12 +28,12 @@ char* cParnerID = new char[BUFF_SIZE];
 
 struct PAYLOAD
 {
-	list<char*> data;
+	list<string> data;
 	char* fileName;
 };
 
 struct SEARCH {
-	list<char*> data;
+	list<string> listID;
 	char* fileName;
 };
 
@@ -74,7 +75,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 	ShowWindow(hMain, nCmdShow);
 	UpdateWindow(hMain);
-
 
 	WNDCLASSEX w_search;
 	ZeroMemory(&w_search, sizeof(WNDCLASSEX));
@@ -131,7 +131,9 @@ void DrawMainWindow(HWND hWnd) {
 }
 
 void DrawSearchWindow(HWND hWnd) {
-	btnSend = CreateWindow("button", "SEND", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 160, 20, 80, 30, hWnd, (HMENU)bSend, hInst, NULL);
+	sIDSearch = CreateWindow("STATIC", "ID", WS_VISIBLE | WS_CHILD | SS_RIGHT, 30, 90, 55, 20, hWnd, (HMENU)staticIDSearch, NULL, NULL);
+	sFileNameSearch = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_CENTER, 160, 0, 80, 20, hWnd, (HMENU)staticFNSearch, NULL, NULL);
+	btnSend = CreateWindow("button", "SEND", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 160, 30, 80, 30, hWnd, (HMENU)bSend, hInst, NULL);
 	eID = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 90, 200, 20, hWnd, (HMENU)editID, NULL, NULL);
 }
 
@@ -153,9 +155,11 @@ unsigned _stdcall SaveForwardFile(void* param) {
 	PAYLOAD* payload = (PAYLOAD*)param;
 	string fileName(payload->fileName);
 	fstream f; f.open("Data/" + fileName, ios::out);
-	for (char* data : payload->data) {
+	for (string data : payload->data) {
 		f << data;
 	}
+	delete[] payload->fileName;
+	payload->data.clear();
 	f.close();
 	MessageBox(hMain, "RECEIVE FORWARD FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_OK);
 	return 0;
@@ -165,7 +169,7 @@ unsigned _stdcall SearchFile(void* param) {
 	SEARCH_FILE* searchFile = (SEARCH_FILE*)param;
 	string fileName(searchFile->fileName);
 	int ret;
-	bool check = SearchFileInDirectory("/Data", fileName);
+	bool check = SearchFileInDirectory("Data", fileName);
 	if (check) {
 		ret = SEND_TCP(client, o_321, searchFile->parnerID, 0, 0);
 		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
@@ -183,20 +187,22 @@ unsigned _stdcall SearchFile(void* param) {
 
 unsigned _stdcall DrawIDSearch(void* param) {
 	SEARCH* s = (SEARCH*)param;
-	if (s->data.size() == 0) {
+	if (s->listID.size() == 0) {
 		char* fileName = new char[BUFF_SIZE] {"do not find the file: "};
 		strcat_s(fileName, strlen(fileName) + strlen(s->fileName) + 1, s->fileName);
 		MessageBox(hMain, fileName, "ANNOUNT", MB_OK);
 	}
 	else {
-		char* result = new char[22 * s->data.size()];
+		char* result = new char[22 * s->listID.size()]{ 0 };
 		char* space = new char[2]{ "\n" };
-		for (char* ID : s->data) {
-			strcat_s(result, strlen(ID) + strlen(result) + 1, ID);
+		for (string ID : s->listID) {
+			char* temp = StringToChars(ID);
+			strcat_s(result, strlen(temp) + strlen(result) + 1, temp);
 			strcat_s(result, strlen(result) + strlen(space) + 1, space);
 		}
 		char* fileName = new char[BUFF_SIZE] {"IDs have the file: "};
 		strcat_s(fileName, strlen(fileName) + strlen(s->fileName) + 1, s->fileName);
+		SetWindowTextA(sFileNameSearch, s->fileName);
 		ShowWindow(hSearch, SW_SHOW);
 	node:
 		int id = MessageBox(hMain, result, fileName, MB_OK);
@@ -244,7 +250,7 @@ unsigned _stdcall ListenServer(void* param) {
 		else if (!strcmp(opcode, o_111)) {
 			if (offset == 0) strcpy_s(s.fileName, strlen(data) + 1, data);
 			else {
-				if (strcmp(data, "")) s.data.push_back(data);
+				if (strcmp(data, "")) s.listID.push_back(string(data));
 				else _beginthreadex(0, 0, DrawIDSearch, (void*)&s, 0, 0);
 			}
 		}
@@ -266,7 +272,7 @@ unsigned _stdcall ListenServer(void* param) {
 		else if (!strcmp(opcode, o_201)) {
 			if (offset == 0) strcpy_s(payload.fileName, strlen(data) + 1, data);
 			else {
-				if (strcmp(data, "")) payload.data.push_back(data);
+				if (strcmp(data, "")) payload.data.push_back(string(data));
 				else _beginthreadex(0, 0, SaveForwardFile, (void*)&payload, 0, 0);
 			}
 		}
@@ -355,9 +361,13 @@ void OnBnClickedConnect(HWND hWnd) {
 		char* cAddress = address;
 		u_short iPort = atoi(port);
 		if (CheckConnect(cAddress, iPort)) {
+		node:
 			int status = BnClickedMakeConnect(cAddress, iPort);
 			if (status == -1) MessageBox(hWnd, "Version is not supported", "ERROR", MB_OK);
-			else if (status == -2) MessageBox(hWnd, "Can not connect server", "ERROR", MB_OK);
+			else if (status == -2) {
+				int id = MessageBox(hWnd, "Can not connect server", "ERROR", MB_RETRYCANCEL);
+				if (id == IDRETRY) goto node;
+			}
 			else if (status == SOCKET_ERROR) MessageBox(hWnd, "Can not get ID", "ERROR", MB_OK);
 			else if (status == 1) {
 				BnClickedDrawConnect();
@@ -451,7 +461,12 @@ void OnBnClickedSend(HWND hWnd) {
 	GetWindowText(eID, id, 30);
 	if (string(id) == "") MessageBox(hWnd, "Enter parner ID to download file", "ANNOUNT", MB_OK);
 	else {
-
+		TCHAR* fileName = new char[BUFF_SIZE];
+		GetWindowText(sFileNameSearch, fileName, BUFF_SIZE);
+		ret = SEND_TCP(client, o_312, fileName, 0, 0);
+		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+		ret = SEND_TCP(client, o_312, fileName, 0, 1);
+		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 	}
 }
 

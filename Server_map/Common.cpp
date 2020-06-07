@@ -4,10 +4,9 @@
 #include <list>
 
 void InitiateSession(struct SESSION* session) {
-	session->forwardInfo = new ForwardInfo[1];
-	session->forwardInfo->fileName = new char[BUFF_SIZE];
-	session->forwardInfo->parnerID = new char[BUFF_SIZE];
-	session->forwardInfo->payload.clear();
+	session->forwardInfo.fileName = new char[BUFF_SIZE];
+	session->forwardInfo.parnerID = new char[BUFF_SIZE];
+	session->forwardInfo.payload.clear();
 	session->connSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	session->connSock = 0;
 }
@@ -28,3 +27,12 @@ char* CreateRamdomID() {
 	result[20] = 0;
 	return result;
 }
+
+char* StringToChars(string input) {
+	int length = input.length();
+	char* result = new char[length];
+	for (int i = 0; i < length; i++) result[i] = input[i];
+	result[length] = 0;
+	return result;
+}
+

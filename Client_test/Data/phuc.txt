@@ -1,0 +1,135 @@
+Blockchain[1][2][3] (chuỗi khối), tên ban đầu block chain[4][5] là một cơ sở dữ liệu phân cấp lưu trữ thông tin trong các khối thông tin được liên kết với nhau bằng mã hóa và mở rộng theo thời gian.[1][6] Mỗi khối thông tin đều chứa thông tin về thời gian khởi tạo và được liên kết tới khối trước đó[6], kèm một mã thời gian và dữ liệu giao dịch.[7] Blockchain được thiết kế để chống lại việc thay đổi của dữ liệu: Một khi dữ liệu đã được mạng lưới chấp nhận thì sẽ không có cách nào thay đổi được nó.
+
+Blockchain được đảm bảo nhờ cách thiết kế sử dụng hệ thống tính toán phân cấp với khả năng chịu lỗi byzantine cao. Vì vậy sự đồng thuận phân cấp có thể đạt được nhờ Blockchain. Vì vậy Blockchain phù hợp để ghi lại những sự kiện, hồ sơ y tế, xử lý giao dịch, công chứng, danh tính và chứng minh nguồn gốc. Việc này có tiềm năng giúp xóa bỏ các hậu quả lớn khi dữ liệu bị thay đổi trong bối cảnh thương mại toàn cầu.
+
+Blockchain đầu tiên được phát minh và thiết kế bới Satoshi Nakamoto vào năm 2008 và được hiện thực hóa vào năm sau đó như là một phần cốt lõi của Bitcoin, khi công nghệ blockchain đóng vai trò như là một cuốn sổ cái cho tất cả các giao dịch. Qua việc sử dụng mạng lưới ngang hàng và một hệ thống dữ liệu phân cấp, Bitcoin blockchain được quản lý tự động. Việc phát minh ra blockchain cho Bitcoin đã làm cho nó trở thành loại tiền tệ kỹ thuật số đầu tiên giải quyết được vấn đề double spending (chi tiêu gian lận khi 1 lượng tiền được dùng 2 lần). Công nghệ này của Bitcoin đã trở thành nguồn cảm hứng cho một loạt các ứng dụng khác.
+
+Công nghệ blockchain tương đồng với cơ sở dữ liệu, chỉ khác ở việc tương tác với cơ sở dữ liệu. Để hiểu blockchain, cần nắm được năm định nghĩa sau: chuỗi khối (blockchain), cơ chế đồng thuận phân tán đồng đẳng (Distributed), tính toán tin cậy (trusted computing), hợp đồng thông minh (smart contracts) và bằng chứng công việc (proof of work).  Mô hình tính toán này là nền tảng của việc tạo ra các ứng dụng phân tán.
+
+
+Mục lục
+1	Cơ chế đồng thuận phân tán đồng đẳng (hay còn gọi là cơ chế đồng thuận phân quyền) (Distributed)
+2	Chuỗi khối (The blockchain) và dịch vụ chuỗi khối
+3	Hợp đồng thông minh (smart contracts) và tài sản thông minh
+4	Tính toán tin cậy (trusted computing)
+5	Bằng chứng công việc (Proof of work)
+6	Những vấn đề còn tồn tại
+7	Tham khảo
+8	Đọc thêm
+Cơ chế đồng thuận phân tán đồng đẳng (hay còn gọi là cơ chế đồng thuận phân quyền) (Distributed)
+Cơ chế này ngược lại với mô hình cổ điển về cơ chế đồng thuận tập trung – nghĩa là khi một cơ sở dữ liệu tập trung được dùng để quản lý việc xác thực giao dịch. Một sơ đồ phân tán đồng đẳng chuyển giao quyền lực và sự tin tưởng cho một mạng lưới phân tán đồng đẳng và cho phép các nút của mạng lưới đó liên tục lưu trữ các giao dịch trên một khối (block) công cộng, tạo nên một chuỗi (chain) độc nhất: chuỗi khối (blockchain). Mỗi khối kế tiếp chứa một “hash” (một dấu tay độc nhất) của mã trước nó; vì thế, mã hóa (thông qua hàm hash) được sử dụng để bảo đảm tính xác thực của nguồn giao dịch và loại bỏ sự cần thiết phải có một trung gian tập trung. Sự kết hợp của mã hóa và công nghệ blockchain lại đảm bảo rằng sẽ không bao giờ một giao dịch được lưu trữ lại hai lần.
+
+Chuỗi khối (The blockchain) và dịch vụ chuỗi khối
+Một chuỗi khối giống như một nơi để lưu trữ dữ liệu bán công cộng trong một không gian chứa hẹp (khối). Bất cứ ai cũng có thể xác nhận việc bạn nhập thông tin vào vì khối chứa có chữ ký của bạn, nhưng chỉ có bạn (hoặc một chương trình) có thể thay đổi được dữ liệu của khối đó vì chỉ có bạn cầm khóa bí mật cho dữ liệu đó.
+
+Vì thế chuỗi khối hoạt động gần giống như một cơ sở dữ liệu, ngoại trừ một phần của thông tin được lưu trữ - header của nó là công khai.
+
+Dữ liệu lưu trữ có thể là một giá trị hoặc một số dư tiền mã hóa. Một chuỗi khối hoạt động như một hệ thống lưu chuyển giá trị thay thế mà không một quyền lực tập trung hay bên thứ ba nào có thể chen vào (vì quá trình mã hóa). Nó được dựa trên quyền công khai/ bí mật, là âm-dương của chuỗi khối: nhìn công khai nhưng kiểm soát bí mật.
+
+Hợp đồng thông minh (smart contracts) và tài sản thông minh
+Hợp đồng thông minh là các khối để xây dựng nên các ứng dụng phi tập trung. Một hợp đồng thông minh tương đương với một chương trình nhỏ mà bạn có thể tin tưởng với một đơn vị giá trị và quản lý giá trị đó. Ý tưởng cơ bản đằng sau hợp đồng thông minh là sự quản lý bằng khế ước đối với một giao dịch giữa hai bên liên quan hay nhiều hơn có thể được xác minh theo thứ tự thông qua chuỗi khối, thay vì thông qua một quan tòa tập trung. Sao phải dựa vào một quyền lực tập trung trong khi hai hay nhiều bên tham gia có thể đồng thuận lẫn nhau, và khi họ có thể đưa ra các điều khoản và thực thi sự đồng thuận bằng chương trình và các điều kiện, tiền sẽ được chuyển tự động khi hoàn thành một số dịch vụ.
+
+Tính toán tin cậy (trusted computing)
+Khi bạn kết hợp các nền tảng đằng sau chuỗi khối, cơ chế đồng thuận phi tập trung và hợp đồng thông minh, bạn sẽ nhận ra rằng chúng hỗ trợ cho việc truyền bá các nguồn lực và giao dịch trên một mặt phẳng theo một cách ngang hàng, và trong khi làm điều đó, chúng cho phép các máy tính tin tưởng lẫn nhau ở một mức độ sâu.
+
+Vì vai trò của chuỗi khối là người xác nhận giao dịch minh bạch, mỗi khối ngang hàng có thể tiếp tục tin tưởng lẫn nhau tuân theo các quy luật tin tưởng nằm trên công nghệ.
+
+Bằng chứng công việc (Proof of work)
+Tại trung tâm của hoạt động chuỗi khối là khái niệm then chốt của “bằng chứng công việc”, một phần tích hợp tầm nhìn của Satoshi Nakamoto cho vai trò của chuỗi khối trong việc xác thực các giao dịch. Nó được biểu hiện là một rào cản lớn ngăn cản người dùng thay đổi dữ liệu trên chuỗi khối mà không sửa lại bằng chứng công việc.
+
+Bằng chứng công việc là khối then chốt xây dựng nên blockchain vì nó không thể “sửa lại” và được bảo vệ thông qua sức mạnh của hàm hash mã hóa.
+
+Những vấn đề còn tồn tại
+Một trong những đặc điểm được PR nhất của blockchain là tính phân tán đồng đẳng, nghĩa là không cần một trung tâm lưu trữ và đồng bộ trạng thái mạng lưới. Tuy nhiên hiện nay tính năng này hoạt động quá chậm chạp trong môi trường giao dịch của bitcoin.
+
+Ví dụ không ít vụ việc hacker đã đánh vào các sàn giao dịch phi tập trung hoặc tập trung để cắp bitcoin và số tiền của nhà đầu tư.
+
+Ngoài ra việc kỳ vọng bitcoin thay thế phương tiện thanh toán cổ điển đã gần như tan biến khi tốc độ giao dịch qúa chậm so với thẻ tín dụng.
+
+Để đảm bảo tính minh bạch và đồng nhất thì dữ liệu tại mỗi điểm node phải như nhau và nó làm cho việc lưu trữ là bất khả thi đối với thiết bị có bộ nhớ hạn chế.
+
+Tham khảo
+^ a ă Economist Staff (ngày 31 tháng 10 năm 2015). “Blockchains: The great chain of being sure about things”. The Economist. Truy cập ngày 18 tháng 6 năm 2016. The technology behind bitcoin lets people who do not know or trust each other build a dependable ledger. This has implications far beyond the crypto currency.
+^ Morris, David Z. (ngày 15 tháng 5 năm 2016). “Leaderless, Blockchain-Based Venture Capital Fund Raises $100 Million, And Counting”. Fortune. Truy cập ngày 23 tháng 5 năm 2016.
+^ Popper, Nathan (ngày 21 tháng 5 năm 2016). “A Venture Fund With Plenty of Virtual Capital, but No Capitalist”. New York Times. Truy cập ngày 23 tháng 5 năm 2016.
+^ Brito, Jerry; Castillo, Andrea (2013). Bitcoin: A Primer for Policymakers (PDF) (Bản báo cáo). Fairfax, VA: Mercatus Center, George Mason University. Truy cập ngày 22 tháng 10 năm 2013.
+^ Trottier, Leo (ngày 18 tháng 6 năm 2016). “original-bitcoin” (self-published code collection). github. Truy cập ngày 18 tháng 6 năm 2016. This is a historical repository of Satoshi Nakamoto's original bit coin sourcecode
+^ a ă Narayanan, Arvind; Bonneau, Joseph; Felten, Edward; Miller, Andrew; Goldfeder, Steven (2016). Bitcoin and cryptocurrency technologies: a comprehensive introduction. Princeton: Princeton University Press. ISBN 978-0-691-17169-2.
+^ “Blockchain”. Investopedia. Truy cập ngày 19 tháng 3 năm 2016. Based on the Bitcoin protocol, the blockchain database is shared by all nodes participating in a system.
+Lỗi chú thích: Thẻ <ref> có tên “econotimes2060318” được định nghĩa trong <references> không được đoạn văn bản trên sử dụng.
+Lỗi chú thích: Thẻ <ref> có tên “kopstein” được định nghĩa trong <references> không được đoạn văn bản trên sử dụng.
+Lỗi chú thích: Thẻ <ref> có tên “HBR201605” được định nghĩa trong <references> không được đoạn văn bản trên sử dụng.
+Lỗi chú thích: Thẻ <ref> có tên “t4” được định nghĩa trong <references> không được đoạn văn bản trên sử dụng.
+Lỗi chú thích: Thẻ <ref> có tên “t8” được định nghĩa trong <references> không được đoạn văn bản trên sử dụng.
+Lỗi chú thích: Thẻ <ref> có tên “t9” được định nghĩa trong <references> không được đoạn văn bản trên sử dụng.
+Lỗi chú thích: Thẻ <ref> có tên “t10” được định nghĩa trong <references> không được đoạn văn bản trên sử dụng.
+Lỗi chú thích: Thẻ <ref> có tên “t11” được định nghĩa trong <references> không được đoạn văn bản trên sử dụng.
+Lỗi chú thích: Thẻ <ref> có tên “t12” được định nghĩa trong <references> không được đoạn văn bản trên sử dụng.
+Lỗi chú thích: Thẻ <ref> có tên “t16” được định nghĩa trong <references> không được đoạn văn bản trên sử dụng.
+Lỗi chú thích: Thẻ <ref> có tên “paper” được định nghĩa trong <references> không được đoạn văn bản trên sử dụng.
+Lỗi chú thích: Thẻ <ref> có tên “nyt20160327” được định nghĩa trong <references> không được đoạn văn bản trên sử dụng.
+Đọc thêm
+Công nghệ chuỗi khối blockchain là gì?
+
+Thể loại: Khoa học máy tínhMật mã họcCông nghệ tài chínhHệ quản trị cơ sở dữ liệuCơ sở dữ liệuBitcoinTiền mã hóaGiao thức tầng ứng dụngPhần mềm năm 2009Thiết bị đếmPhi tập trung hóaCông nghệ mới nổiMã hóaHệ thống thông tinCông cụ toán họcHệ thống viết
+Trình đơn chuyển hướng
+Chưa đăng nhậpThảo luận cho địa chỉ IP nàyĐóng gópMở tài khoảnĐăng nhậpViết nháp
+Bài viếtThảo luận
+ĐọcSửa đổiSửa mã nguồnXem lịch sửKhác
+Tìm kiếm
+Tìm kiếm Wikipedia
+Trang Chính
+Bài viết chọn lọc
+Tin tức
+Bài viết ngẫu nhiên
+Thay đổi gần đây
+Phản hồi lỗi
+Quyên góp
+Tương tác
+Hướng dẫn
+Giới thiệu Wikipedia
+Cộng đồng
+Thảo luận chung
+Giúp sử dụng
+Liên lạc
+Gõ tiếng Việt
+Trợ giúp
+ Tự động [F9]
+ Telex (?)
+ VNI (?)
+ VIQR (?)
+ VIQR*
+ Tắt [F12]
+ Bỏ dấu kiểu cũ [F7]
+ Đúng chính tả [F8]
+Công cụ
+Các liên kết đến đây
+Thay đổi liên quan
+Trang đặc biệt
+Liên kết thường trực
+Thông tin trang
+Trích dẫn trang này
+Khoản mục Wikidata
+
+Ngôn ngữ khác
+العربية
+Bahasa Indonesia
+English
+Español
+Français
+हिन्दी
+Русский
+اردو
+中文
+58 nữa
+Sửa liên kết
+Tại dự án khác
+Wikimedia Commons
+In/xuất ra
+Tạo một quyển sách
+Tải về dưới dạng PDF
+Bản để in ra
+Trang này được sửa đổi lần cuối vào ngày 5 tháng 6 năm 2020 lúc 09:44.
+Văn bản được phát hành theo Giấy phép Creative Commons Ghi công–Chia sẻ tương tự; có thể áp dụng điều khoản bổ sung. Với việc sử dụng trang web này, bạn chấp nhận Điều khoản Sử dụng và Quy định quyền riêng tư.
+Wikipedia® là thương hiệu đã đăng ký của Wikimedia Foundation, Inc., một tổ chức phi lợi nhuận.
+Quy định quyền riêng tưGiới thiệu WikipediaLời phủ nhậnNhà phát triểnStatisticsTuyên bố về cookiePhiên bản di độn

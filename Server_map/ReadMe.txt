@@ -16,6 +16,7 @@ data: phần còn lại của gói tin gửi đi, chứ dữ liệu cần truy�
 111: gửi danh sách các client có file yêu cầu
 112: tải file từ server về client
 120: gửi yêu cầu tìm kiếm file đến client
+121: gửi yêu cầu tải file lên server
 200: yêu cầu chuyển tiếp file về client
 201: tải file chuyển tiếp về client, lần đầu tải tên file, các lần sau là dữ liệu của file, lần cuối 
      không mang dữ liệu để thông báo kết thúc
@@ -25,6 +26,7 @@ data: phần còn lại của gói tin gửi đi, chứ dữ liệu cần truy�
 300: yêu cầu kết nối và gửi ID
 310: gửi yêu cầu tìm kiếm file
 311: tải file từ client được chỉ định bởi client khác lên server
+312: yêu cầu tải file từ client có ID trong phần data(lần 1 gửi tên file, lần 2 gửi ID của client)
 320: không tìm thấy tên file trong trường data
 321: tìm thấy tên file trong trường data
 400: gửi ID của người cần chuyển tiếp file đến, sau đó gửi file name

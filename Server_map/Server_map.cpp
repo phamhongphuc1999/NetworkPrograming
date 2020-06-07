@@ -94,14 +94,14 @@ unsigned _stdcall ReleaseSession(void* param) {
 
 unsigned _stdcall SearchSessionByID(void* param) {
 	SESSION* currentSession = (SESSION*)param;
-	string parnerID(currentSession->forwardInfo->parnerID);
+	string parnerID(currentSession->forwardInfo.parnerID);
 	SESSION* session = mapSession[parnerID];
 	if (session != NULL) {
 		int ret = SEND_TCP(session->connSock, o_200, currentSession->ID, 0, 0);
 		if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", session->ID);
 	}
 	else {
-		int ret = SEND_TCP(currentSession->connSock, o_203, currentSession->forwardInfo->parnerID, 0, 0);
+		int ret = SEND_TCP(currentSession->connSock, o_203, currentSession->forwardInfo.parnerID, 0, 0);
 		if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", currentSession->ID);
 	}
 	return 0;
@@ -109,12 +109,12 @@ unsigned _stdcall SearchSessionByID(void* param) {
 
 unsigned _stdcall ForwardFileToClient(void* param) {
 	SESSION* session = (SESSION*)param;
-	string parnerID(session->forwardInfo->parnerID);
+	string parnerID(session->forwardInfo.parnerID);
 	SESSION* parnerSession = mapSession[parnerID];
-	int ret = SEND_TCP(parnerSession->connSock, o_201, session->forwardInfo->fileName, 0, 0);
+	int ret = SEND_TCP(parnerSession->connSock, o_201, session->forwardInfo.fileName, 0, 0);
 	if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", parnerSession->ID);
-	for (char* data : session->forwardInfo->payload) {
-		ret = SEND_TCP(parnerSession->connSock, o_201, data, 0, 1);
+	for (string data : session->forwardInfo.payload) {
+		ret = SEND_TCP(parnerSession->connSock, o_201, StringToChars(data), 0, 1);
 		if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", parnerSession->ID);
 	}
 	ret = SEND_TCP(parnerSession->connSock, o_201, new char[1]{ 0 }, 0, 1);
@@ -155,8 +155,8 @@ unsigned _stdcall SendListClient(void* param) {
 	string fileName(s->fileName);
 	int ret = SEND_TCP(s->session->connSock, o_111, s->fileName, 0, 0);
 	if (ret == SOCKET_ERROR) printf("Can send to client[%s]\n", s->session->ID);
-	for (char* ID : s->session->searchInfo[fileName].Yes) {
-		ret = SEND_TCP(s->session->connSock, o_111, ID, 0, 1);
+	for (string ID : s->session->searchInfo[fileName].Yes) {
+		ret = SEND_TCP(s->session->connSock, o_111, StringToChars(ID), 0, 1);
 		if (ret == SOCKET_ERROR) printf("Can send to client[%s]\n", s->session->ID);
 	}
 	ret = SEND_TCP(s->session->connSock, o_111, new char[1]{ 0 }, 0, 1);
@@ -245,6 +245,14 @@ unsigned _stdcall Handler(void* param) {
 					_beginthreadex(0, 0, SearchFile, (void*)&client[index], 0, 0);
 				}
 
+				else if (!strcmp(opcode, o_311)) {
+
+				}
+
+				else if (!strcmp(opcode, o_312)) {
+
+				}
+
 				else if (!strcmp(opcode, o_320)) {
 					if (offset == 0) {
 						string temp(buffReceive);
@@ -252,7 +260,7 @@ unsigned _stdcall Handler(void* param) {
 					}
 					else {
 						string fileName(buffReceive);
-						mapSession[ID]->searchInfo[fileName].No.push_back(client[index].ID);
+						mapSession[ID]->searchInfo[fileName].No.push_back(string(client[index].ID));
 						int yesSize = mapSession[ID]->searchInfo[fileName].Yes.size();
 						int noSize = mapSession[ID]->searchInfo[fileName].No.size();
 						if (yesSize + noSize == mapSession.size() - 1) {
@@ -272,7 +280,7 @@ unsigned _stdcall Handler(void* param) {
 					}
 					else {
 						string fileName(buffReceive);
-						mapSession[ID]->searchInfo[fileName].No.push_back(client[index].ID);
+						mapSession[ID]->searchInfo[fileName].Yes.push_back(string(client[index].ID));
 						int yesSize = mapSession[ID]->searchInfo[fileName].Yes.size();
 						int noSize = mapSession[ID]->searchInfo[fileName].No.size();
 						if (yesSize + noSize == mapSession.size() - 1) {
@@ -286,13 +294,9 @@ unsigned _stdcall Handler(void* param) {
 				}
 
 				else if (!strcmp(opcode, o_400)) {
-					if (offset == 0) {
-						strcpy_s(client[index].forwardInfo->parnerID, strlen(buffReceive) + 1, buffReceive);
-						printf("%s\n", buffReceive);
-					}
+					if (offset == 0) strcpy_s(client[index].forwardInfo.parnerID, strlen(buffReceive) + 1, buffReceive);
 					else if (offset == 1) {
-						strcpy_s(client[index].forwardInfo->fileName, strlen(buffReceive) + 1, buffReceive);
-						printf("%s\n", buffReceive);
+						strcpy_s(client[index].forwardInfo.fileName, strlen(buffReceive) + 1, buffReceive);
 						_beginthreadex(0, 0, SearchSessionByID, (void*)&client[index], 0, 0);
 					}
 				}
@@ -302,9 +306,7 @@ unsigned _stdcall Handler(void* param) {
 						printf("RECEIVE FORWARD FILE FINISH\n");
 						_beginthreadex(0, 0, ForwardFileToClient, (void*)&client[index], 0, 0);
 					}
-					else {
-						client[index].forwardInfo->payload.push_back(buffReceive);
-					}
+					else client[index].forwardInfo.payload.push_back(string(buffReceive));
 				}
 
 				else if (!strcmp(opcode, o_410)) {

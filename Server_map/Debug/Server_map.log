@@ -5,5 +5,10 @@ d:\documents\visualstudio\bai_tap_lon_ltm\server_map\server_map.cpp(171): warnin
 d:\documents\visualstudio\bai_tap_lon_ltm\server_map\server_map.cpp(174): warning C4101: 'i': unreferenced local variable
 d:\documents\visualstudio\bai_tap_lon_ltm\server_map\server_map.cpp(171): warning C4101: 'password': unreferenced local variable
 d:\documents\visualstudio\bai_tap_lon_ltm\server_map\server_map.cpp(170): warning C4101: 'buffSend': unreferenced local variable
+  Generating Code...
+  Compiling...
+  TCP_SOCKET.cpp
+  Common.cpp
+  Generating Code...
   Server_map.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\Server_map.exe
   Server_map.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\Server_map.pdb (Full PDB)

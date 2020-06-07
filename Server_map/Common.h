@@ -12,19 +12,19 @@ struct ForwardInfo
 {
 	char* parnerID;
 	char* fileName;
-	list<char*> payload;
+	list<string> payload;
 };
 
 struct SearchInfo {
 	char* fileName;
-	list<char*> Yes;
-	list<char*> No;
+	list<string> Yes;
+	list<string> No;
 	int status;
 };
 
 struct SESSION {
 	char* ID;
-	ForwardInfo* forwardInfo;
+	ForwardInfo forwardInfo;
 	map<string, SearchInfo> searchInfo;
 	SOCKET connSock;
 };
@@ -32,3 +32,4 @@ struct SESSION {
 void InitiateSession(struct SESSION* session);
 bool CheckRamdomID(map<string, SESSION*> listSession, char* ID);
 char* CreateRamdomID();
+char* StringToChars(string input);
