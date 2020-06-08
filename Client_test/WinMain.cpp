@@ -198,15 +198,28 @@ unsigned _stdcall ListenServer(void* param) {
 	char* data = new char[BUFF_SIZE];
 	PAYLOAD payload; payload.fileName = new char[BUFF_SIZE];
 	SEARCH s; s.fileName = new char[BUFF_SIZE];
-	SEARCH_FILE searchFile;
-	searchFile.fileName = new char[BUFF_SIZE];
-	searchFile.parnerID = new char[BUFF_SIZE];
 	while (true)
 	{
 		ret = RECEIVE_TCP(client, opcode, data, 0, &offset);
 		if (ret == SOCKET_ERROR) continue;
 		data[ret] = 0;
-		if (!strcmp(opcode, o_120)) {
+
+		if (!strcmp(opcode, o_111)) {
+			if (strcmp(data, "")) {
+				SEARCH_FILE searchFile;
+				searchFile.fileName = new char[BUFF_SIZE];
+				searchFile.parnerID = new char[BUFF_SIZE];
+				CreateDATA(searchFile.parnerID, searchFile.fileName, data);
+				strcpy_s(s.fileName, strlen(searchFile.fileName) + 1, searchFile.fileName);
+				s.listID.push_back(string(searchFile.parnerID));
+			}
+			else _beginthreadex(0, 0, DrawIDSearch, (void*)&s, 0, 0);
+		}
+
+		else if (!strcmp(opcode, o_120)) {
+			SEARCH_FILE searchFile;
+			searchFile.fileName = new char[BUFF_SIZE];
+			searchFile.parnerID = new char[BUFF_SIZE];
 			CreateDATA(searchFile.parnerID, searchFile.fileName, data);
 			char* temp1 = new char[100]{ "Require find the file with name: " };
 			char* temp2 = new char[20]{ " to client[" };
@@ -217,20 +230,10 @@ unsigned _stdcall ListenServer(void* param) {
 			strcat_s(temp1, strlen(temp3) + strlen(temp1) + 1, temp3);
 			int id = MessageBox(hMain, temp1, "ANNOUNT", MB_OKCANCEL);
 			if (id == IDCANCEL) {
-				ret = SEND_TCP(client, o_320, searchFile.fileName, 0, 0);
-				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
-				ret = SEND_TCP(client, o_320, searchFile.parnerID, 0, 1);
+				ret = SEND_TCP(client, o_320, CreateDATA(searchFile.parnerID, searchFile.fileName), 0, 0);
 				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
 			}
 			else if (id == IDOK) _beginthreadex(0, 0, SearchFile, (void*)&searchFile, 0, 0);
-		}
-
-		else if (!strcmp(opcode, o_111)) {
-			if (offset == 0) strcpy_s(s.fileName, strlen(data) + 1, data);
-			else {
-				if (strcmp(data, "")) s.listID.push_back(string(data));
-				else _beginthreadex(0, 0, DrawIDSearch, (void*)&s, 0, 0);
-			}
 		}
 
 		else if (!strcmp(opcode, o_200)) {
