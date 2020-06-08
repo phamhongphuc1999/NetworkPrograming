@@ -26,22 +26,6 @@ char* cPathToFile = new char[BUFF_SIZE];
 char* cParnerID = new char[BUFF_SIZE];
 #pragma endregion
 
-struct PAYLOAD
-{
-	list<string> data;
-	char* fileName;
-};
-
-struct SEARCH {
-	list<string> listID;
-	char* fileName;
-};
-
-struct SEARCH_FILE {
-	char* fileName;
-	char* parnerID;
-};
-
 LRESULT CALLBACK WndProcMain(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WndProcSearch(HWND, UINT, WPARAM, LPARAM);
 
@@ -171,15 +155,12 @@ unsigned _stdcall SearchFile(void* param) {
 	int ret;
 	bool check = SearchFileInDirectory("Data", fileName);
 	if (check) {
-		ret = SEND_TCP(client, o_321, searchFile->parnerID, 0, 0);
+		ret = SEND_TCP(client, o_321, CreateDATA(searchFile->parnerID, searchFile->fileName), 0, 0);
 		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
-		ret = SEND_TCP(client, o_321, searchFile->fileName, 0, 1);
-		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+
 	}
 	else {
-		ret = SEND_TCP(client, o_320, searchFile->parnerID, 0, 0);
-		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
-		ret = SEND_TCP(client, o_320, searchFile->fileName, 0, 1);
+		ret = SEND_TCP(client, o_320, CreateDATA(searchFile->parnerID, searchFile->fileName), 0, 0);
 		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
 	}
 	return 0;
@@ -226,25 +207,22 @@ unsigned _stdcall ListenServer(void* param) {
 		if (ret == SOCKET_ERROR) continue;
 		data[ret] = 0;
 		if (!strcmp(opcode, o_120)) {
-			if (offset == 0) strcpy_s(searchFile.fileName, strlen(data) + 1, data);
-			else {
-				strcpy_s(searchFile.parnerID, strlen(data) + 1, data);
-				char* temp1 = new char[100]{ "Require find the file with name: " };
-				char* temp2 = new char[20]{ " to client[" };
-				char* temp3 = new char[100]{ "]\nDo you allow find?" };
-				strcat_s(temp1, strlen(searchFile.fileName) + strlen(temp1) + 1, searchFile.fileName);
-				strcat_s(temp1, strlen(temp2) + strlen(temp1) + 1, temp2);
-				strcat_s(temp1, strlen(searchFile.parnerID) + strlen(temp1) + 1, searchFile.parnerID);
-				strcat_s(temp1, strlen(temp3) + strlen(temp1) + 1, temp3);
-				int id = MessageBox(hMain, temp1, "ANNOUNT", MB_OKCANCEL);
-				if (id == IDCANCEL) {
-					ret = SEND_TCP(client, o_320, searchFile.fileName, 0, 0);
-					if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
-					ret = SEND_TCP(client, o_320, searchFile.parnerID, 0, 1);
-					if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
-				}
-				else if (id == IDOK) _beginthreadex(0, 0, SearchFile, (void*)&searchFile, 0, 0);
+			CreateDATA(searchFile.parnerID, searchFile.fileName, data);
+			char* temp1 = new char[100]{ "Require find the file with name: " };
+			char* temp2 = new char[20]{ " to client[" };
+			char* temp3 = new char[100]{ "]\nDo you allow find?" };
+			strcat_s(temp1, strlen(searchFile.fileName) + strlen(temp1) + 1, searchFile.fileName);
+			strcat_s(temp1, strlen(temp2) + strlen(temp1) + 1, temp2);
+			strcat_s(temp1, strlen(searchFile.parnerID) + strlen(temp1) + 1, searchFile.parnerID);
+			strcat_s(temp1, strlen(temp3) + strlen(temp1) + 1, temp3);
+			int id = MessageBox(hMain, temp1, "ANNOUNT", MB_OKCANCEL);
+			if (id == IDCANCEL) {
+				ret = SEND_TCP(client, o_320, searchFile.fileName, 0, 0);
+				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+				ret = SEND_TCP(client, o_320, searchFile.parnerID, 0, 1);
+				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
 			}
+			else if (id == IDOK) _beginthreadex(0, 0, SearchFile, (void*)&searchFile, 0, 0);
 		}
 
 		else if (!strcmp(opcode, o_111)) {
