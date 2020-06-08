@@ -18,16 +18,15 @@
 ## Khuôn dạng gói tin: định dạng mảng char
 #### Có bốn trường opcode, offset, length, data
 - opcode: 3 phần tử đầu trong mảng, chỉ định chức năng sẽ thực hiện
-- offset: 1 phần tử tiếp theo, là phần mở rộng chức năng cho opcode
+- offset: 1 phần tử tiếp theo, là phần mở rộng chức năng cho opcode(không còn cần thiết)
 - length: 10 phần tử tiếp theo trong mảng, chứa kích thức của data
-- data: phần còn lại của gói tin gửi đi, chứa dữ liệu cần truyền
+- data: phần còn lại của gói tin gửi đi, chứa dữ liệu cần truyền(trong một số trường hợp, data được chia nhỏ thành nhiều trường)
 
 ### Định nghĩa opcode
 #### 1xx, 2xx: server gửi tín hiệu cho client
 #### 3xx, 4xx: client gửi tín hiệu cho server
 #### SERVER:
 - 100: kết nối thành công, gửi ID lại client
-- 101: gửi searchID và fileName về cho client
 - 110: gửi danh sách các client đang kết nối
 - 111: gửi danh sách các client có file yêu cầu
 - 112: tải file từ server về client
@@ -41,10 +40,9 @@
 - 300: yêu cầu kết nối và gửi ID
 - 310: gửi yêu cầu tìm kiếm file
 - 311: tải file từ client được chỉ định bởi client khác lên server
-- 312: gửi searchID và ID của client muốn nhận file lên server
 - 320: không tìm thấy tên file trong trường data
 - 321: tìm thấy tên file trong trường data
-- 400: gửi ID của người nhận có offset bằng 0, sau đó gửi fileName có offset bằng 1
+- 400: gửi ID và fileName
 - 401: gửi lần lượt từng gói dữ liệu đến server, lần cuối không có dữ liệu để thông báo kết thúc
 - 410: không cho chuyển tiếp file về client
 - 411: cho phép chuyển tiếp file về client
