@@ -442,12 +442,12 @@ void OnBnClickedSend(HWND hWnd) {
 	GetWindowText(eID, id, 30);
 	if (string(id) == "") MessageBox(hWnd, "Enter parner ID to download file", "ANNOUNT", MB_OK);
 	else {
-		TCHAR* fileName = new char[BUFF_SIZE];
+		/*TCHAR* fileName = new char[BUFF_SIZE];
 		GetWindowText(sFileNameSearch, fileName, BUFF_SIZE);
 		ret = SEND_TCP(client, o_312, fileName, 0, 0);
 		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
 		ret = SEND_TCP(client, o_312, fileName, 0, 1);
-		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);*/
 	}
 }
 
