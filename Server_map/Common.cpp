@@ -62,4 +62,3 @@ char* CreateDATA(char* ID, char* fileName) {
 	strcat_s(result, strlen(result) + strlen(fileName) + 1, fileName);
 	return result;
 }
-

@@ -1,44 +1,5 @@
 #include "InteractFile.h"
 
-char* EncapsulatePayload(char* id, string fileName, string data) {
-	char* result = new char[BUFF_SIZE + 1000]{ 0 };
-	strcat_s(result, strlen(result) + strlen(id) + 1, id);
-	int length = fileName.length();
-	int index = 20;
-	while (length > 0) {
-		int temp = length % 10;
-		length = length / 10;
-		result[index] = temp + '0';
-		index++;
-	}
-	for (int i = index; i < 23; i++) result[i] = 'e';
-	index = 23;
-	for (int i = 0; i < length; i++, index++) result[index] = fileName[i];
-	result[index] = 0;
-	char* cData = StringToChars(data);
-	strcat_s(result, strlen(result) + strlen(cData) + 1, cData);
-	return result;
-}
-
-char* DecapsulatePayload(char* id, char* fileName, char* buff) {
-	char* data = new char[BUFF_SIZE + 1];
-	for (int i = 0; i < 20; i++) id[i] = buff[i];
-	id[20] = 0;
-	int length = 0, index = 22;
-	for(int i = index; i >= 20; i--)
-		length = length * 10 + (buff[i] - '0');
-	index = 23;
-	for (int i = 0; i < length; i++, index++) fileName[i] = buff[index];
-	int iData = 0;
-	while (true)
-	{
-		if (buff[index] == 0) break;
-		data[iData] = buff[index];
-		iData++; index++;
-	}
-	return data;
-}
-
 bool IsFileExistOrValid(string pathToFile) {
 	fstream file; file.open(pathToFile);
 	return file.good();
@@ -58,24 +19,6 @@ list<string> CreatePayload(string pathToFile) {
 	}
 	file.close();
 	result.push_back(temp);
-	return result;
-}
-
-list<char*> CreatePayload(char* id, string pathToFile) {
-	string fileName = GetFileName(pathToFile);
-	ifstream file; file.open(pathToFile, ios::out);
-	string temp = "", line;
-	list<char*> result;
-	while (!file.eof()) {
-		getline(file, line);
-		temp += line + '\n';
-		while (temp.length() > BUFF_SIZE) {
-			result.push_back(EncapsulatePayload(id, fileName, temp.substr(0, BUFF_SIZE)));
-			temp = temp.substr(BUFF_SIZE);
-		}
-	}
-	file.close();
-	result.push_back(EncapsulatePayload(id, fileName, temp));
 	return result;
 }
 

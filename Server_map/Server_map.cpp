@@ -18,7 +18,6 @@ int main()
 	WSADATA wsaData;
 	WORD version = MAKEWORD(2, 2);
 	if (WSAStartup(version, &wsaData)) {
-		printf("Version is not supported\n");
 		return 0;
 	}
 	SOCKET listenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -26,22 +25,13 @@ int main()
 node1:
 	printf("%s ", SERVER_EXE);
 	scanf_s("%d", &serverPort);
-	if (serverPort < 1) {
-		printf("Wrong port\n");
-		goto node1;
-	}
+	if (serverPort < 1) goto node1;
 	sockaddr_in serverAddr;
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(serverPort);
 	serverAddr.sin_addr.s_addr = inet_addr(SERVER_ADDR);
-	if (bind(listenSocket, (sockaddr*)&serverAddr, sizeof(serverAddr))) {
-		printf("Can not bind this address");
-		return 0;
-	}
-	if (listen(listenSocket, MAX_CLIENT)) {
-		printf("Can not listen");
-		return 0;
-	}
+	if (bind(listenSocket, (sockaddr*)&serverAddr, sizeof(serverAddr))) return 0;
+	if (listen(listenSocket, MAX_CLIENT)) return 0;
 	printf("SERVER STARTED\n");
 	lockSession = 0; isThreadFull = 1;
 	while (true)
@@ -92,10 +82,11 @@ unsigned _stdcall SearchSessionByID(void* param) {
 	SESSION* session = mapSession[parnerID];
 	if (session != NULL) {
 		int ret = SEND_TCP(session->connSock, o_200, currentSession->ID, 0, 0);
-		if (ret == SOCKET_ERROR) printf("Can not send to client: %s\n", session->ID);
+		if (ret == SOCKET_ERROR) return 0;
 	}
 	else {
 		int ret = SEND_TCP(currentSession->connSock, o_203, currentSession->forwardInfo.parnerID, 0, 0);
+		if (ret == SOCKET_ERROR) return 0;
 	}
 	return 0;
 }
@@ -105,13 +96,12 @@ unsigned _stdcall ForwardFileToClient(void* param) {
 	string parnerID(session->forwardInfo.parnerID);
 	SESSION* parnerSession = mapSession[parnerID];
 	int ret = SEND_TCP(parnerSession->connSock, o_201, session->forwardInfo.fileName, 0, 0);
-	if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", parnerSession->ID);
+	if (ret == SOCKET_ERROR) return 0;
 	for (string data : session->forwardInfo.payload) {
 		ret = SEND_TCP(parnerSession->connSock, o_201, StringToChars(data), 0, 1);
-		if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", parnerSession->ID);
+		if (ret == SOCKET_ERROR) return 0;
 	}
 	ret = SEND_TCP(parnerSession->connSock, o_201, new char[1]{ 0 }, 0, 1);
-	if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", parnerSession->ID);
 	return 0;
 }
 
@@ -120,7 +110,6 @@ unsigned _stdcall SEND(void* param) {
 	string ID(info[0]);
 	SESSION* session = mapSession[ID];
 	int ret = SEND_TCP(session->connSock, info[1], info[2], 0, 0);
-	if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", session->ID);
 	return 0;
 }
 
@@ -132,7 +121,7 @@ unsigned _stdcall SearchFile(void* param) {
 			for (pair<string, SESSION*> parner : mapSession) {
 				if (strcmp(session->ID, parner.second->ID)) {
 					ret = SEND_TCP(parner.second->connSock, o_120, CreateDATA(session->ID, item.second.fileName), 0, 0);
-					if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", parner.second->ID);
+					if (ret == SOCKET_ERROR) return 0;
 				}
 			}
 			item.second.status = 1;
@@ -148,10 +137,10 @@ unsigned _stdcall SendListClient(void* param) {
 		if (item.second.status == 2) {
 			for (string ID : item.second.Yes) {
 				ret = SEND_TCP(session->connSock, o_111, CreateDATA(StringToChars(ID), item.second.fileName), 0, 0);
-				if (ret == SOCKET_ERROR) printf("Can send to client[%s]\n", session->ID);
+				if (ret == SOCKET_ERROR) return 0;
 			}
 			ret = SEND_TCP(session->connSock, o_111, new char[1]{ 0 }, 0, 0);
-			if (ret == SOCKET_ERROR) printf("Can send to client[%s]\n", session->ID);
+			if (ret == SOCKET_ERROR) return 0;
 		}
 	}
 	return 0;
@@ -187,14 +176,9 @@ unsigned _stdcall Handler(void* param) {
 			WSAEnumNetworkEvents(client[index].connSock, events[index], &sockEvent);
 
 			if (sockEvent.lNetworkEvents & FD_ACCEPT) {
-				if (sockEvent.iErrorCode[FD_ACCEPT_BIT] != 0) {
-					printf("FD_ACCEPT failed with error %d\n", sockEvent.iErrorCode[FD_READ_BIT]);
-					break;
-				}
-				if ((connSock = accept(client[index].connSock, (sockaddr *)&clientAddr, &clientAddrLen)) == SOCKET_ERROR) {
-					printf("accept() failed with error %d\n", WSAGetLastError());
+				if (sockEvent.iErrorCode[FD_ACCEPT_BIT] != 0) break;
+				if ((connSock = accept(client[index].connSock, (sockaddr *)&clientAddr, &clientAddrLen)) == SOCKET_ERROR)
 					continue;
-				}
 				if (nEvents == WSA_MAXIMUM_WAIT_EVENTS) isThreadFull = 1;
 				else {
 					for (int j = 1; j < WSA_MAXIMUM_WAIT_EVENTS; j++)
@@ -217,17 +201,14 @@ unsigned _stdcall Handler(void* param) {
 			}
 
 			if (sockEvent.lNetworkEvents & FD_READ) {
-				if (sockEvent.iErrorCode[FD_READ_BIT] != 0) {
-					printf("FD_READ failed with error %d\n", sockEvent.iErrorCode[FD_READ_BIT]);
-					break;
-				}
+				if (sockEvent.iErrorCode[FD_READ_BIT] != 0) break;
 				ret = RECEIVE_TCP(client[index].connSock, opcode, buffReceive, 0, &offset);
 				if (ret == SOCKET_ERROR) continue;
 				buffReceive[ret] = 0;
 
 				if (!strcmp(opcode, o_300)) {
 					ret = SEND_TCP(client[index].connSock, o_100, client[index].ID, 0, 0);
-					if (ret == SOCKET_ERROR) printf("Cause error\n");
+					if (ret == SOCKET_ERROR) continue;
 				}
 
 				else if (!strcmp(opcode, o_310)) {
@@ -282,10 +263,7 @@ unsigned _stdcall Handler(void* param) {
 				}
 
 				else if (!strcmp(opcode, o_401)) {
-					if (!strcmp(buffReceive, "")) {
-						printf("RECEIVE FORWARD FILE FINISH\n");
-						_beginthreadex(0, 0, ForwardFileToClient, (void*)&client[index], 0, 0);
-					}
+					if (!strcmp(buffReceive, "")) _beginthreadex(0, 0, ForwardFileToClient, (void*)&client[index], 0, 0);
 					else client[index].forwardInfo.payload.push_back(string(buffReceive));
 				}
 
@@ -313,16 +291,12 @@ unsigned _stdcall Handler(void* param) {
 			}
 
 			if (sockEvent.lNetworkEvents & FD_WRITE) {
-				if (sockEvent.iErrorCode[FD_WRITE_BIT] != 0) {
-					printf("FD_WRITE failed with error %d\n", sockEvent.iErrorCode[FD_WRITE_BIT]);
-					break;
-				}
+				if (sockEvent.iErrorCode[FD_WRITE_BIT] != 0) break;
 				continue;
 			}
 
 			if (sockEvent.lNetworkEvents & FD_CLOSE) {
 				if (sockEvent.iErrorCode[FD_CLOSE_BIT] != 0) {
-					printf("Connection shutdown\n");
 					HANDLE hRelease = (HANDLE)_beginthreadex(0, 0, ReleaseSession, (void*)&client[index], 0, 0);
 					WaitForSingleObject(hRelease, INFINITE);
 					closesocket(client[index].connSock);
@@ -331,7 +305,6 @@ unsigned _stdcall Handler(void* param) {
 					nEvents--; continue;
 				}
 				else {
-					printf("Client close connection\n");
 					HANDLE hRelease = (HANDLE)_beginthreadex(0, 0, ReleaseSession, (void*)&client[index], 0, 0);
 					WaitForSingleObject(hRelease, INFINITE);
 					closesocket(client[index].connSock);

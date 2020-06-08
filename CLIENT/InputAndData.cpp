@@ -35,32 +35,6 @@ char* StringToChars(string input) {
 	return result;
 }
 
-string WcharToString(wchar_t* wchar_str)
-{
-	string str = "";
-	int index = 0;
-	while (wchar_str[index] != 0)
-	{
-		str += (char)wchar_str[index];
-		++index;
-	}
-	return str;
-}
-
-wchar_t* StringToWchar(string str)
-{
-	int index = 0;
-	int count = str.size();
-	wchar_t *ws_str = new wchar_t[count + 1];
-	while (index < str.size())
-	{
-		ws_str[index] = (wchar_t)str[index];
-		index++;
-	}
-	ws_str[index] = 0;
-	return ws_str;
-}
-
 void CreateDATA(char* ID, char* fileName, char* data) {
 	int index = 0;
 	while (true) {
@@ -87,4 +61,3 @@ char* CreateDATA(char* ID, char* fileName) {
 	strcat_s(result, strlen(result) + strlen(fileName) + 1, fileName);
 	return result;
 }
-

@@ -30,7 +30,7 @@ LRESULT CALLBACK WndProcMain(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WndProcSearch(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-	WNDCLASSEX w_main;
+	WNDCLASSEX w_main; hInst = hInstance;
 	ZeroMemory(&w_main, sizeof(WNDCLASSEX));
 	w_main.cbSize = sizeof(WNDCLASSEX);
 	w_main.style = CS_HREDRAW | CS_VREDRAW;
@@ -49,8 +49,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		MessageBox(NULL, "Call to RegisterClassEx failed!", "Win32 Guided Tour", NULL);
 		return 1;
 	}
-
-	hInst = hInstance;
 	hMain = CreateWindow(w_main.lpszClassName, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 700, 400, NULL, NULL, hInstance, NULL);
 	if (!hMain)
 	{
@@ -243,11 +241,11 @@ unsigned _stdcall ListenServer(void* param) {
 			int id = MessageBox(hMain, temp, "ANNOUNT", MB_OKCANCEL);
 			if (id == IDCANCEL) {
 				ret = SEND_TCP(client, o_410, data, 0, 0);
-				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 			}
 			else if (id == IDOK) {
 				ret = SEND_TCP(client, o_411, data, 0, 0);
-				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 			}
 		}
 
@@ -260,7 +258,7 @@ unsigned _stdcall ListenServer(void* param) {
 		}
 
 		else if (!strcmp(opcode, o_203)) {
-			MessageBox(hMain, "Can not find ID or not allow forward", "ERROR", MB_OK);
+			MessageBox(hMain, "Can not find ID or not allow forward", "ERROR", MB_ICONERROR);
 			SetWindowTextA(eParnerId, "");
 		}
 
@@ -319,8 +317,6 @@ int BnClickedMakeConnect(char* address, u_short port) {
 	char* opcode = new char[10];
 	char* buff = new char[BUFF_SIZE];
 	ret = RECEIVE_TCP(client, opcode, buff, 0, &offset);
-	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
-	buff[ret] = 0;
 	if (!strcmp(opcode, o_100)) SetWindowTextA(eIdDetail, buff);
 	return 1;
 }
@@ -347,7 +343,7 @@ void OnBnClickedConnect(HWND hWnd) {
 		if (CheckConnect(cAddress, iPort)) {
 		node:
 			int status = BnClickedMakeConnect(cAddress, iPort);
-			if (status == -1) MessageBox(hWnd, "Version is not supported", "ERROR", MB_OK);
+			if (status == -1) MessageBox(hWnd, "Version is not supported", "ERROR", MB_ICONERROR);
 			else if (status == -2) {
 				int id = MessageBox(hWnd, "Can not connect server", "ERROR", MB_RETRYCANCEL | MB_ICONERROR);
 				if (id == IDRETRY) goto node;
