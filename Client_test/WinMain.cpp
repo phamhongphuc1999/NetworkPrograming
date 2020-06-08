@@ -200,6 +200,7 @@ unsigned _stdcall ListenServer(void* param) {
 	SEARCH s; s.fileName = new char[BUFF_SIZE];
 	while (true)
 	{
+		if (!isConnect) break;
 		ret = RECEIVE_TCP(client, opcode, data, 0, &offset);
 		if (ret == SOCKET_ERROR) continue;
 		data[ret] = 0;
@@ -222,8 +223,8 @@ unsigned _stdcall ListenServer(void* param) {
 			searchFile.parnerID = new char[BUFF_SIZE];
 			CreateDATA(searchFile.parnerID, searchFile.fileName, data);
 			char* temp1 = new char[100]{ "Require find the file with name: " };
-			char* temp2 = new char[20]{ " to client[" };
-			char* temp3 = new char[100]{ "]\nDo you allow find?" };
+			char* temp2 = new char[20]{ " to client: " };
+			char* temp3 = new char[100]{ "\nDo you allow find?" };
 			strcat_s(temp1, strlen(searchFile.fileName) + strlen(temp1) + 1, searchFile.fileName);
 			strcat_s(temp1, strlen(temp2) + strlen(temp1) + 1, temp2);
 			strcat_s(temp1, strlen(searchFile.parnerID) + strlen(temp1) + 1, searchFile.parnerID);
@@ -268,6 +269,7 @@ unsigned _stdcall ListenServer(void* param) {
 			_beginthreadex(0, 0, ForwardFile, NULL, 0, 0);
 		}
 	}
+	return 0;
 }
 #pragma endregion
 
@@ -320,6 +322,7 @@ int BnClickedMakeConnect(char* address, u_short port) {
 	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
 	buff[ret] = 0;
 	if (!strcmp(opcode, o_100)) SetWindowTextA(eIdDetail, buff);
+	return 1;
 }
 
 void BnClickedMakeDisconnect() {
@@ -349,7 +352,10 @@ void OnBnClickedConnect(HWND hWnd) {
 				int id = MessageBox(hWnd, "Can not connect server", "ERROR", MB_RETRYCANCEL);
 				if (id == IDRETRY) goto node;
 			}
-			else if (status == SOCKET_ERROR) MessageBox(hWnd, "Can not get ID", "ERROR", MB_OK);
+			else if (status == SOCKET_ERROR) {
+				int id = MessageBox(hWnd, "Can not get ID", "ERROR", MB_RETRYCANCEL);
+				if (id == IDRETRY) goto node;
+			}
 			else if (status == 1) {
 				BnClickedDrawConnect();
 				_beginthreadex(0, 0, ListenServer, NULL, 0, 0);

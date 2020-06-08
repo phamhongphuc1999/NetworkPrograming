@@ -92,11 +92,10 @@ unsigned _stdcall SearchSessionByID(void* param) {
 	SESSION* session = mapSession[parnerID];
 	if (session != NULL) {
 		int ret = SEND_TCP(session->connSock, o_200, currentSession->ID, 0, 0);
-		if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", session->ID);
+		if (ret == SOCKET_ERROR) printf("Can not send to client: %s\n", session->ID);
 	}
 	else {
 		int ret = SEND_TCP(currentSession->connSock, o_203, currentSession->forwardInfo.parnerID, 0, 0);
-		if (ret == SOCKET_ERROR) printf("Can not send to client[%s]\n", currentSession->ID);
 	}
 	return 0;
 }
@@ -322,16 +321,24 @@ unsigned _stdcall Handler(void* param) {
 			}
 
 			if (sockEvent.lNetworkEvents & FD_CLOSE) {
-				if (sockEvent.iErrorCode[FD_CLOSE_BIT] != 0) printf("Connection shutdown\n");
-				else printf("Client close connection\n");
-
-				HANDLE hRelease = (HANDLE)_beginthreadex(0, 0, ReleaseSession, (void*)&client[index], 0, 0);
-				WaitForSingleObject(hRelease, INFINITE);
-				closesocket(client[index].connSock);
-				InitiateSession(&client[index]);
-				WSACloseEvent(events[index]);
-				nEvents--;
-				continue;
+				if (sockEvent.iErrorCode[FD_CLOSE_BIT] != 0) {
+					printf("Connection shutdown\n");
+					HANDLE hRelease = (HANDLE)_beginthreadex(0, 0, ReleaseSession, (void*)&client[index], 0, 0);
+					WaitForSingleObject(hRelease, INFINITE);
+					closesocket(client[index].connSock);
+					InitiateSession(&client[index]);
+					WSACloseEvent(events[index]);
+					nEvents--; continue;
+				}
+				else {
+					printf("Client close connection\n");
+					HANDLE hRelease = (HANDLE)_beginthreadex(0, 0, ReleaseSession, (void*)&client[index], 0, 0);
+					WaitForSingleObject(hRelease, INFINITE);
+					closesocket(client[index].connSock);
+					InitiateSession(&client[index]);
+					WSACloseEvent(events[index]);
+					nEvents--; continue;
+				}
 			}
 		}
 	}

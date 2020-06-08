@@ -128,10 +128,10 @@ unsigned _stdcall ForwardFile(void* param) {
 	list<string> payload = CreatePayload(pathToFile);
 	for (string data : payload) {
 		ret = SEND_TCP(client, o_401, StringToChars(data), 0, 0);
-		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 	}
 	ret = SEND_TCP(client, o_401, new char[1]{ 0 }, 0, 0);
-	if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+	if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 	return 0;
 }
 
@@ -145,7 +145,7 @@ unsigned _stdcall SaveForwardFile(void* param) {
 	delete[] payload->fileName;
 	payload->data.clear();
 	f.close();
-	MessageBox(hMain, "RECEIVE FORWARD FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_OK);
+	MessageBox(hMain, "RECEIVE FORWARD FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_ICONINFORMATION);
 	return 0;
 }
 
@@ -156,12 +156,12 @@ unsigned _stdcall SearchFile(void* param) {
 	bool check = SearchFileInDirectory("Data", fileName);
 	if (check) {
 		ret = SEND_TCP(client, o_321, CreateDATA(searchFile->parnerID, searchFile->fileName), 0, 0);
-		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 
 	}
 	else {
 		ret = SEND_TCP(client, o_320, CreateDATA(searchFile->parnerID, searchFile->fileName), 0, 0);
-		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 	}
 	return 0;
 }
@@ -171,7 +171,7 @@ unsigned _stdcall DrawIDSearch(void* param) {
 	if (s->listID.size() == 0) {
 		char* fileName = new char[BUFF_SIZE] {"do not find the file: "};
 		strcat_s(fileName, strlen(fileName) + strlen(s->fileName) + 1, s->fileName);
-		MessageBox(hMain, fileName, "ANNOUNT", MB_OK);
+		MessageBox(hMain, fileName, "ANNOUNT", MB_ICONINFORMATION);
 	}
 	else {
 		char* result = new char[22 * s->listID.size()]{ 0 };
@@ -186,7 +186,7 @@ unsigned _stdcall DrawIDSearch(void* param) {
 		SetWindowTextA(sFileNameSearch, s->fileName);
 		ShowWindow(hSearch, SW_SHOW);
 	node:
-		int id = MessageBox(hMain, result, fileName, MB_OK);
+		int id = MessageBox(hMain, result, fileName, MB_ICONINFORMATION);
 		if (id == IDOK && IsWindowVisible(hSearch)) goto node;
 	}
 	return 0;
@@ -200,6 +200,7 @@ unsigned _stdcall ListenServer(void* param) {
 	SEARCH s; s.fileName = new char[BUFF_SIZE];
 	while (true)
 	{
+		if (!isConnect) break;
 		ret = RECEIVE_TCP(client, opcode, data, 0, &offset);
 		if (ret == SOCKET_ERROR) continue;
 		data[ret] = 0;
@@ -222,16 +223,16 @@ unsigned _stdcall ListenServer(void* param) {
 			searchFile.parnerID = new char[BUFF_SIZE];
 			CreateDATA(searchFile.parnerID, searchFile.fileName, data);
 			char* temp1 = new char[100]{ "Require find the file with name: " };
-			char* temp2 = new char[20]{ " to client[" };
-			char* temp3 = new char[100]{ "]\nDo you allow find?" };
+			char* temp2 = new char[20]{ " to client: " };
+			char* temp3 = new char[100]{ "\nDo you allow find?" };
 			strcat_s(temp1, strlen(searchFile.fileName) + strlen(temp1) + 1, searchFile.fileName);
 			strcat_s(temp1, strlen(temp2) + strlen(temp1) + 1, temp2);
 			strcat_s(temp1, strlen(searchFile.parnerID) + strlen(temp1) + 1, searchFile.parnerID);
 			strcat_s(temp1, strlen(temp3) + strlen(temp1) + 1, temp3);
-			int id = MessageBox(hMain, temp1, "ANNOUNT", MB_OKCANCEL);
+			int id = MessageBox(hMain, temp1, "ANNOUNT", MB_OKCANCEL | MB_ICONINFORMATION);
 			if (id == IDCANCEL) {
 				ret = SEND_TCP(client, o_320, CreateDATA(searchFile.parnerID, searchFile.fileName), 0, 0);
-				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_OK);
+				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 			}
 			else if (id == IDOK) _beginthreadex(0, 0, SearchFile, (void*)&searchFile, 0, 0);
 		}
@@ -264,10 +265,11 @@ unsigned _stdcall ListenServer(void* param) {
 		}
 
 		else if (!strcmp(opcode, o_202)) {
-			MessageBox(hMain, "Beginning upload file to server", "ANNOUNT", MB_OK);
+			MessageBox(hMain, "Beginning upload file to server", "ANNOUNT", MB_ICONINFORMATION);
 			_beginthreadex(0, 0, ForwardFile, NULL, 0, 0);
 		}
 	}
+	return 0;
 }
 #pragma endregion
 
@@ -320,6 +322,7 @@ int BnClickedMakeConnect(char* address, u_short port) {
 	if (ret == SOCKET_ERROR) return SOCKET_ERROR;
 	buff[ret] = 0;
 	if (!strcmp(opcode, o_100)) SetWindowTextA(eIdDetail, buff);
+	return 1;
 }
 
 void BnClickedMakeDisconnect() {
@@ -329,7 +332,7 @@ void BnClickedMakeDisconnect() {
 
 void OnBnClickedConnect(HWND hWnd) {
 	if (isConnect) {
-		int id = MessageBox(hWnd, "Are you sure?", "WARNING", MB_OKCANCEL);
+		int id = MessageBox(hWnd, "Are you sure?", "WARNING", MB_ICONWARNING | MB_OKCANCEL);
 		if (id == IDOK) {
 			BnClickedMakeDisconnect();
 			BnClickedDrawDisconnect();
@@ -346,17 +349,20 @@ void OnBnClickedConnect(HWND hWnd) {
 			int status = BnClickedMakeConnect(cAddress, iPort);
 			if (status == -1) MessageBox(hWnd, "Version is not supported", "ERROR", MB_OK);
 			else if (status == -2) {
-				int id = MessageBox(hWnd, "Can not connect server", "ERROR", MB_RETRYCANCEL);
+				int id = MessageBox(hWnd, "Can not connect server", "ERROR", MB_RETRYCANCEL | MB_ICONERROR);
 				if (id == IDRETRY) goto node;
 			}
-			else if (status == SOCKET_ERROR) MessageBox(hWnd, "Can not get ID", "ERROR", MB_OK);
+			else if (status == SOCKET_ERROR) {
+				int id = MessageBox(hWnd, "Can not get ID", "ERROR", MB_RETRYCANCEL | MB_ICONERROR);
+				if (id == IDRETRY) goto node;
+			}
 			else if (status == 1) {
 				BnClickedDrawConnect();
 				_beginthreadex(0, 0, ListenServer, NULL, 0, 0);
 			}
 		}
 		else {
-			MessageBox(hWnd, "Wrong IP address or port", "ERROR", MB_OK);
+			MessageBox(hWnd, "Wrong IP address or port", "ERROR", MB_ICONERROR);
 			SetWindowTextA(eFile, "");
 			SetWindowTextA(eFileName, "");
 		}
@@ -366,7 +372,7 @@ void OnBnClickedConnect(HWND hWnd) {
 
 void OnBnClickedForward(HWND hWnd) {
 	if (isHide) {
-		MessageBox(hWnd, "Enter my parner ID", "ANNOUNT", MB_OK);
+		MessageBox(hWnd, "Enter my parner ID", "ANNOUNT", MB_ICONINFORMATION);
 		ShowWindow(btnHide, SW_SHOW);
 		ShowWindow(eParnerId, SW_SHOW);
 		ShowWindow(sParnerId, SW_SHOW);
@@ -382,12 +388,12 @@ void OnBnClickedForward(HWND hWnd) {
 			strcpy_s(cPathToFile, strlen(pathToFile) + 1, pathToFile);
 			strcpy_s(cParnerID, strlen(parnerID) + 1, parnerID);
 			ret = SEND_TCP(client, o_400, cParnerID, 0, 0);
-			if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+			if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_ICONERROR);
 			ret = SEND_TCP(client, o_400, StringToChars(GetFileName(pathToFile)), 0, 1);
-			if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+			if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_ICONERROR);
 		}
 		else {
-			MessageBox(hWnd, "Wrong your path of file or parner ID", "ERROR", MB_OK);
+			MessageBox(hWnd, "Wrong your path of file or parner ID", "ERROR", MB_ICONERROR);
 			SetWindowTextA(eFile, "");
 			SetWindowTextA(eParnerId, "");
 		}
@@ -397,10 +403,10 @@ void OnBnClickedForward(HWND hWnd) {
 void OnBnClickedSearch(HWND hWnd) {
 	TCHAR* fileName = new TCHAR[BUFF_SIZE];
 	GetWindowText(eFileName, fileName, BUFF_SIZE);
-	if ((string)fileName == "") MessageBox(hWnd, "Must be enter file name", "ANNOUNT", MB_OK);
+	if ((string)fileName == "") MessageBox(hWnd, "Must be enter file name", "ANNOUNT", MB_ICONINFORMATION);
 	else {
 		ret = SEND_TCP(client, o_310, fileName, 0, 0);
-		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_OK);
+		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_ICONERROR);
 	}
 }
 
@@ -440,7 +446,7 @@ void OnBnClickedClean(HWND hWnd) {
 void OnBnClickedSend(HWND hWnd) {
 	TCHAR* id = new TCHAR[30];
 	GetWindowText(eID, id, 30);
-	if (string(id) == "") MessageBox(hWnd, "Enter parner ID to download file", "ANNOUNT", MB_OK);
+	if (string(id) == "") MessageBox(hWnd, "Enter parner ID to download file", "ANNOUNT", MB_ICONINFORMATION);
 	else {
 		/*TCHAR* fileName = new char[BUFF_SIZE];
 		GetWindowText(sFileNameSearch, fileName, BUFF_SIZE);

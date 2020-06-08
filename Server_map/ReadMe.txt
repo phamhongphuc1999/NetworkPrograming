@@ -25,6 +25,7 @@ data: phần còn lại của gói tin gửi đi, chứ dữ liệu cần truy�
 *CLIENT:
 300: yêu cầu kết nối và gửi ID
 310: gửi yêu cầu tìm kiếm file
+311: yêu cầu danh sách client
 311: tải file từ client được chỉ định bởi client khác lên server
 312: yêu cầu tải file từ client có ID trong phần data(lần 1 gửi tên file, lần 2 gửi ID của client)
 320: không tìm thấy tên file trong trường data
