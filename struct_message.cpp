@@ -1,7 +1,6 @@
 // Task1_Client.cpp : Defines the entry point for the console application.
 //
 
-
 #include "stdafx.h"
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #pragma comment(lib,"Ws2_32.lib") 
