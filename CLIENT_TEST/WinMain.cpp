@@ -115,6 +115,14 @@ void DrawSearchWindow(HWND window) {
 	eID = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 90, 200, 20, window, (HMENU)editID, NULL, NULL);
 }
 
+#pragma region LISTEN SERVER
+
+unsigned _stdcall ListenServer(void* param) {
+	return 0;
+}
+#pragma endregion
+
+
 #pragma region BUTTON CONNECT
 void BnClickedDrawConnect() {
 	ShowWindow(btnBrowse, SW_SHOW);
@@ -146,7 +154,21 @@ void BnClickedDrawDisconnect() {
 }
 
 int BnClickedMakeConnect(char* address, u_short port) {
-	return 0;
+	if (WSAStartup(version, &wsaData)) return -1;
+	client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	int tv = 10000;
+	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (const char*)(&tv), sizeof(int));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(port);
+	serverAddr.sin_addr.s_addr = inet_addr(address);
+	if (connect(client, (sockaddr*)&serverAddr, sizeof(serverAddr))) return -2;
+	Message message; CreateMessage(&message, 300, new char[1]{ 0 }, NULL);
+	int ret = SEND_TCP(client, message, 0);
+	if (ret == SOCKET_ERROR) return -3;
+
+	ret = RECEIVE_TCP(client, &message, 0);
+	if (message.type == 100) SetWindowTextA(eIdDetail, message.data);
+	return 1;
 }
 
 void BnClickedMakeDisconnect() {
@@ -155,20 +177,100 @@ void BnClickedMakeDisconnect() {
 }
 
 void OnBnClickedConnect(HWND window) {
-
+	if (isConnect) {
+		int id = MessageBox(window, "Are you sure?", "WARNING", MB_ICONWARNING | MB_OKCANCEL);
+		if (id == IDOK) {
+			BnClickedMakeDisconnect();
+			BnClickedDrawDisconnect();
+		}
+	}
+	else {
+		TCHAR* address = new TCHAR[1024], *port = new TCHAR[1024];
+		GetWindowText(eFile, address, 1024);
+		GetWindowText(eFileName, port, 1024);
+		char* cAddress = address;
+		u_short iPort = atoi(port);
+		if (CheckConnect(cAddress, iPort)) {
+		node:
+			int status = BnClickedMakeConnect(cAddress, iPort);
+			if (status == -1) MessageBox(window, "Version is not supported", "ERROR", MB_ICONERROR);
+			else if (status == -2) {
+				int id = MessageBox(window, "Can not connect server", "ERROR", MB_RETRYCANCEL | MB_ICONERROR);
+				if (id == IDRETRY) goto node;
+			}
+			else if (status == -3) {
+				int id = MessageBox(window, "Can not get ID", "ERROR", MB_RETRYCANCEL | MB_ICONERROR);
+				if (id == IDRETRY) goto node;
+			}
+			else if (status == 1) {
+				BnClickedDrawConnect();
+				_beginthreadex(0, 0, ListenServer, NULL, 0, 0);
+			}
+		}
+		else {
+			MessageBox(window, "Wrong IP address or port", "ERROR", MB_ICONERROR);
+			SetWindowTextA(eFile, "");
+			SetWindowTextA(eFileName, "");
+		}
+	}
 }
 #pragma endregion
 
 void OnBnClickedForward(HWND window) {
+	//if (isHide) {
+	//	MessageBox(window, "Enter your parner ID", "ANNOUNT", MB_ICONINFORMATION);
+	//	ShowWindow(btnHide, SW_SHOW);
+	//	ShowWindow(eParnerId, SW_SHOW);
+	//	ShowWindow(sParnerId, SW_SHOW);
+	//	SetWindowTextA(sParnerId, "Parner ID");
+	//	isHide = false;
+	//}
+	//else {
+	//	TCHAR* pathToFile = new TCHAR[1024];
+	//	TCHAR* parnerID = new TCHAR[1024];
+	//	GetWindowText(eFile, pathToFile, 1024);
+	//	GetWindowText(eParnerId, parnerID, 1024);
+	//	if (IsFileExistOrValid(pathToFile) && (string)parnerID != "") {
+	//		/*strcpy_s(cPathToFile, strlen(pathToFile) + 1, pathToFile);
+	//		strcpy_s(cParnerID, strlen(parnerID) + 1, parnerID);*/
 
+	//		ret = SEND_TCP(client, o_400, cParnerID, 0, 0);
+	//		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_ICONERROR);
+	//		ret = SEND_TCP(client, o_400, StringToChars(GetFileName(pathToFile)), 0, 1);
+	//		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_ICONERROR);
+	//	}
+	//	else {
+	//		MessageBox(hWnd, "Wrong your path of file or parner ID", "ERROR", MB_ICONERROR);
+	//		SetWindowTextA(eFile, "");
+	//		SetWindowTextA(eParnerId, "");
+	//	}
+	//}
 }
 
 void OnBnClickedBrowse(HWND window) {
-
+	OPENFILENAME ofn;
+	char szFile[100];
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;
+	ofn.lpstrFile = szFile;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	GetOpenFileName(&ofn);
+	if (strcmp(ofn.lpstrFile, "")) SetWindowTextA(eFile, ofn.lpstrFile);
 }
 
 void OnBnClickedHide(HWND window) {
-
+	ShowWindow(btnHide, SW_HIDE);
+	ShowWindow(eParnerId, SW_HIDE);
+	SetWindowTextA(sParnerId, "");
+	isHide = true;
 }
 
 void OnBnClickedSearch(HWND window) {
@@ -176,7 +278,9 @@ void OnBnClickedSearch(HWND window) {
 }
 
 void OnBnClickedClean(HWND window) {
-
+	SetWindowTextA(eFile, "");
+	SetWindowTextA(eFileName, "");
+	SetWindowTextA(eParnerId, "");
 }
 
 void OnBnClickedSend(HWND window) {
@@ -227,4 +331,3 @@ LRESULT CALLBACK WndProcSearch(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
-

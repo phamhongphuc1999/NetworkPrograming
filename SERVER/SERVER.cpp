@@ -73,8 +73,9 @@ unsigned _stdcall ReleaseSession(void* param) {
 unsigned _stdcall Handler(void* param) {
 	SOCKET listenSocket = (SOCKET)param;
 	sockaddr_in clientAddr;
-	char buffReceive[BUFF_SIZE + 1], buffSend[BUFF_SIZE + 1];
-	int clientAddrLen = sizeof(clientAddr), type = 0;
+	//char buffReceive[BUFF_SIZE + 1], buffSend[BUFF_SIZE + 1];
+	Message message;
+	int clientAddrLen = sizeof(clientAddr);
 	DWORD nEvents = MAKEWORD(0, 0), i, index;
 	SOCKET connSock;
 
@@ -124,10 +125,11 @@ unsigned _stdcall Handler(void* param) {
 
 			if (sockEvent.lNetworkEvents & FD_READ) {
 				if (sockEvent.iErrorCode[FD_READ_BIT] != 0) break;
-				int ret = RECEIVE_TCP(client[index].connSock, &type, buffReceive, 0);
+				int ret = RECEIVE_TCP(client[index].connSock, &message, 0);
 				if (ret == SOCKET_ERROR) continue;
-				if (type == 300) {
-					ret = SEND_TCP(client[index].connSock, 100, client[index].ID, 0);
+				if (message.type == 300) {
+					CreateMessage(&message, 100, client[index].ID, NULL);
+					ret = SEND_TCP(client[index].connSock, message, 0);
 					if (ret == SOCKET_ERROR) continue;
 				}
 

@@ -162,12 +162,12 @@ int BnClickedMakeConnect(char* address, u_short port) {
 	serverAddr.sin_port = htons(port);
 	serverAddr.sin_addr.s_addr = inet_addr(address);
 	if (connect(client, (sockaddr*)&serverAddr, sizeof(serverAddr))) return -2;
-	int ret = SEND_TCP(client, 300, new char[1]{ 0 }, 0);
+	Message message; CreateMessage(&message, 300, new char[1]{ 0 }, NULL);
+	int ret = SEND_TCP(client, message, 0);
 	if (ret == SOCKET_ERROR) return -3;
-	int type;
-	char* buff = new char[BUFF_SIZE];
-	ret = RECEIVE_TCP(client, &type, buff, 0);
-	if (type == 100) SetWindowTextA(eIdDetail, buff);
+	
+	ret = RECEIVE_TCP(client, &message, 0);
+	if (message.type == 100) SetWindowTextA(eIdDetail, message.data);
 	return 1;
 }
 
@@ -217,15 +217,60 @@ void OnBnClickedConnect(HWND window) {
 #pragma endregion
 
 void OnBnClickedForward(HWND window) {
+	//if (isHide) {
+	//	MessageBox(window, "Enter your parner ID", "ANNOUNT", MB_ICONINFORMATION);
+	//	ShowWindow(btnHide, SW_SHOW);
+	//	ShowWindow(eParnerId, SW_SHOW);
+	//	ShowWindow(sParnerId, SW_SHOW);
+	//	SetWindowTextA(sParnerId, "Parner ID");
+	//	isHide = false;
+	//}
+	//else {
+	//	TCHAR* pathToFile = new TCHAR[1024];
+	//	TCHAR* parnerID = new TCHAR[1024];
+	//	GetWindowText(eFile, pathToFile, 1024);
+	//	GetWindowText(eParnerId, parnerID, 1024);
+	//	if (IsFileExistOrValid(pathToFile) && (string)parnerID != "") {
+	//		/*strcpy_s(cPathToFile, strlen(pathToFile) + 1, pathToFile);
+	//		strcpy_s(cParnerID, strlen(parnerID) + 1, parnerID);*/
 
+	//		ret = SEND_TCP(client, o_400, cParnerID, 0, 0);
+	//		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_ICONERROR);
+	//		ret = SEND_TCP(client, o_400, StringToChars(GetFileName(pathToFile)), 0, 1);
+	//		if (ret == SOCKET_ERROR) MessageBox(hWnd, "Can not send to server", "ERROR", MB_ICONERROR);
+	//	}
+	//	else {
+	//		MessageBox(hWnd, "Wrong your path of file or parner ID", "ERROR", MB_ICONERROR);
+	//		SetWindowTextA(eFile, "");
+	//		SetWindowTextA(eParnerId, "");
+	//	}
+	//}
 }
 
 void OnBnClickedBrowse(HWND window) {
-
+	OPENFILENAME ofn;
+	char szFile[100];
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = NULL;
+	ofn.lpstrFile = szFile;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = NULL;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	GetOpenFileName(&ofn);
+	if (strcmp(ofn.lpstrFile, "")) SetWindowTextA(eFile, ofn.lpstrFile);
 }
 
 void OnBnClickedHide(HWND window) {
-
+	ShowWindow(btnHide, SW_HIDE);
+	ShowWindow(eParnerId, SW_HIDE);
+	SetWindowTextA(sParnerId, "");
+	isHide = true;
 }
 
 void OnBnClickedSearch(HWND window) {
@@ -233,7 +278,9 @@ void OnBnClickedSearch(HWND window) {
 }
 
 void OnBnClickedClean(HWND window) {
-
+	SetWindowTextA(eFile, "");
+	SetWindowTextA(eFileName, "");
+	SetWindowTextA(eParnerId, "");
 }
 
 void OnBnClickedSend(HWND window) {

@@ -34,3 +34,9 @@ char* StringToChars(string input) {
 	result[length] = 0;
 	return result;
 }
+
+void CreateMessage(Message* message, int type, char* data, ForwardInfoClient* forwardInfo) {
+	message->type = type;
+	strcpy_s(message->data, strlen(data) + 1, data);
+	message->forwardInfo = forwardInfo;
+}

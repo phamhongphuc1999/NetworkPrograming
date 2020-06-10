@@ -9,5 +9,5 @@
 
 #pragma comment(lib,"WS2_32")
 
-int SEND_TCP(SOCKET s, int type, char* data, int flag);
-int RECEIVE_TCP(SOCKET s, int* type, char* data, int flag);
+int SEND_TCP(SOCKET s, Message data, int flag);
+int RECEIVE_TCP(SOCKET s, Message* data, int flag);

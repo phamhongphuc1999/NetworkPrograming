@@ -9,9 +9,16 @@
 #include "CONST.h"
 using namespace std;
 
+struct ForwardInfoClient
+{
+	char fileName[BUFF_SIZE];
+	char partnerID[BUFF_SIZE];
+};
+
 struct Message {
 	int type;
 	char data[BUFF_SIZE];
+	ForwardInfoClient* forwardInfo;
 };
 
 struct ForwardInfo
@@ -41,3 +48,4 @@ void InitiateSession(struct SESSION* session);
 bool CheckRamdomID(map<string, SESSION*> listSession, char* ID);
 char* CreateRamdomID();
 char* StringToChars(string input);
+void CreateMessage(Message* message, int type, char* data, ForwardInfoClient* forwardInfo);
