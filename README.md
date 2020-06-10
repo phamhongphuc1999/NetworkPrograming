@@ -1,8 +1,8 @@
 # bài tập lớn môn lập trình mạng
 ## môi trường phát triển: visual studio 2015, ngôn ngữ c++
-## miêu tả solution:
-- project SERVER: là console, không có giao diện
-- project CLIENT: là empty project, sử dụng Win32(hàm WinMain thay cho hàm main để tạo giao diện)
+## miêu tả solution: có hai project SERVER, CLIENT là empty project
+- project SERVER: là console(sử dụng hàm main), không có giao diện
+- project CLIENT: sử dụng WinMain để tạo giao diện
 ## Server có các chức năng sau:
 - Nhận yêu cầu tìm kiếm file (theo tên file) của client nào đó
 - Gửi lệnh tìm kiếm tới các client khác đang kết nối
@@ -15,12 +15,10 @@
 ##### mỗi client có sau khi kết nối thành công đến server sẽ được server tạo một ID và gửi về cho client
 ##### => nâng cấp chương trình bằng việc thay thế ID bằng username, password
 
-## Khuôn dạng gói tin: định dạng mảng char
-#### Có bốn trường opcode, offset, length, data
-- opcode: 3 phần tử đầu trong mảng, chỉ định chức năng sẽ thực hiện
-- offset: 1 phần tử tiếp theo, là phần mở rộng chức năng cho opcode(không còn cần thiết)
-- length: 10 phần tử tiếp theo trong mảng, chứa kích thức của data
-- data: phần còn lại của gói tin gửi đi, chứa dữ liệu cần truyền(trong một số trường hợp, data được chia nhỏ thành nhiều trường)
+## Khuôn dạng gói tin: định dạng struct
+#### Có 2 trường: type, data
+- type: kiểu int, định nghĩa chức năng cần thực hiện
+- data: dữ liệu gửi kèm theo
 
 ### Định nghĩa opcode
 #### 1xx, 2xx: server gửi tín hiệu cho client
@@ -33,7 +31,7 @@
 - 120: gửi yêu cầu tìm kiếm file đến client
 - 121: gửi yêu cầu tải file lên server
 - 200: yêu cầu chuyển tiếp file về client
-- 201: tải file chuyển tiếp về client, lần đầu tải tên file có offset bằng 0, các lần sau là dữ liệu của file, lần cuối không mang dữ liệu để thông báo kết thúc có offset bằng 1
+- 201: tải file chuyển tiếp về client
 - 202: ID do client gửi lên có thể kết nối và được phép chuyển tiếp
 - 203: ID do client gửi lên không thể kết nối hoặc bị từ chối chuyển tiếp
 #### CLIENT:
