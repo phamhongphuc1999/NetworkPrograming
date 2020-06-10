@@ -1,11 +1,9 @@
-// SERVER.cpp : Defines the entry point for the console application.
-//
+#include <stdio.h>
+#include <tchar.h>
+#include "Common.h"
+#include "TCP_SOCKET.h"
 
-#include "stdafx.h"
-
-
-int main()
-{
-    return 0;
+int main() {
+	printf("TEST");
+	system("pause");
 }
-
