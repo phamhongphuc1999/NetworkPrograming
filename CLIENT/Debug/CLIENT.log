@@ -1,7 +1,8 @@
-﻿  WinMain.cpp
-  TCP_SOCKET.cpp
+﻿  TCP_SOCKET.cpp
+  Generating Code...
+  Skipping... (no relevant changes detected)
+  WinMain.cpp
   InteractFile.cpp
   Common.cpp
-  Generating Code...
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BTL_LTM_VERSION2\Debug\CLIENT.exe
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BTL_LTM_VERSION2\Debug\CLIENT.pdb (Partial PDB)

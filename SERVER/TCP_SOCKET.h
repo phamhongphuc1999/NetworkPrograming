@@ -4,5 +4,9 @@
 #include <WS2tcpip.h>
 #include <process.h>
 #include "CONST.h"
+#include "Common.h"
 
 #pragma comment(lib, "Ws2_32.lib")
+
+int SEND_TCP(SOCKET s, int type, char* data, int flag);
+int RECEIVE_TCP(SOCKET s, int* type, char* data, int flag);
