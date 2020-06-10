@@ -29,6 +29,11 @@ char* cParnerID = new char[BUFF_SIZE];
 LRESULT CALLBACK WndProcMain(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WndProcSearch(HWND, UINT, WPARAM, LPARAM);
 
+struct TEST
+{
+	char* id;
+};
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 	WNDCLASSEX w_main; hInst = hInstance;
 	ZeroMemory(&w_main, sizeof(WNDCLASSEX));
@@ -315,9 +320,16 @@ int BnClickedMakeConnect(char* address, u_short port) {
 
 	int offset = 0;
 	char* opcode = new char[10];
-	char* buff = new char[BUFF_SIZE];
+	/*char* buff = new char[BUFF_SIZE];
 	ret = RECEIVE_TCP(client, opcode, buff, 0, &offset);
-	if (!strcmp(opcode, o_100)) SetWindowTextA(eIdDetail, buff);
+	buff[ret] = 0;
+	if (!strcmp(opcode, o_100)) SetWindowTextA(eIdDetail, buff);*/
+
+	char* buff = new char[sizeof(TEST)];
+	strcpy_s(buff, sizeof(TEST), "");
+	ret = recv(client, buff, sizeof(TEST), 0);
+	TEST* t = (TEST*)buff;
+	SetWindowTextA(eIdDetail, t->id);
 	return 1;
 }
 

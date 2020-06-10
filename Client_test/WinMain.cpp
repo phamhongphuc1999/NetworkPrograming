@@ -317,6 +317,7 @@ int BnClickedMakeConnect(char* address, u_short port) {
 	char* opcode = new char[10];
 	char* buff = new char[BUFF_SIZE];
 	ret = RECEIVE_TCP(client, opcode, buff, 0, &offset);
+	buff[ret] = 0;
 	if (!strcmp(opcode, o_100)) SetWindowTextA(eIdDetail, buff);
 	return 1;
 }

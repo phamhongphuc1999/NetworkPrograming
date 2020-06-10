@@ -1,3 +1,13 @@
-﻿  Common.cpp
+﻿  stdafx.cpp
+  TCP_SOCKET.cpp
+  Server_map.cpp
+d:\documents\visualstudio\bai_tap_lon_ltm\server_map\server_map.cpp(27): warning C4477: 'scanf_s' : format string '%d' requires an argument of type 'int *', but variadic argument 1 has type 'u_short *'
+  d:\documents\visualstudio\bai_tap_lon_ltm\server_map\server_map.cpp(27): note: consider using '%hd' in the format string
+d:\documents\visualstudio\bai_tap_lon_ltm\server_map\server_map.cpp(153): warning C4101: 'username': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_ltm\server_map\server_map.cpp(156): warning C4101: 'i': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_ltm\server_map\server_map.cpp(153): warning C4101: 'password': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_ltm\server_map\server_map.cpp(152): warning C4101: 'buffSend': unreferenced local variable
+  Common.cpp
+  Generating Code...
   Server_map.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\Server_map.exe
   Server_map.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\Server_map.pdb (Full PDB)

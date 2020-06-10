@@ -13,6 +13,11 @@ unsigned _stdcall Handler(void* param);
 map<string, SESSION*> mapSession;
 int lockSession, isThreadFull;
 
+struct TEST
+{
+	char* id;
+};
+
 int main()
 {
 	WSADATA wsaData;
@@ -207,8 +212,12 @@ unsigned _stdcall Handler(void* param) {
 				buffReceive[ret] = 0;
 
 				if (!strcmp(opcode, o_300)) {
-					ret = SEND_TCP(client[index].connSock, o_100, client[index].ID, 0, 0);
-					if (ret == SOCKET_ERROR) continue;
+					/*ret = SEND_TCP(client[index].connSock, o_100, client[index].ID, 0, 0);
+					if (ret == SOCKET_ERROR) continue;*/
+					TEST* t = (TEST*)buffSend;
+					t->id = new char[BUFF_SIZE];
+					strcpy_s(t->id, strlen(client[index].ID), client[index].ID);
+					ret = send(client[index].connSock, buffSend, sizeof(TEST), 0);
 				}
 
 				else if (!strcmp(opcode, o_310)) {
