@@ -70,10 +70,65 @@ unsigned _stdcall ReleaseSession(void* param) {
 	return 0;
 }
 
+unsigned _stdcall SearchSessionByID(void* param) {
+	SESSION* session = (SESSION*)param;
+	int ret; Message message;
+	for (pair<string, ForwardInfo> info : session->forwardInfo) {
+		if (info.second.status == 0) {
+			string partnerID(info.second.parnerID);
+			SESSION* partner = mapSession[partnerID];
+			if (partner != NULL) {
+				CreateMessage(&message, 200, 0, info.second.fileName, session->ID);
+				ret = SEND_TCP(partner->connSock, message, 0);
+				if (ret == SOCKET_ERROR) continue;
+			}
+			else {
+				CreateMessage(&message, 203, 0, info.second.fileName, info.second.parnerID);
+				ret = SEND_TCP(session->connSock, message, 0);
+				if (ret == SOCKET_ERROR) continue;
+			}
+			info.second.status = 1;
+		}
+	}
+	return 0;
+}
+
+unsigned _stdcall SendListSearchClient(void* param) {
+	SESSION* session = (SESSION*)param;
+	Message message;
+	for (pair<string, SearchInfo> item : session->searchInfo) {
+		if (item.second.status == 2) {
+			for (string ID : item.second.Yes)
+				message.listID.push_back(ID);
+			CreateMessage(&message, 111, 0, item.second.fileName, 0);
+			int ret = SEND_TCP(session->connSock, message, 0);
+			if (ret == SOCKET_ERROR) continue;
+		}
+	}
+	return 0;
+}
+
+unsigned _stdcall SearchFile(void* param) {
+	SESSION* session = (SESSION*)param;
+	int ret; Message message;
+	for (pair<string, SearchInfo> item : session->searchInfo) {
+		if (item.second.status == 0) {
+			for (pair<string, SESSION*> partner : mapSession) {
+				if (strcmp(session->ID, partner.second->ID)) {
+					CreateMessage(&message, 120, 0, item.second.fileName, session->ID);
+					ret = SEND_TCP(partner.second->connSock, message, 0);
+					if (ret == SOCKET_ERROR) continue;
+				}
+			}
+			item.second.status = 1;
+		}
+	}
+	return 0;
+}
+
 unsigned _stdcall Handler(void* param) {
 	SOCKET listenSocket = (SOCKET)param;
 	sockaddr_in clientAddr;
-	//char buffReceive[BUFF_SIZE + 1], buffSend[BUFF_SIZE + 1];
 	Message message;
 	int clientAddrLen = sizeof(clientAddr);
 	DWORD nEvents = MAKEWORD(0, 0), i, index;
@@ -128,11 +183,60 @@ unsigned _stdcall Handler(void* param) {
 				int ret = RECEIVE_TCP(client[index].connSock, &message, 0);
 				if (ret == SOCKET_ERROR) continue;
 				if (message.type == 300) {
-					CreateMessage(&message, 100, client[index].ID, NULL);
+					CreateMessage(&message, 100, client[index].ID, 0, 0);
 					ret = SEND_TCP(client[index].connSock, message, 0);
 					if (ret == SOCKET_ERROR) continue;
 				}
 
+				else if (message.type == 310) {
+					string fileName(message.fileName);
+					SearchInfo info; info.status = 0;
+					info.fileName = new char[BUFF_SIZE];
+					strcpy_s(info.fileName, strlen(message.fileName) + 1, message.fileName);
+					client[index].searchInfo.insert({ fileName, info });
+					_beginthreadex(0, 0, SearchFile, (void*)&client[index], 0, 0);
+				}
+
+				else if (message.type == 320 || message.type == 321) {
+					string partnerID(message.partnerID);
+					string fileName(message.fileName);
+					if (message.type == 320)
+						mapSession[partnerID]->searchInfo[fileName].No.push_back(string(client[index].ID));
+					else mapSession[partnerID]->searchInfo[fileName].Yes.push_back(string(client[index].ID));
+					int yesSize = mapSession[partnerID]->searchInfo[fileName].Yes.size();
+					int noSize = mapSession[partnerID]->searchInfo[fileName].No.size();
+					if (yesSize + noSize == mapSession.size() - 1) {
+						mapSession[partnerID]->searchInfo[fileName].status = 2;
+						_beginthreadex(0, 0, SendListSearchClient, (void*)mapSession[partnerID], 0, 0);
+					}
+				}
+
+				else if (message.type == 400) {
+					ForwardInfo info; info.status = 0;
+					info.fileName = new char[BUFF_SIZE];
+					info.parnerID = new char[30];
+					string sFileName(message.fileName);
+					strcpy_s(info.fileName, strlen(message.fileName) + 1, message.fileName);
+					strcpy_s(info.parnerID, strlen(message.partnerID) + 1, message.partnerID);
+					client[index].forwardInfo.insert({ sFileName, info });
+					_beginthreadex(0, 0, SearchSessionByID, (void*)&client[index], 0, 0);
+				}
+
+				else if (message.type == 410) {
+					string requestID(message.partnerID);
+					strcpy_s(message.partnerID, strlen(client[index].ID) + 1, client[index].ID);
+					message.type = 203;
+					ret = SEND_TCP(mapSession[requestID]->connSock, message, 0);
+					if (ret == SOCKET_ERROR) continue;
+				}
+
+				else if (message.type == 411) {
+					string requestID(message.partnerID);
+					strcpy_s(message.partnerID, strlen(client[index].ID) + 1, client[index].ID);
+					message.type = 202;
+					ret = SEND_TCP(mapSession[requestID]->connSock, message, 0);
+					if (ret == SOCKET_ERROR) continue;
+				}
 				
 				continue;
 			}

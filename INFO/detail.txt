@@ -1,11 +1,8 @@
 ==================================================================================================
                                    Khuôn dạng gói tin
 ==================================================================================================
-=============Định dạng mảng char(char*)
---- Có ba trường opcode, length, data
-opcode: 3 phần tử đầu trong mảng, chỉ định chức năng sẽ thực hiện
-length: 10 phần tử tiếp theo trong mảng, chứa kích thức của data
-data: phần còn lại của gói tin gửi đi, chứ dữ liệu cần truyền
+=============Định dạng struct
+struct Message{type, fileName, partnerID, listID}
 
 --- Định nghĩa opcode
 1, 2: server gửi tín hiệu cho client
@@ -30,7 +27,7 @@ data: phần còn lại của gói tin gửi đi, chứ dữ liệu cần truy�
 312: yêu cầu tải file từ client có ID trong phần data(lần 1 gửi tên file, lần 2 gửi ID của client)
 320: không tìm thấy tên file trong trường data
 321: tìm thấy tên file trong trường data
-400: gửi ID của người cần chuyển tiếp file đến, sau đó gửi file name
+400: gửi ID của client chuyển tiếp đến và fileName
 401: gửi lần lượt từng gói dữ liệu đến server, lần cuối không có dữ liệu để thông báo kết thúc
 410: không cho chuyển tiếp file về client
 411: cho phép chuyển tiếp file về client

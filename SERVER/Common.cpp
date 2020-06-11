@@ -3,9 +3,6 @@
 #include <list>
 
 void InitiateSession(struct SESSION* session) {
-	session->forwardInfo.fileName = new char[BUFF_SIZE];
-	session->forwardInfo.parnerID = new char[BUFF_SIZE];
-	session->forwardInfo.payload.clear();
 	session->connSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	session->connSock = 0;
 }
@@ -33,10 +30,4 @@ char* StringToChars(string input) {
 	for (int i = 0; i < length; i++) result[i] = input[i];
 	result[length] = 0;
 	return result;
-}
-
-void CreateMessage(Message* message, int type, char* data, ForwardInfoClient* forwardInfo) {
-	message->type = type;
-	strcpy_s(message->data, strlen(data) + 1, data);
-	message->forwardInfo = forwardInfo;
 }

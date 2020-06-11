@@ -1,3 +1,11 @@
-﻿  TCP_SOCKET.cpp
+﻿  WinMain.cpp
+d:\documents\visualstudio\btl_ltm_version2\client\winmain.cpp(37): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\btl_ltm_version2\client\winmain.cpp(42): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\btl_ltm_version2\client\winmain.cpp(65): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\btl_ltm_version2\client\winmain.cpp(70): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+  Generating Code...
+  Compiling...
+  TCP_SOCKET.cpp
+  Generating Code...
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BTL_LTM_VERSION2\Debug\CLIENT.exe
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BTL_LTM_VERSION2\Debug\CLIENT.pdb (Partial PDB)
