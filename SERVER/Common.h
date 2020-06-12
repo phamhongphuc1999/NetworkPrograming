@@ -13,14 +13,15 @@ struct ForwardInfo
 {
 	char* parnerID;
 	char* fileName;
-	list<string> payload;
+	list<char*> payload;
 	int status;
 };
 
 struct SearchInfo {
 	char* fileName;
-	list<string> Yes;
-	list<string> No;
+	list<char*> Yes;
+	list<char*> No;
+	list<char*> payload;
 	int status;
 };
 

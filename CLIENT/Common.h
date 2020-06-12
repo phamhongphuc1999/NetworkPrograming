@@ -3,8 +3,9 @@
 
 struct FileData
 {
-	char* payload;
+	char** data;
 	int length;
+	int lastLength;
 };
 
 int CheckIP(char* IP);

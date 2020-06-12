@@ -62,15 +62,37 @@ bool SearchFileByName(string fileName) {
 	return false;
 }
 
+//FileData CreatePayload(string pathToFile) {
+//	ifstream file(pathToFile, ios::in | ios::binary);
+//	file.seekg(0, ios::end);
+//	int length = file.tellg();
+//	file.seekg(0);
+//	FileData result;
+//	result.payload = new char[length];
+//	result.length = length;
+//	file.read(result.payload, length);
+//	file.close();
+//	return result;
+//}
+
 FileData CreatePayload(string pathToFile) {
 	ifstream file(pathToFile, ios::in | ios::binary);
 	file.seekg(0, ios::end);
 	int length = file.tellg();
 	file.seekg(0);
-	FileData result;
-	result.payload = new char[length];
-	result.length = length;
-	file.read(result.payload, length);
+	int numberOfPackage = length / 2048;
+	int lastLength = length % 2048;
+	FileData result; result.lastLength = lastLength;
+	result.length = numberOfPackage + 1;
+	result.data = new char*[result.length];
+	for (int i = 0; i < result.length - 1; i++) {
+		result.data[i] = new char[2049];
+		file.read(result.data[i], 2048);
+		result.data[i][2048] = 0;
+	}
+	result.data[result.length - 1] = new char[lastLength + 1];
+	file.read(result.data[result.length - 1], lastLength);
+	result.data[result.length - 1][lastLength] = 0;
 	file.close();
 	return result;
 }

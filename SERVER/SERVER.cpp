@@ -78,12 +78,12 @@ unsigned _stdcall SearchSessionByID(void* param) {
 			string partnerID(info.second.parnerID);
 			SESSION* partner = mapSession[partnerID];
 			if (partner != NULL) {
-				CreateMessage(&message, 200, info.second.fileName, session->ID);
+				CreateMessage(&message, 200, info.second.fileName, session->ID, 0);
 				ret = SEND_TCP(partner->connSock, message, 0);
 				if (ret == SOCKET_ERROR) continue;
 			}
 			else {
-				CreateMessage(&message, 203, info.second.fileName, info.second.parnerID);
+				CreateMessage(&message, 203, info.second.fileName, info.second.parnerID, 0);
 				ret = SEND_TCP(session->connSock, message, 0);
 				if (ret == SOCKET_ERROR) continue;
 			}
@@ -93,18 +93,47 @@ unsigned _stdcall SearchSessionByID(void* param) {
 	return 0;
 }
 
-unsigned _stdcall SendListSearchClient(void* param) {
-	/*SESSION* session = (SESSION*)param;
-	Message message;
-	for (pair<string, SearchInfo> item : session->searchInfo) {
+unsigned _stdcall SendForwardFileToClient(void* param) {
+	SESSION* session = (SESSION*)param;
+	int ret; Message message;
+	for (pair<string, ForwardInfo> item : session->forwardInfo) {
 		if (item.second.status == 2) {
-			for (string ID : item.second.Yes)
-				message.listID.push_back(ID);
-			CreateMessage(&message, 111, 0, item.second.fileName, 0);
-			int ret = SEND_TCP(session->connSock, message, 0);
+			string ID(item.second.parnerID);
+			for (string data : item.second.payload) {
+				CreateMessage(&message, 201, item.second.fileName, session->ID, StringToChars(data));
+				ret = SEND_TCP(mapSession[ID]->connSock, message, 0);
+				if (ret == SOCKET_ERROR) continue;
+			}
+			CreateMessage(&message, 201, item.second.fileName, session->ID, 0);
+			ret = SEND_TCP(mapSession[ID]->connSock, message, 0);
 			if (ret == SOCKET_ERROR) continue;
 		}
-	}*/
+		item.second.status = 3;
+	}
+	return 0;
+}
+
+unsigned _stdcall SendSearchFileToClient(void* param) {
+
+	return 0;
+}
+
+unsigned _stdcall SendListSearchClient(void* param) {
+	SESSION* session = (SESSION*)param;
+	Message message; int ret;
+	for (pair<string, SearchInfo> item : session->searchInfo) {
+		if (item.second.status == 2) {
+			for (char* ID : item.second.Yes) {
+				CreateMessage(&message, 111, item.second.fileName, ID, 0);
+				ret = SEND_TCP(session->connSock, message, 0);
+				if (ret == SOCKET_ERROR) continue;
+			}
+			CreateMessage(&message, 111, item.second.fileName, 0, 0);
+			ret = SEND_TCP(session->connSock, message, 0);
+			if (ret == SOCKET_ERROR) continue;
+		}
+		item.second.status = 3;
+	}
 	return 0;
 }
 
@@ -115,7 +144,7 @@ unsigned _stdcall SearchFile(void* param) {
 		if (item.second.status == 0) {
 			for (pair<string, SESSION*> partner : mapSession) {
 				if (strcmp(session->ID, partner.second->ID)) {
-					CreateMessage(&message, 120, item.second.fileName, session->ID);
+					CreateMessage(&message, 120, item.second.fileName, session->ID, 0);
 					ret = SEND_TCP(partner.second->connSock, message, 0);
 					if (ret == SOCKET_ERROR) continue;
 				}
@@ -183,7 +212,7 @@ unsigned _stdcall Handler(void* param) {
 				int ret = RECEIVE_TCP(client[index].connSock, &message, 0);
 				if (ret == SOCKET_ERROR) continue;
 				if (message.type == 300) {
-					CreateMessage(&message, 100, 0, client[index].ID);
+					CreateMessage(&message, 100, 0, client[index].ID, 0);
 					ret = SEND_TCP(client[index].connSock, message, 0);
 					if (ret == SOCKET_ERROR) continue;
 				}
@@ -197,12 +226,33 @@ unsigned _stdcall Handler(void* param) {
 					_beginthreadex(0, 0, SearchFile, (void*)&client[index], 0, 0);
 				}
 
+				else if (message.type == 311) {
+					string fileName(message.fileName);
+					string ID(message.ID);
+					if (strcmp(message.data, "")) {
+						char* temp = new char[BUFF_SIZE];
+						strcpy_s(temp, strlen(message.data) + 1, message.data);
+						client[index].searchInfo[fileName].payload.push_back(temp);
+					}
+					else {
+						client[index].forwardInfo[fileName].status = 3;
+						_beginthreadex(0, 0, SendSearchFileToClient, (void*)&client[index], 0, 0);
+					}
+				}
+
+				else if (message.type == 312) {
+					Message searchFile; CreateMessage(&searchFile, 121, message.fileName, client[index].ID, 0);
+					int ret = SEND_TCP(mapSession[string(message.ID)]->connSock, searchFile, 0);
+					if (ret == SOCKET_ERROR) continue;
+				}
+
 				else if (message.type == 320 || message.type == 321) {
 					string partnerID(message.ID);
 					string fileName(message.fileName);
+					char* temp = new char[BUFF_SIZE];
 					if (message.type == 320)
-						mapSession[partnerID]->searchInfo[fileName].No.push_back(string(client[index].ID));
-					else mapSession[partnerID]->searchInfo[fileName].Yes.push_back(string(client[index].ID));
+						mapSession[partnerID]->searchInfo[fileName].No.push_back(client[index].ID);
+					else mapSession[partnerID]->searchInfo[fileName].Yes.push_back(client[index].ID);
 					int yesSize = mapSession[partnerID]->searchInfo[fileName].Yes.size();
 					int noSize = mapSession[partnerID]->searchInfo[fileName].No.size();
 					if (yesSize + noSize == mapSession.size() - 1) {
@@ -220,6 +270,20 @@ unsigned _stdcall Handler(void* param) {
 					strcpy_s(info.parnerID, strlen(message.ID) + 1, message.ID);
 					client[index].forwardInfo.insert({ sFileName, info });
 					_beginthreadex(0, 0, SearchSessionByID, (void*)&client[index], 0, 0);
+				}
+
+				else if (message.type == 401) {
+					string fileName(message.fileName);
+					string ID(message.ID);
+					if (strcmp(message.data, "")) {
+						char* temp = new char[BUFF_SIZE];
+						strcpy_s(temp, strlen(message.data) + 1, message.data);
+						client[index].forwardInfo[fileName].payload.push_back(temp);
+					}
+					else {
+						client[index].forwardInfo[fileName].status = 2;
+						_beginthreadex(0, 0, SendForwardFileToClient, (void*)&client[index], 0, 0);
+					}
 				}
 
 				else if (message.type == 410) {
