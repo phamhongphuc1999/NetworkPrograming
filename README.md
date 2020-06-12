@@ -40,8 +40,8 @@
 - 311: tải file từ client được chỉ định bởi client khác lên server
 - 320: không tìm thấy tên file trong trường data
 - 321: tìm thấy tên file trong trường data
-- 400: gửi ID và fileName
-- 401: gửi lần lượt từng gói dữ liệu đến server, lần cuối không có dữ liệu để thông báo kết thúc
+- 400: gửi ID và fileName để chuyển tiếp file
+- 401: gửi dữ liệu của file cần chuyển tiếp
 - 410: không cho chuyển tiếp file về client
 - 411: cho phép chuyển tiếp file về client
 
