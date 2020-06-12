@@ -16,9 +16,13 @@
 ##### => nâng cấp chương trình bằng việc thay thế ID bằng username, password
 
 ## Khuôn dạng gói tin: định dạng struct
-#### Có 2 trường: type, data
-- type: kiểu int, định nghĩa chức năng cần thực hiện
-- data: dữ liệu gửi kèm theo
+#### struct Message {
+####   int type;
+####   char fileName[BUFF_SIZE];
+####   char ID[BUFF_SIZE];
+####   char data[BUFF_SIZE + 1];
+####   };
+#### các trường trong struct có thể thay đổi chức năng tùy thuộc vào chức năng client hay server yêu cầu
 
 ### Định nghĩa opcode
 #### 1xx, 2xx: server gửi tín hiệu cho client
@@ -26,18 +30,18 @@
 #### SERVER:
 - 100: kết nối thành công, gửi ID lại client
 - 110: gửi danh sách các client đang kết nối
-- 111: gửi danh sách các client có file yêu cầu
-- 112: tải file từ server về client
+- 111: gửi danh sách các client có file yêu cầu trong chức năng tìm kiếm file
+- 112: tải file từ server về client trong chức năng tìm kiếm file
 - 120: gửi yêu cầu tìm kiếm file đến client
-- 121: gửi yêu cầu tải file lên server
+- 121: gửi yêu cầu tải file lên server trong chức năng tìm kiếm file
 - 200: yêu cầu chuyển tiếp file về client
-- 201: tải file chuyển tiếp về client
+- 201: yêu cầu tải file chuyển tiếp về client
 - 202: ID do client gửi lên có thể kết nối và được phép chuyển tiếp
 - 203: ID do client gửi lên không thể kết nối hoặc bị từ chối chuyển tiếp
 #### CLIENT:
-- 300: yêu cầu kết nối và gửi ID
+- 300: yêu cầu kết nối và yêu cầu server gửi ID
 - 310: gửi yêu cầu tìm kiếm file
-- 311: tải file từ client được chỉ định bởi client khác lên server
+- 311: chỉ định tải file từ một client khác trong chức năng tìm kiếm file
 - 320: không tìm thấy tên file trong trường data
 - 321: tìm thấy tên file trong trường data
 - 400: gửi ID và fileName để chuyển tiếp file
