@@ -14,6 +14,12 @@ struct SearchList
 	char fileName[BUFF_SIZE];
 };
 
+struct SearchData
+{
+	list<char*> data;
+	char fileName[BUFF_SIZE];
+};
+
 HWND hMain, hSearch;
 HINSTANCE hInst;
 //controller in main window
@@ -161,7 +167,13 @@ unsigned _stdcall SendSearchFileToServer(void* param) {
 }
 
 unsigned _stdcall ReceiveSearchFileToServer(void* param) {
-
+	SearchData* searchData = (SearchData*)param;
+	ofstream f("Data/" + string(searchData->fileName), ios::out | ios::binary);
+	for (char* data : searchData->data) {
+		f.write(data, strlen(data));
+	}
+	f.close();
+	MessageBox(hMain, "RECEIVE SEARCH FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_ICONINFORMATION);
 	return 0;
 }
 
@@ -223,7 +235,7 @@ unsigned _stdcall ReceiveForwardFile(void* param) {
 
 unsigned _stdcall ListenServer(void* param) {
 	int ret; Message message;
-	ForwardInfo forwardInfo; SearchList searchList;
+	ForwardInfo forwardInfo; SearchList searchList; SearchData searchData;
 	while (true)
 	{
 		ret = RECEIVE_TCP(client, &message, 0);
@@ -236,6 +248,16 @@ unsigned _stdcall ListenServer(void* param) {
 			else {
 				strcpy_s(searchList.fileName, strlen(message.fileName) + 1, message.fileName);
 				_beginthreadex(0, 0, ReceiveListSearchID, (void*)&searchList, 0, 0);
+			}
+		}
+
+		else if (message.type == 112) {
+			char* temp = new char[BUFF_SIZE];
+			strcpy_s(temp, strlen(message.data) + 1, message.data);
+			if (strcmp(message.data, "")) searchData.data.push_back(temp);
+			else {
+				strcpy_s(searchData.fileName, strlen(message.fileName) + 1, message.fileName);
+				_beginthreadex(0, 0, ReceiveSearchFileToServer, (void*)&searchData, 0, 0);
 			}
 		}
 
@@ -266,9 +288,11 @@ unsigned _stdcall ListenServer(void* param) {
 		else if (message.type == 200) {
 			char* temp1 = new char[100]{ "Request receive forward file " };
 			char* temp2 = new char[100]{ " from client " };
+			char* temp3 = new char[100]{ "\nDo you allow find?" };
 			strcat_s(temp1, strlen(temp1) + strlen(message.fileName) + 1, message.fileName);
 			strcat_s(temp1, strlen(temp1) + strlen(temp2) + 1, temp2);
 			strcat_s(temp1, strlen(temp1) + strlen(message.ID) + 1, message.ID);
+			strcat_s(temp1, strlen(temp3) + strlen(temp1) + 1, temp3);
 			int id = MessageBox(hMain, temp1, "ANNOUNT", MB_OKCANCEL | MB_ICONINFORMATION);
 			if (id == IDOK) message.type = 411;
 			else if (id == IDCANCEL) message.type = 410;

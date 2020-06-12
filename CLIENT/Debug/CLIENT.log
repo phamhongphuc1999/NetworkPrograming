@@ -1,7 +1,7 @@
 ﻿  WinMain.cpp
-d:\documents\visualstudio\bai_tap_lon_version2\client\winmain.cpp(49): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_version2\client\winmain.cpp(54): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_version2\client\winmain.cpp(77): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_version2\client\winmain.cpp(82): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_version2\client\winmain.cpp(55): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_version2\client\winmain.cpp(60): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_version2\client\winmain.cpp(83): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_version2\client\winmain.cpp(88): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_VERSION2\Debug\CLIENT.exe
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_VERSION2\Debug\CLIENT.pdb (Partial PDB)

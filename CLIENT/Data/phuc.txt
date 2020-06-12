@@ -1,0 +1,100 @@
+The InterPlanetary File System (IPFS) is a protocol and peer-to-peer network for storing and sharing data in a distributed file system. IPFS uses content-addressing to uniquely identify each file in a global namespace connecting all computing devices.[3]
+
+IPFS allows users to not only receive but host content, in a similar manner to BitTorrent. As opposed to a centrally located server, IPFS is built around a decentralized system of user-operators who hold a portion of the overall data, creating a resilient system of file storage and sharing. Any user in the network can serve a file by its content address, and other peers in the network can find and request that content from any node who has it using a distributed hash table (DHT).
+
+IPFS was launched in an alpha version in February 2015, and by October of the same year was described by TechCrunch as "quickly spreading by word of mouth."[1]
+
+
+The Wikipedia logo has an IPFS hash with the following code: QmRW3V9znzFW9M5FYbitSEvd5dQrPWGvPvgQD6LM22Tv8D. It can be accessed with that hash over HTTP by a public gateway or a local IPFS instance[permanent dead link]
+
+Contents
+1	Notable users
+1.1	Malware
+2	See also
+3	References
+4	External links
+Notable users
+The Catalan independence referendum, taking place in September–October 2017, was deemed illegal by the Constitutional Court of Spain and many related websites were blocked. Subsequently, the Catalan Pirate Party mirrored the website on IPFS to bypass the High Court of Justice of Catalonia order of blocking.[4][5]
+IPFS was used to create a mirror of Wikipedia, which allows people living in jurisdictions where Wikipedia is blocked to access the content of Wikipedia.[6] That archived version of Wikipedia is a limited immutable copy that cannot be updated.
+Filecoin, also inter-related to IPFS and developed by Juan Benet and Protocol Labs, is an IPFS-based cooperative storage cloud.[7]
+Cloudflare runs a distributed web gateway to simplify, speed up, and secure access to IPFS without needing a local node.[8]
+Microsoft's new self-sovereign identity system, Microsoft ION, builds on the Bitcoin blockchain and IPFS through a Sidetree-based DID network.[9]
+Brave uses Origin Protocol and IPFS to host its decentralized swag store.[10]
+Opera for Android now has default support for IPFS, allowing mobile users to browse ipfs:// links to access data on the IPFS network.[11]
+Malware
+The IPStorm botnet, first detected in June 2019, uses IPFS, so it can hide its command-and-control amongst the flow of legitimate data on the IPFS network.[12] Security researchers had worked out previously the theoretical possibility of using IPFS as a botnet command-and-control system.[13]
+
+Phishing attacks have also been distributed through Cloudflare's IPFS gateway since July 2018. The phishing scam HTML is stored on IPFS, and displayed via Cloudflare's gateway. The connection shows as secure via a Cloudflare SSL certificate.[14]
+
+See also
+Content addressable storage
+Dat (software)
+Distributed file system
+GNUnet
+References
+ Case, Amber (4 October 2015). "Why The Internet Needs IPFS Before It's Too Late". TechCrunch. Retrieved 16 July 2019.
+ Agorise (23 October 2017). "c-ipfs: IPFS implementation in C. Why C? Think Bitshares' Stealth backups, OpenWrt routers (decentralize the internet/meshnet!), Android TV, decentralized Media, decentralized websites, decent." Github.com. Retrieved 25 October 2017.
+ Finley, Klint (20 June 2016). "The Inventors of the Internet Are Trying to Build a Truly Permanent Web". Wired.
+ Balcell, Marta Poblet (5 October 2017). "Inside Catalonia's cypherpunk referendum". Eureka Street.
+ Hill, Paul (30 September 2017). "Catalan referendum app removed from Google Play Store". Neowin. Retrieved 6 October 2017.
+ Dale, Brady (10 May 2017). "Turkey Can't Block This Copy of Wikipedia". Observer Media. Archived from the original on 18 October 2017. Retrieved 20 December 2017.
+ Johnson, Steven (16 January 2018). "Beyond the Bitcoin Bubble". The New York Times. Retrieved 26 September 2018.
+ Orcutt, Mike (5 October 2018). "A big tech company is working to free the internet from big tech companies". MIT Technology Review. Retrieved 21 April 2020.
+ Simons, Alex (13 May 2019). "Toward scalable decentralized identifier systems". Azure Active Directory Identity Blog.
+ "Brave Launches New Swag Store Powered by Origin". Brave.com. 2 April 2020. Retrieved 21 April 2020.
+ "Opera introduces major updates to its blockchain-browser on Android". Opera Blog. 3 March 2020. Retrieved 21 April 2020.
+ Palmer, Danny (11 June 2019). "This unusual Windows malware is controlled via a P2P network". ZDNet. Retrieved 31 August 2019.
+ Patsakis, Constantinos; Casino, Fran (4 June 2019). "Hydras and IPFS: a decentralised playground for malware". International Journal of Information Security. 18 (6): 787–799. arXiv:1905.11880. doi:10.1007/s10207-019-00443-0.
+ Abrams, Lawrence (4 October 2018). "Phishing Attacks Distributed Through Cloudflare's IPFS Gateway". Bleeping Computer. Retrieved 31 August 2019.
+External links
+Official website, IPFS.io
+vte
+File systems
+vte
+Peer-to-peer file sharing
+vte
+Internet censorship circumvention technologies
+Categories: Application layer protocolsComputer-related introductions in 2015Distributed data storageDistributed file systemsFile transfer protocolsFree network-related softwareFree software programmed in PythonInternet privacy softwareInternet protocolsNetwork protocolsPeer-to-peer computingWorld Wide Web
+Navigation menu
+Not logged inTalkContributionsCreate accountLog in
+ArticleTalk
+ReadEditView historySearch
+Search Wikipedia
+Main page
+Contents
+Current events
+Random article
+About Wikipedia
+Contact us
+Donate
+Contribute
+Help
+Community portal
+Recent changes
+Upload file
+Tools
+What links here
+Related changes
+Special pages
+Permanent link
+Page information
+Cite this page
+Wikidata item
+
+Languages
+العربية
+Deutsch
+Español
+Français
+日本語
+Polski
+Português
+Русский
+中文
+5 more
+Edit links
+Print/export
+Download as PDF
+Printable version
+This page was last edited on 11 June 2020, at 06:08 (UTC).
+Text is available under the Creative Commons Attribution-ShareAlike License; additional terms may apply. By using this site, you agree to the Terms of Use and Privacy Policy. Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a non-profit organization.

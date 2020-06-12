@@ -19,6 +19,7 @@ struct ForwardInfo
 
 struct SearchInfo {
 	char* fileName;
+	char* ID;
 	list<char*> Yes;
 	list<char*> No;
 	list<char*> payload;
