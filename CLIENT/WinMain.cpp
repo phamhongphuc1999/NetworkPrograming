@@ -6,8 +6,8 @@ HWND hMain, hSearch;
 HINSTANCE hInst;
 //controller in main window
 static HWND btnBrowse, btnForward, btnSearch, btnHide, btnConnect, btnClean;
-static HWND eFile, eFileName, eParnerId, eIdDetail;
-static HWND sFile, sFileName, sParnerId, sID;
+static HWND eFile, eFileName, ePartnerId, eIdDetail;
+static HWND sFile, sFileName, sPartnerId, sID;
 bool isConnect = false, isHide = true;
 
 //controller in search window
@@ -99,12 +99,12 @@ void DrawMainWindow(HWND window) {
 
 	eFile = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 90, 350, 20, window, (HMENU)editFile, NULL, NULL);
 	eFileName = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 200, 350, 20, window, (HMENU)editFileName, NULL, NULL);
-	eParnerId = CreateWindow("Edit", "", WS_CHILD | SW_HIDE | WS_BORDER, 100, 120, 350, 20, window, (HMENU)editParnerId, NULL, NULL);
+	ePartnerId = CreateWindow("Edit", "", WS_CHILD | SW_HIDE | WS_BORDER, 100, 120, 350, 20, window, (HMENU)editPartnerId, NULL, NULL);
 	eIdDetail = CreateWindow("Edit", "", WS_VISIBLE | WS_CHILD | ES_READONLY, 480, 0, 180, 20, window, (HMENU)editIdDetail, NULL, NULL);
 
 	sFile = CreateWindow("STATIC", "Address", WS_VISIBLE | WS_CHILD | SS_RIGHT, 30, 90, 55, 20, window, (HMENU)staticFile, NULL, NULL);
 	sFileName = CreateWindow("STATIC", "Port", WS_VISIBLE | WS_CHILD | SS_RIGHT, 20, 200, 65, 20, window, (HMENU)staticFileName, NULL, NULL);
-	sParnerId = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_RIGHT, 20, 120, 65, 20, window, (HMENU)staticParnerId, NULL, NULL);
+	sPartnerId = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_RIGHT, 20, 120, 65, 20, window, (HMENU)staticPartnerId, NULL, NULL);
 	sID = CreateWindow("STATIC", "ID", WS_VISIBLE | WS_CHILD | SS_RIGHT, 450, 0, 20, 20, window, (HMENU)staticId, NULL, NULL);
 }
 
@@ -142,7 +142,7 @@ unsigned _stdcall SendForwardFile(void* param) {
 	TCHAR* pathToFile = new TCHAR[1024];
 	TCHAR* partnerID = new TCHAR[1024];
 	GetWindowText(eFile, pathToFile, 1024);
-	GetWindowText(eParnerId, partnerID, 1024);
+	GetWindowText(ePartnerId, partnerID, 1024);
 	MessageBox(hMain, "AAAAAAAAAAAAAA", "CCCCCCCCCCCC", MB_OK);
 	return 0;
 }
@@ -163,7 +163,7 @@ unsigned _stdcall ListenServer(void* param) {
 			char* temp3 = new char[100]{ "\nDo you allow find?" };
 			strcat_s(temp1, strlen(message.fileName) + strlen(temp1) + 1, message.fileName);
 			strcat_s(temp1, strlen(temp2) + strlen(temp1) + 1, temp2);
-			strcat_s(temp1, strlen(message.partnerID) + strlen(temp1) + 1, message.partnerID);
+			strcat_s(temp1, strlen(message.ID) + strlen(temp1) + 1, message.ID);
 			strcat_s(temp1, strlen(temp3) + strlen(temp1) + 1, temp3);
 			int id = MessageBox(hMain, temp1, "ANNOUNT", MB_OKCANCEL | MB_ICONINFORMATION);
 			if (id == IDCANCEL) {
@@ -172,7 +172,7 @@ unsigned _stdcall ListenServer(void* param) {
 				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 			}
 			else if (id == IDOK) {
-				Message searchInfo; CreateMessage(&searchInfo, 0, message.data, message.fileName, message.partnerID);
+				Message searchInfo; CreateMessage(&searchInfo, 0, message.fileName, message.ID);
 				_beginthreadex(0, 0, SearchFile, (void*)&searchInfo, 0, 0);
 			}
 		}
@@ -182,7 +182,7 @@ unsigned _stdcall ListenServer(void* param) {
 			char* temp2 = new char[100]{ " from client " };
 			strcat_s(temp1, strlen(temp1) + strlen(message.fileName) + 1, message.fileName);
 			strcat_s(temp1, strlen(temp1) + strlen(temp2) + 1, temp2);
-			strcat_s(temp1, strlen(temp1) + strlen(message.partnerID) + 1, message.partnerID);
+			strcat_s(temp1, strlen(temp1) + strlen(message.ID) + 1, message.ID);
 			int id = MessageBox(hMain, temp1, "ANNOUNT", MB_OKCANCEL | MB_ICONINFORMATION);
 			if (id == IDOK) message.type = 411;
 			else if(id == IDCANCEL) message.type = 410;
@@ -200,7 +200,7 @@ unsigned _stdcall ListenServer(void* param) {
 			char* temp2 = new char[100]{ " to client " };
 			strcat_s(temp1, strlen(temp1) + strlen(message.fileName) + 1, message.fileName);
 			strcat_s(temp1, strlen(temp1) + strlen(temp2) + 1, temp2);
-			strcat_s(temp1, strlen(temp1) + strlen(message.partnerID) + 1, message.partnerID);
+			strcat_s(temp1, strlen(temp1) + strlen(message.ID) + 1, message.ID);
 			MessageBox(hMain, temp1, "ERROR", MB_ICONERROR);
 		}
 	}
@@ -228,7 +228,7 @@ void BnClickedDrawDisconnect() {
 	ShowWindow(btnSearch, SW_HIDE);
 	ShowWindow(btnClean, SW_HIDE);
 	ShowWindow(btnHide, SW_HIDE);
-	ShowWindow(eParnerId, SW_HIDE);
+	ShowWindow(ePartnerId, SW_HIDE);
 	SetWindowTextA(btnConnect, "Connect");
 	SetWindowTextA(sFile, "Address");
 	SetWindowTextA(sFileName, "Port");
@@ -247,12 +247,12 @@ int BnClickedMakeConnect(char* address, u_short port) {
 	serverAddr.sin_port = htons(port);
 	serverAddr.sin_addr.s_addr = inet_addr(address);
 	if (connect(client, (sockaddr*)&serverAddr, sizeof(serverAddr))) return -2;
-	Message message; CreateMessage(&message, 300, 0, 0, 0);
+	Message message; CreateMessage(&message, 300, 0, 0);
 	int ret = SEND_TCP(client, message, 0);
 	if (ret == SOCKET_ERROR) return -3;
 	
 	ret = RECEIVE_TCP(client, &message, 0);
-	if (message.type == 100) SetWindowTextA(eIdDetail, message.data);
+	if (message.type == 100) SetWindowTextA(eIdDetail, message.ID);
 	return 1;
 }
 
@@ -305,25 +305,25 @@ void OnBnClickedForward(HWND window) {
 	if (isHide) {
 		MessageBox(window, "Enter your parner ID", "ANNOUNT", MB_ICONINFORMATION);
 		ShowWindow(btnHide, SW_SHOW);
-		ShowWindow(eParnerId, SW_SHOW);
-		ShowWindow(sParnerId, SW_SHOW);
-		SetWindowTextA(sParnerId, "Parner ID");
+		ShowWindow(ePartnerId, SW_SHOW);
+		ShowWindow(sPartnerId, SW_SHOW);
+		SetWindowTextA(sPartnerId, "Parner ID");
 		isHide = false;
 	}
 	else {
 		TCHAR* pathToFile = new TCHAR[1024];
 		TCHAR* partnerID = new TCHAR[1024];
 		GetWindowText(eFile, pathToFile, 1024);
-		GetWindowText(eParnerId, partnerID, 1024);
+		GetWindowText(ePartnerId, partnerID, 1024);
 		if (IsFileExistOrValid(pathToFile) && (string)partnerID != "") {
-			Message message; CreateMessage(&message, 400, 0, StringToChars(GetFileName(pathToFile)), partnerID);
+			Message message; CreateMessage(&message, 400, StringToChars(GetFileName(pathToFile)), partnerID);
 			int ret = SEND_TCP(client, message, 0);
 			if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_ICONERROR);
 		}
 		else {
 			MessageBox(window, "Wrong your path of file or parner ID", "ERROR", MB_ICONERROR);
 			SetWindowTextA(eFile, "");
-			SetWindowTextA(eParnerId, "");
+			SetWindowTextA(ePartnerId, "");
 		}
 	}
 }
@@ -349,8 +349,8 @@ void OnBnClickedBrowse(HWND window) {
 
 void OnBnClickedHide(HWND window) {
 	ShowWindow(btnHide, SW_HIDE);
-	ShowWindow(eParnerId, SW_HIDE);
-	SetWindowTextA(sParnerId, "");
+	ShowWindow(ePartnerId, SW_HIDE);
+	SetWindowTextA(sPartnerId, "");
 	isHide = true;
 }
 
@@ -359,7 +359,7 @@ void OnBnClickedSearch(HWND window) {
 	GetWindowText(eFileName, fileName, BUFF_SIZE);
 	if ((string)fileName == "") MessageBox(window, "Must be enter file name", "ANNOUNT", MB_ICONINFORMATION);
 	else {
-		Message message; CreateMessage(&message, 310, 0, fileName, 0);
+		Message message; CreateMessage(&message, 310, fileName, 0);
 		int ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_ICONERROR);
 	}
@@ -368,7 +368,7 @@ void OnBnClickedSearch(HWND window) {
 void OnBnClickedClean(HWND window) {
 	SetWindowTextA(eFile, "");
 	SetWindowTextA(eFileName, "");
-	SetWindowTextA(eParnerId, "");
+	SetWindowTextA(ePartnerId, "");
 }
 
 void OnBnClickedSend(HWND window) {

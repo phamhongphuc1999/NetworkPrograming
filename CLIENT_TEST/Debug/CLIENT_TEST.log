@@ -3,5 +3,12 @@ d:\documents\visualstudio\bai_tap_lon_version2\client_test\winmain.cpp(37): warn
 d:\documents\visualstudio\bai_tap_lon_version2\client_test\winmain.cpp(42): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
 d:\documents\visualstudio\bai_tap_lon_version2\client_test\winmain.cpp(65): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
 d:\documents\visualstudio\bai_tap_lon_version2\client_test\winmain.cpp(70): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+  Generating Code...
+  Compiling...
+  TCP_SOCKET.cpp
+  InteractFile.cpp
+d:\documents\visualstudio\bai_tap_lon_version2\client_test\interactfile.cpp(68): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+  Common.cpp
+  Generating Code...
   CLIENT_TEST.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_VERSION2\Debug\CLIENT_TEST.exe
   CLIENT_TEST.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_VERSION2\Debug\CLIENT_TEST.pdb (Partial PDB)
