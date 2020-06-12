@@ -9,26 +9,15 @@
 #include "CONST.h"
 using namespace std;
 
-struct ForwardInfo
-{
-	char* parnerID;
-	char* fileName;
-	list<char*> payload;
-	int status;
-};
-
 struct SearchInfo {
 	char* fileName;
 	char* ID;
-	list<char*> Yes;
-	list<char*> No;
-	list<char*> payload;
-	int status;
+	int count = 0;
+	int status = 0;
 };
 
 struct SESSION {
 	char* ID;
-	map<string, ForwardInfo> forwardInfo;
 	map<string, SearchInfo> searchInfo;
 	SOCKET connSock;
 };

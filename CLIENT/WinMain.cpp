@@ -2,24 +2,6 @@
 #include "TCP_SOCKET.h"
 #include "InteractFile.h"
 
-struct ForwardInfo
-{
-	list<char*> data;
-	char fileName[BUFF_SIZE];
-};
-
-struct SearchList
-{
-	list<char*> data;
-	char fileName[BUFF_SIZE];
-};
-
-struct SearchData
-{
-	list<char*> data;
-	char fileName[BUFF_SIZE];
-};
-
 HWND hMain, hSearch;
 HINSTANCE hInst;
 //controller in main window
@@ -33,12 +15,14 @@ static HWND btnSend;
 static HWND eID;
 static HWND sFileNameSearch, sIDSearch;
 
-#pragma region CONNECT SERVER
+//connect server
 WSADATA wsaData;
 WORD version = MAKEWORD(2, 2);
 SOCKET client;
 sockaddr_in serverAddr;
-#pragma endregion
+
+map<string, SearchInfo> mapSearch;
+map<string, map<string, ForwardInfo>> mapForward;
 
 LRESULT CALLBACK WndProcMain(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WndProcSearch(HWND, UINT, WPARAM, LPARAM);
@@ -167,9 +151,9 @@ unsigned _stdcall SendSearchFileToServer(void* param) {
 }
 
 unsigned _stdcall ReceiveSearchFileToServer(void* param) {
-	SearchData* searchData = (SearchData*)param;
-	ofstream f("Data/" + string(searchData->fileName), ios::out | ios::binary);
-	for (char* data : searchData->data) {
+	SearchInfo* info = (SearchInfo*)param;
+	ofstream f("Data/" + string(info->fileName), ios::out | ios::binary);
+	for (char* data : info->data) {
 		f.write(data, strlen(data));
 	}
 	f.close();
@@ -178,7 +162,7 @@ unsigned _stdcall ReceiveSearchFileToServer(void* param) {
 }
 
 unsigned _stdcall ReceiveListSearchID(void* param) {
-	SearchList* searchList = (SearchList*)param;
+	SearchInfo* searchList = (SearchInfo*)param;
 	if (searchList->data.size() == 0) {
 		char* fileName = new char[BUFF_SIZE] {"do not find the file: "};
 		strcat_s(fileName, strlen(fileName) + strlen(searchList->fileName) + 1, searchList->fileName);
@@ -235,7 +219,6 @@ unsigned _stdcall ReceiveForwardFile(void* param) {
 
 unsigned _stdcall ListenServer(void* param) {
 	int ret; Message message;
-	ForwardInfo forwardInfo; SearchList searchList; SearchData searchData;
 	while (true)
 	{
 		ret = RECEIVE_TCP(client, &message, 0);
@@ -243,22 +226,18 @@ unsigned _stdcall ListenServer(void* param) {
 
 		if (message.type == 111) {
 			char* temp = new char[BUFF_SIZE];
+			string fileName(message.fileName);
 			strcpy_s(temp, strlen(message.ID) + 1, message.ID);
-			if (strcmp(message.ID, "")) searchList.data.push_back(temp);
-			else {
-				strcpy_s(searchList.fileName, strlen(message.fileName) + 1, message.fileName);
-				_beginthreadex(0, 0, ReceiveListSearchID, (void*)&searchList, 0, 0);
-			}
+			if (strcmp(message.ID, "")) mapSearch[fileName].data.push_back(temp);
+			else _beginthreadex(0, 0, ReceiveListSearchID, (void*)&mapSearch[fileName], 0, 0);
 		}
 
 		else if (message.type == 112) {
 			char* temp = new char[BUFF_SIZE];
+			string fileName(message.fileName);
 			strcpy_s(temp, strlen(message.data) + 1, message.data);
-			if (strcmp(message.data, "")) searchData.data.push_back(temp);
-			else {
-				strcpy_s(searchData.fileName, strlen(message.fileName) + 1, message.fileName);
-				_beginthreadex(0, 0, ReceiveSearchFileToServer, (void*)&searchData, 0, 0);
-			}
+			if (strcmp(message.data, "")) mapSearch[fileName].data.push_back(temp);
+			else _beginthreadex(0, 0, ReceiveSearchFileToServer, (void*)&mapSearch[fileName], 0, 0);
 		}
 
 		else if (message.type == 120) {
@@ -303,11 +282,10 @@ unsigned _stdcall ListenServer(void* param) {
 		else if (message.type == 201) {
 			char* temp = new char[BUFF_SIZE];
 			strcpy_s(temp, strlen(message.data) + 1, message.data);
-			if (strcmp(message.data, "")) forwardInfo.data.push_back(temp);
-			else {
-				strcpy_s(forwardInfo.fileName, strlen(message.fileName) + 1, message.fileName);
-				_beginthreadex(0, 0, ReceiveForwardFile, (void*)&forwardInfo, 0, 0);
-			}
+			string ID(message.ID);
+			string fileName(message.fileName);
+			if (strcmp(message.data, "")) mapForward[ID][fileName].data.push_back(temp);
+			else _beginthreadex(0, 0, ReceiveForwardFile, (void*)&mapForward[ID][fileName], 0, 0);
 		}
 		
 		else if (message.type == 202) {
@@ -436,7 +414,10 @@ void OnBnClickedForward(HWND window) {
 		GetWindowText(eFile, pathToFile, 1024);
 		GetWindowText(ePartnerId, partnerID, 1024);
 		if (IsFileExistOrValid(pathToFile) && (string)partnerID != "") {
-			Message message; CreateMessage(&message, 400, StringToChars(GetFileName(pathToFile)), partnerID, 0);
+			char* fileName = StringToChars(GetFileName(pathToFile));
+			ForwardInfo info; strcpy_s(info.fileName, strlen(fileName) + 1, fileName);
+			mapForward[string(partnerID)].insert({ string(fileName), info });
+			Message message; CreateMessage(&message, 400, fileName, partnerID, 0);
 			int ret = SEND_TCP(client, message, 0);
 			if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_ICONERROR);
 		}
@@ -479,6 +460,8 @@ void OnBnClickedSearch(HWND window) {
 	GetWindowText(eFileName, fileName, BUFF_SIZE);
 	if ((string)fileName == "") MessageBox(window, "Must be enter file name", "ANNOUNT", MB_ICONINFORMATION);
 	else {
+		SearchInfo info; strcpy_s(info.fileName, strlen(fileName) + 1, fileName);
+		mapSearch.insert({ string(fileName), info });
 		Message message; CreateMessage(&message, 310, fileName, 0, 0);
 		int ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_ICONERROR);
@@ -503,6 +486,7 @@ void OnBnClickedSend(HWND window) {
 			Message message; CreateMessage(&message, 312, fileName, id, 0);
 			int ret = SEND_TCP(client, message, 0);
 			if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_OK);
+			mapSearch[string(fileName)].data.clear();
 			ShowWindow(hSearch, SW_HIDE);
 		}
 		else SetWindowTextA(eID, "");
