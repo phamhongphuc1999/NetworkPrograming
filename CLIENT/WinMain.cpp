@@ -134,28 +134,7 @@ unsigned _stdcall SearchFile(void* param) {
 }
 
 unsigned _stdcall ReceiveListSearchID(void* param) {
-	Message* searchInfo = (Message*)param;
-	if (searchInfo->listID.size() == 0) {
-		char* fileName = new char[BUFF_SIZE] {"do not find the file: "};
-		strcat_s(fileName, strlen(fileName) + strlen(searchInfo->fileName) + 1, searchInfo->fileName);
-		MessageBox(hMain, fileName, "ANNOUNT", MB_ICONINFORMATION);
-	}
-	else {
-		char* result = new char[22 * searchInfo->listID.size()]{ 0 };
-		char* space = new char[2]{ "\n" };
-		for (string ID : searchInfo->listID) {
-			char* temp = StringToChars(ID);
-			strcat_s(result, strlen(temp) + strlen(result) + 1, temp);
-			strcat_s(result, strlen(result) + strlen(space) + 1, space);
-		}
-		char* fileName = new char[BUFF_SIZE] {"IDs have the file: "};
-		strcat_s(fileName, strlen(fileName) + strlen(searchInfo->fileName) + 1, searchInfo->fileName);
-		SetWindowTextA(sFileNameSearch, searchInfo->fileName);
-		ShowWindow(hSearch, SW_SHOW);
-	node:
-		int id = MessageBox(hMain, result, fileName, MB_ICONINFORMATION);
-		if (id == IDOK && IsWindowVisible(hSearch)) goto node;
-	}
+	
 	return 0;
 }
 
@@ -175,10 +154,7 @@ unsigned _stdcall ListenServer(void* param) {
 		ret = RECEIVE_TCP(client, &message, 0);
 		if (ret == SOCKET_ERROR) continue;
 		if (message.type == 111) {
-			Message searchInfo;
-			CreateMessage(&searchInfo, 0, message.data, message.fileName, message.partnerID);
-			searchInfo.listID = message.listID;
-			_beginthreadex(0, 0, ReceiveListSearchID, (void*)&searchInfo, 0, 0);
+			
 		}
 
 		else if (message.type == 120) {

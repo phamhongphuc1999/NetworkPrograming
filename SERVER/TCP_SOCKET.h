@@ -13,7 +13,6 @@ struct Message {
 	char data[BUFF_SIZE];
 	char fileName[BUFF_SIZE];
 	char partnerID[BUFF_SIZE];
-	list<string> listID;
 };
 
 static int MessageSize = sizeof(Message);

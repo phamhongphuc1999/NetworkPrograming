@@ -5,23 +5,6 @@ bool IsFileExistOrValid(string pathToFile) {
 	return file.good();
 }
 
-list<string> CreatePayload(string pathToFile) {
-	ifstream file; file.open(pathToFile, ios::out);
-	string temp = "", line;
-	list<string> result;
-	while (!file.eof()) {
-		getline(file, line);
-		temp += line + '\n';
-		while (temp.length() > BUFF_SIZE) {
-			result.push_back(temp.substr(0, BUFF_SIZE));
-			temp = temp.substr(BUFF_SIZE);
-		}
-	}
-	file.close();
-	result.push_back(temp);
-	return result;
-}
-
 list<string> read_directory(const string& pathToFolder)
 {
 	list<string> v;
@@ -77,4 +60,17 @@ bool SearchFileByName(string fileName) {
 		FindClose(hFind);
 	}
 	return false;
+}
+
+FileData CreatePayload(string pathToFile) {
+	ifstream file(pathToFile, ios::in | ios::binary);
+	file.seekg(0, ios::end);
+	int length = file.tellg();
+	file.seekg(0);
+	FileData result;
+	result.payload = new char[length];
+	result.length = length;
+	file.read(result.payload, length);
+	file.close();
+	return result;
 }

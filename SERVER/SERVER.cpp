@@ -94,7 +94,7 @@ unsigned _stdcall SearchSessionByID(void* param) {
 }
 
 unsigned _stdcall SendListSearchClient(void* param) {
-	SESSION* session = (SESSION*)param;
+	/*SESSION* session = (SESSION*)param;
 	Message message;
 	for (pair<string, SearchInfo> item : session->searchInfo) {
 		if (item.second.status == 2) {
@@ -104,7 +104,7 @@ unsigned _stdcall SendListSearchClient(void* param) {
 			int ret = SEND_TCP(session->connSock, message, 0);
 			if (ret == SOCKET_ERROR) continue;
 		}
-	}
+	}*/
 	return 0;
 }
 
