@@ -22,7 +22,8 @@ SOCKET client;
 sockaddr_in serverAddr;
 
 map<string, SearchInfo> mapSearch;
-map<string, map<string, ForwardInfo>> mapForward;
+map<string, map<string, ForwardInfoSend>> mapForwardSend;
+map<string, map<string, ForwardInfoReceive>> mapForwardReceive;
 
 LRESULT CALLBACK WndProcMain(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WndProcSearch(HWND, UINT, WPARAM, LPARAM);
@@ -188,26 +189,22 @@ unsigned _stdcall ReceiveListSearchID(void* param) {
 }
 
 unsigned _stdcall SendForwardFile(void* param) {
+	ForwardInfoSend* info = (ForwardInfoSend*)param;
 	int ret; Message message;
-	TCHAR* pathToFile = new TCHAR[1024];
-	TCHAR* partnerID = new TCHAR[1024];
-	GetWindowText(eFile, pathToFile, 1024);
-	GetWindowText(ePartnerId, partnerID, 1024);
-	FileData fileData = CreatePayload(string(pathToFile));
-	char* fileName = StringToChars(GetFileName(string(pathToFile)));
+	FileData fileData = CreatePayload(string(info->pathToFile));
 	for (int i = 0; i < fileData.length; i++) {
-		CreateMessage(&message, 401, fileName, partnerID, fileData.data[i]);
+		CreateMessage(&message, 401, info->fileName, info->ID, fileData.data[i]);
 		ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 	}
-	CreateMessage(&message, 401, fileName, partnerID, 0);
+	CreateMessage(&message, 401, info->fileName, info->ID, 0);
 	ret = SEND_TCP(client, message, 0);
 	if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 	return 0;
 }
 
 unsigned _stdcall ReceiveForwardFile(void* param) {
-	ForwardInfo* info = (ForwardInfo*)param;
+	ForwardInfoReceive* info = (ForwardInfoReceive*)param;
 	ofstream f("Data/" + string(info->fileName), ios::out | ios::binary);
 	for (char* data : info->data) {
 		f.write(data, strlen(data));
@@ -273,7 +270,14 @@ unsigned _stdcall ListenServer(void* param) {
 			strcat_s(temp1, strlen(temp1) + strlen(message.ID) + 1, message.ID);
 			strcat_s(temp1, strlen(temp3) + strlen(temp1) + 1, temp3);
 			int id = MessageBox(hMain, temp1, "ANNOUNT", MB_OKCANCEL | MB_ICONINFORMATION);
-			if (id == IDOK) message.type = 411;
+			if (id == IDOK) {
+				message.type = 411;
+				string ID(message.ID);
+				string fileName(message.fileName);
+				ForwardInfoReceive info;
+				strcpy_s(info.fileName, strlen(message.fileName) + 1, message.fileName);
+				mapForwardReceive[ID].insert({ fileName, info });
+			}
 			else if (id == IDCANCEL) message.type = 410;
 			int ret = SEND_TCP(client, message, 0);
 			if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
@@ -284,13 +288,15 @@ unsigned _stdcall ListenServer(void* param) {
 			strcpy_s(temp, strlen(message.data) + 1, message.data);
 			string ID(message.ID);
 			string fileName(message.fileName);
-			if (strcmp(message.data, "")) mapForward[ID][fileName].data.push_back(temp);
-			else _beginthreadex(0, 0, ReceiveForwardFile, (void*)&mapForward[ID][fileName], 0, 0);
+			if (strcmp(message.data, "")) mapForwardReceive[ID][fileName].data.push_back(temp);
+			else _beginthreadex(0, 0, ReceiveForwardFile, (void*)&mapForwardReceive[ID][fileName], 0, 0);
 		}
 
 		else if (message.type == 202) {
 			MessageBox(hMain, "Beginning upload file to server", "ANNOUNT", MB_ICONINFORMATION);
-			_beginthreadex(0, 0, SendForwardFile, NULL, 0, 0);
+			string ID(message.ID);
+			string fileName(message.fileName);
+			_beginthreadex(0, 0, SendForwardFile, &mapForwardSend[ID][fileName], 0, 0);
 		}
 
 		else if (message.type == 203) {
@@ -415,8 +421,11 @@ void OnBnClickedForward(HWND window) {
 		GetWindowText(ePartnerId, partnerID, 1024);
 		if (IsFileExistOrValid(pathToFile) && (string)partnerID != "") {
 			char* fileName = StringToChars(GetFileName(pathToFile));
-			ForwardInfo info; strcpy_s(info.fileName, strlen(fileName) + 1, fileName);
-			mapForward[string(partnerID)].insert({ string(fileName), info });
+			ForwardInfoSend info;
+			strcpy_s(info.ID, strlen(partnerID) + 1, partnerID);
+			strcpy_s(info.fileName, strlen(fileName) + 1, fileName);
+			strcpy_s(info.pathToFile, strlen(pathToFile) + 1, pathToFile);
+			mapForwardSend[string(partnerID)].insert({ string(fileName), info });
 			Message message; CreateMessage(&message, 400, fileName, partnerID, 0);
 			int ret = SEND_TCP(client, message, 0);
 			if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_ICONERROR);

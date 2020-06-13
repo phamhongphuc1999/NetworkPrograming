@@ -8,7 +8,14 @@ struct FileData
 	int lastLength;
 };
 
-struct ForwardInfo
+struct ForwardInfoSend
+{
+	char ID[30];
+	char fileName[BUFF_SIZE];
+	char pathToFile[BUFF_SIZE];
+};
+
+struct ForwardInfoReceive
 {
 	list<char*> data;
 	char fileName[BUFF_SIZE];

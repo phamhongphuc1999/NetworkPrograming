@@ -210,18 +210,11 @@ unsigned _stdcall Handler(void* param) {
 					if (ret == SOCKET_ERROR) continue;
 				}
 
-				else if (message.type == 410) {
+				else if (message.type == 410 || message.type == 411) {
 					string requestID(message.ID);
 					strcpy_s(message.ID, strlen(client[index].ID) + 1, client[index].ID);
-					message.type = 203;
-					ret = SEND_TCP(mapSession[requestID]->connSock, message, 0);
-					if (ret == SOCKET_ERROR) continue;
-				}
-
-				else if (message.type == 411) {
-					string requestID(message.ID);
-					strcpy_s(message.ID, strlen(client[index].ID) + 1, client[index].ID);
-					message.type = 202;
+					if (message.type == 410) message.type = 203;
+					else message.type = 202;
 					ret = SEND_TCP(mapSession[requestID]->connSock, message, 0);
 					if (ret == SOCKET_ERROR) continue;
 				}
