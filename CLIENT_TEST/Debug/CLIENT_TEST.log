@@ -1,8 +1,8 @@
 ﻿  WinMain.cpp
-d:\documents\visualstudio\bai_tap_lon_version2\client_test\winmain.cpp(40): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_version2\client_test\winmain.cpp(45): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_version2\client_test\winmain.cpp(68): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_version2\client_test\winmain.cpp(73): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_version2\client_test\winmain.cpp(39): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_version2\client_test\winmain.cpp(44): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_version2\client_test\winmain.cpp(67): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_version2\client_test\winmain.cpp(72): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
   Generating Code...
   Compiling...
   TCP_SOCKET.cpp

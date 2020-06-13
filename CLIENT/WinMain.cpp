@@ -11,9 +11,8 @@ static HWND sFile, sFileName, sPartnerId, sID;
 bool isConnect = false, isHide = true;
 
 //controller in search window
-static HWND btnSend;
-static HWND eID;
-static HWND sFileNameSearch, sIDSearch;
+static HWND sFileNameSearch;
+static HWND listBoxID;
 
 //connect server
 WSADATA wsaData;
@@ -76,7 +75,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		MessageBox(NULL, "Call to RegisterClassEx failed!", "Win32 Guided Tour", NULL);
 		return 1;
 	}
-	hSearch = CreateWindow(w_search.lpszClassName, szSearch, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 400, 200, NULL, NULL, hInstance, NULL);
+	hSearch = CreateWindow(w_search.lpszClassName, szSearch, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 400, 300, NULL, NULL, hInstance, NULL);
 	if (!hSearch)
 	{
 		MessageBox(NULL, "Call to CreateWindow failed!", "Win32 Guided Tour", NULL);
@@ -112,10 +111,14 @@ void DrawMainWindow(HWND window) {
 }
 
 void DrawSearchWindow(HWND window) {
-	sIDSearch = CreateWindow("STATIC", "ID", WS_VISIBLE | WS_CHILD | SS_RIGHT, 30, 90, 55, 20, window, (HMENU)staticIDSearch, NULL, NULL);
 	sFileNameSearch = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_CENTER, 160, 0, 80, 20, window, (HMENU)staticFNSearch, NULL, NULL);
-	btnSend = CreateWindow("button", "SEND", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 160, 30, 80, 30, window, (HMENU)buttonSend, hInst, NULL);
-	eID = CreateWindow("Edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER, 100, 90, 200, 20, window, (HMENU)editID, NULL, NULL);
+	listBoxID = CreateWindow("LISTBOX", NULL, WS_VISIBLE | WS_CHILD | LBS_STANDARD | LBS_NOTIFY, 100, 40, 200, 100, window, (HMENU)lbID, NULL, NULL);
+}
+
+void SendDataToSearchWindow(list<char*> listID, char* fileName) {
+	SetWindowTextA(sFileNameSearch, fileName);
+	for (char* ID : listID)
+		SendMessage(GetDlgItem(hSearch, lbID), LB_ADDSTRING, 0, (LPARAM)ID);
 }
 
 #pragma region LISTEN SERVER
@@ -178,12 +181,8 @@ unsigned _stdcall ReceiveListSearchID(void* param) {
 		}
 		char* fileName = new char[BUFF_SIZE] {"IDs have the file: "};
 		strcat_s(fileName, strlen(fileName) + strlen(searchList->fileName) + 1, searchList->fileName);
-		SetWindowTextA(sFileNameSearch, searchList->fileName);
-		SetWindowTextA(eID, "");
+		SendDataToSearchWindow(searchList->data, searchList->fileName);
 		ShowWindow(hSearch, SW_SHOW);
-	node:
-		int id = MessageBox(hMain, result, fileName, MB_ICONINFORMATION);
-		if (id == IDOK && IsWindowVisible(hSearch)) goto node;
 	}
 	return 0;
 }
@@ -278,7 +277,7 @@ unsigned _stdcall ListenServer(void* param) {
 				strcpy_s(info.fileName, strlen(message.fileName) + 1, message.fileName);
 				mapForwardReceive[ID].insert({ fileName, info });
 			}
-			else if(id == IDCANCEL) message.type = 410;
+			else if (id == IDCANCEL) message.type = 410;
 			int ret = SEND_TCP(client, message, 0);
 			if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 		}
@@ -291,7 +290,7 @@ unsigned _stdcall ListenServer(void* param) {
 			if (strcmp(message.data, "")) mapForwardReceive[ID][fileName].data.push_back(temp);
 			else _beginthreadex(0, 0, ReceiveForwardFile, (void*)&mapForwardReceive[ID][fileName], 0, 0);
 		}
-		
+
 		else if (message.type == 202) {
 			MessageBox(hMain, "Beginning upload file to server", "ANNOUNT", MB_ICONINFORMATION);
 			string ID(message.ID);
@@ -354,7 +353,7 @@ int BnClickedMakeConnect(char* address, u_short port) {
 	Message message; CreateMessage(&message, 300, 0, 0, 0);
 	int ret = SEND_TCP(client, message, 0);
 	if (ret == SOCKET_ERROR) return -3;
-	
+
 	ret = RECEIVE_TCP(client, &message, 0);
 	if (message.type == 100) SetWindowTextA(eIdDetail, message.ID);
 	return 1;
@@ -421,7 +420,7 @@ void OnBnClickedForward(HWND window) {
 		GetWindowText(ePartnerId, partnerID, 1024);
 		if (IsFileExistOrValid(pathToFile) && (string)partnerID != "") {
 			char* fileName = StringToChars(GetFileName(pathToFile));
-			ForwardInfoSend info; 
+			ForwardInfoSend info;
 			strcpy_s(info.ID, strlen(partnerID) + 1, partnerID);
 			strcpy_s(info.fileName, strlen(fileName) + 1, fileName);
 			strcpy_s(info.pathToFile, strlen(pathToFile) + 1, pathToFile);
@@ -483,38 +482,46 @@ void OnBnClickedClean(HWND window) {
 	SetWindowTextA(ePartnerId, "");
 }
 
-void OnBnClickedSend(HWND window) {
-	TCHAR* id = new TCHAR[30];
-	GetWindowText(eID, id, 30);
-	if (string(id) == "") MessageBox(window, "Enter partner ID to download file", "ANNOUNT", MB_ICONINFORMATION);
-	else {
-		int idMessageBox = MessageBox(window, "Are you sure?", "ANNOUNT", MB_ICONINFORMATION | MB_OKCANCEL);
-		if (idMessageBox == IDOK) {
-			TCHAR* fileName = new char[BUFF_SIZE];
-			GetWindowText(sFileNameSearch, fileName, BUFF_SIZE);
-			Message message; CreateMessage(&message, 312, fileName, id, 0);
-			int ret = SEND_TCP(client, message, 0);
-			if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_OK);
-			mapSearch[string(fileName)].data.clear();
-			ShowWindow(hSearch, SW_HIDE);
+void OnLbClickItem(HWND window) {
+	int count = SendMessage(listBoxID, LB_GETCOUNT, 0, 0);
+	int iSelected = -1;
+	for (int i = 0; i < count; i++)
+	{
+		if (SendMessage(listBoxID, LB_GETSEL, i, 0) > 0)
+		{
+			iSelected = i; break;
 		}
-		else SetWindowTextA(eID, "");
+	}
+	char ID[30];
+	SendMessage(listBoxID, LB_GETTEXT, iSelected, (LPARAM)ID);
+	char* temp1 = new char[100]{ "You choose the ID: " };
+	strcat_s(temp1, strlen(temp1) + strlen(ID) + 1, ID);
+	int id = MessageBox(window, temp1, "ANNOUNT", MB_ICONINFORMATION | MB_OKCANCEL);
+	if (id == IDOK) {
+		TCHAR* fileName = new char[BUFF_SIZE];
+		GetWindowText(sFileNameSearch, fileName, BUFF_SIZE);
+		Message message; CreateMessage(&message, 312, fileName, ID, 0);
+		int ret = SEND_TCP(client, message, 0);
+		if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_OK);
+		mapSearch[string(fileName)].data.clear();
+		ShowWindow(hSearch, SW_HIDE);
 	}
 }
 
 //handler hMain event
 LRESULT CALLBACK WndProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	int idEvent = LOWORD(wParam);
+	int wmEvent = HIWORD(wParam);
 	switch (message)
 	{
 	case WM_COMMAND:
-		if ((HWND)lParam && (HIWORD(wParam)) == BN_CLICKED) {
-			int id = LOWORD(wParam);
-			if (id == buttonForward) OnBnClickedForward(hWnd);
-			else if (id == buttonBrowse) OnBnClickedBrowse(hWnd);
-			else if (id == buttonHide) OnBnClickedHide(hWnd);
-			else if (id == buttonConnect) OnBnClickedConnect(hWnd);
-			else if (id == buttonSearch) OnBnClickedSearch(hWnd);
-			else if (id == buttonClean) OnBnClickedClean(hWnd);
+		if ((HWND)lParam && wmEvent == BN_CLICKED) {
+			if (idEvent == buttonForward) OnBnClickedForward(hWnd);
+			else if (idEvent == buttonBrowse) OnBnClickedBrowse(hWnd);
+			else if (idEvent == buttonHide) OnBnClickedHide(hWnd);
+			else if (idEvent == buttonConnect) OnBnClickedConnect(hWnd);
+			else if (idEvent == buttonSearch) OnBnClickedSearch(hWnd);
+			else if (idEvent == buttonClean) OnBnClickedClean(hWnd);
 		}
 		break;
 	case WM_CREATE:
@@ -529,12 +536,13 @@ LRESULT CALLBACK WndProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 //handler hSearch event
 LRESULT CALLBACK WndProcSearch(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	int idEvent = LOWORD(wParam);
+	int wmEvent = HIWORD(wParam);
 	switch (message)
 	{
 	case WM_COMMAND:
-		if ((HWND)lParam && (HIWORD(wParam)) == BN_CLICKED) {
-			int id = LOWORD(wParam);
-			if (id == buttonSend) OnBnClickedSend(hWnd);
+		if (wmEvent == LBN_SELCHANGE) {
+			if (idEvent == lbID) OnLbClickItem(hWnd);
 		}
 		break;
 	case WM_CREATE:
