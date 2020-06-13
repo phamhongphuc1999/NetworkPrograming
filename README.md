@@ -16,12 +16,12 @@
 ##### => nâng cấp chương trình bằng việc thay thế ID bằng username, password
 
 ## Khuôn dạng gói tin: định dạng struct
-#### struct Message {
-####   int type;
-####   char fileName[BUFF_SIZE];
-####   char ID[BUFF_SIZE];
-####   char data[BUFF_SIZE + 1];
-####   };
+ struct Message {
+   int type;
+   char fileName[BUFF_SIZE];
+   char ID[BUFF_SIZE];
+   char data[BUFF_SIZE + 1];
+   };
 #### các trường trong struct có thể thay đổi chức năng tùy thuộc vào chức năng client hay server yêu cầu
 
 ### Định nghĩa opcode
@@ -56,3 +56,4 @@
 - https://stackoverflow.com/questions/2886609/how-to-make-multiple-windows-using-win32-api#:~:text=5%20Answers&text=You%20can%20hit%20CreateWindow(),1st%20one%20if%20you%20want.
 - https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox
 - https://stackoverflow.com/questions/42046666/test-project-exe-has-triggered-a-breakpoint
+- https://stackoverflow.com/questions/42438135/c-winapi-listbox-getting-selected-item-using-lb-getsel-lb-getcursel
