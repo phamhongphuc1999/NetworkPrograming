@@ -62,19 +62,6 @@ bool SearchFileByName(string fileName) {
 	return false;
 }
 
-//FileData CreatePayload(string pathToFile) {
-//	ifstream file(pathToFile, ios::in | ios::binary);
-//	file.seekg(0, ios::end);
-//	int length = file.tellg();
-//	file.seekg(0);
-//	FileData result;
-//	result.payload = new char[length];
-//	result.length = length;
-//	file.read(result.payload, length);
-//	file.close();
-//	return result;
-//}
-
 FileData CreatePayload(string pathToFile) {
 	ifstream file(pathToFile, ios::in | ios::binary);
 	file.seekg(0, ios::end);

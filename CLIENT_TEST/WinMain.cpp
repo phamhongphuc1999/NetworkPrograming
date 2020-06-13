@@ -162,6 +162,7 @@ unsigned _stdcall ReceiveSearchFileToServer(void* param) {
 	}
 	f.close();
 	MessageBox(hMain, "RECEIVE SEARCH FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_ICONINFORMATION);
+	mapSearch.erase(string(info->fileName));
 	return 0;
 }
 
@@ -199,6 +200,7 @@ unsigned _stdcall SendForwardFile(void* param) {
 	CreateMessage(&message, 401, info->fileName, info->ID, 0);
 	ret = SEND_TCP(client, message, 0);
 	if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
+	mapForwardSend[string(info->ID)].erase(string(info->fileName));
 	return 0;
 }
 
@@ -210,6 +212,7 @@ unsigned _stdcall ReceiveForwardFile(void* param) {
 	}
 	f.close();
 	MessageBox(hMain, "RECEIVE FORWARD FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_ICONINFORMATION);
+
 	return 0;
 }
 
@@ -225,7 +228,10 @@ unsigned _stdcall ListenServer(void* param) {
 			string fileName(message.fileName);
 			strcpy_s(temp, strlen(message.ID) + 1, message.ID);
 			if (strcmp(message.ID, "")) mapSearch[fileName].data.push_back(temp);
-			else _beginthreadex(0, 0, ReceiveListSearchID, (void*)&mapSearch[fileName], 0, 0);
+			else {
+
+				_beginthreadex(0, 0, ReceiveListSearchID, (void*)&mapSearch[fileName], 0, 0);
+			}
 		}
 
 		else if (message.type == 112) {
@@ -420,11 +426,13 @@ void OnBnClickedForward(HWND window) {
 		GetWindowText(ePartnerId, partnerID, 1024);
 		if (IsFileExistOrValid(pathToFile) && (string)partnerID != "") {
 			char* fileName = StringToChars(GetFileName(pathToFile));
+			string file_name(fileName);
+			string sID(partnerID);
 			ForwardInfoSend info;
 			strcpy_s(info.ID, strlen(partnerID) + 1, partnerID);
 			strcpy_s(info.fileName, strlen(fileName) + 1, fileName);
 			strcpy_s(info.pathToFile, strlen(pathToFile) + 1, pathToFile);
-			mapForwardSend[string(partnerID)].insert({ string(fileName), info });
+			mapForwardSend[sID].insert({ file_name, info });
 			Message message; CreateMessage(&message, 400, fileName, partnerID, 0);
 			int ret = SEND_TCP(client, message, 0);
 			if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_ICONERROR);
@@ -466,10 +474,11 @@ void OnBnClickedHide(HWND window) {
 void OnBnClickedSearch(HWND window) {
 	TCHAR* fileName = new TCHAR[BUFF_SIZE];
 	GetWindowText(eFileName, fileName, BUFF_SIZE);
-	if ((string)fileName == "") MessageBox(window, "Must be enter file name", "ANNOUNT", MB_ICONINFORMATION);
+	string file_name(fileName);
+	if (file_name == "") MessageBox(window, "Must be enter file name", "ANNOUNT", MB_ICONINFORMATION);
 	else {
 		SearchInfo info; strcpy_s(info.fileName, strlen(fileName) + 1, fileName);
-		mapSearch.insert({ string(fileName), info });
+		mapSearch.insert({ file_name, info });
 		Message message; CreateMessage(&message, 310, fileName, 0, 0);
 		int ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_ICONERROR);
@@ -495,7 +504,9 @@ void OnLbClickItem(HWND window) {
 	char ID[30];
 	SendMessage(listBoxID, LB_GETTEXT, iSelected, (LPARAM)ID);
 	char* temp1 = new char[100]{ "You choose the ID: " };
+	char* temp2 = new char[100]{ "\nAre you sure?" };
 	strcat_s(temp1, strlen(temp1) + strlen(ID) + 1, ID);
+	strcat_s(temp1, strlen(temp1) + strlen(temp2) + 1, temp2);
 	int id = MessageBox(window, temp1, "ANNOUNT", MB_ICONINFORMATION | MB_OKCANCEL);
 	if (id == IDOK) {
 		TCHAR* fileName = new char[BUFF_SIZE];
