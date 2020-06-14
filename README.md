@@ -12,17 +12,18 @@
 - Gửi yêu cầu tìm kiếm một file lên server
 - Nhận danh sách  các client có file mà client yêu cầu tìm kiếm
 - Lựa chọn một client trong kết quả server gửi về để yêu cầu download file
-##### mỗi client có sau khi kết nối thành công đến server sẽ được server tạo một ID và gửi về cho client
-##### => nâng cấp chương trình bằng việc thay thế ID bằng username, password
+
+<pre> mỗi client có sau khi kết nối thành công đến server sẽ được server tạo một ID và gửi về cho client
+ => nâng cấp chương trình bằng việc thay thế ID bằng username, password </pre>
 
 ## Khuôn dạng gói tin: định dạng struct
-###### struct Message {
-######   int type;
-######   int odcode;
-######   char fileName[BUFF_SIZE];
-######   char ID[BUFF_SIZE];
-######   char data[BUFF_SIZE + 1];
-######   };
+ <pre> struct Message {
+   int type;
+   int odcode;
+   char fileName[BUFF_SIZE];
+   char ID[BUFF_SIZE];
+   char data[BUFF_SIZE + 1];
+   }; </pre>
 #### các trường trong struct có thể thay đổi chức năng tùy thuộc vào chức năng client hay server yêu cầu
 #### Các chức năng chính:
 - type: định nghĩa chức năng mà client, server phải thục hiện
