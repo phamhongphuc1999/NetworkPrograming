@@ -16,13 +16,20 @@
 ##### => nâng cấp chương trình bằng việc thay thế ID bằng username, password
 
 ## Khuôn dạng gói tin: định dạng struct
- struct Message {
-   int type;
-   char fileName[BUFF_SIZE];
-   char ID[BUFF_SIZE];
-   char data[BUFF_SIZE + 1];
-   };
+# struct Message {
+#   int type;
+#   int odcode;
+#   char fileName[BUFF_SIZE];
+#   char ID[BUFF_SIZE];
+#   char data[BUFF_SIZE + 1];
+#   };
 #### các trường trong struct có thể thay đổi chức năng tùy thuộc vào chức năng client hay server yêu cầu
+#### Các chức năng chính:
+- type: định nghĩa chức năng mà client, server phải thục hiện
+- odcode: trường dự bị(hiện chỉ có chức năng chứa kích thức của trường data)
+- fileName: lưu tên file
+- ID: lưu ID của client
+- data: hiện chỉ có chức năng lưu dữ liệu của file
 
 ### Định nghĩa opcode
 #### 1xx, 2xx: server gửi tín hiệu cho client
