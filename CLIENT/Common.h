@@ -17,6 +17,7 @@ struct ForwardInfoSend
 
 struct ForwardInfoReceive
 {
+	int lastLength;
 	list<char*> data;
 	char fileName[BUFF_SIZE];
 };

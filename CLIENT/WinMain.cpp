@@ -154,19 +154,19 @@ unsigned _stdcall SendSearchFileToServer(void* param) {
 	return 0;
 }
 
-unsigned _stdcall ReceiveSearchFileToServer(void* param) {
-	SearchInfo* info = (SearchInfo*)param;
-	ofstream f("Data/" + string(info->fileName), ios::out | ios::binary);
-	list<char*>::iterator pointer = info->data.begin();
-	int length = info->data.size();
-	for (int i = 0; i < length - 1; i++) {
-		f.write(*pointer, BUFF_SIZE);
-		pointer++;
+unsigned _stdcall SendForwardFile(void* param) {
+	ForwardInfoSend* info = (ForwardInfoSend*)param;
+	int ret; Message message;
+	FileData fileData = CreatePayload(string(info->pathToFile));
+	for (int i = 0; i < fileData.length - 1; i++) {
+		CreateMessage(&message, 401, 0, info->fileName, info->ID, fileData.data[i], BUFF_SIZE);
+		ret = SEND_TCP(client, message, 0);
+		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 	}
-	f.write(*pointer, info->lastLength);
-	f.close();
-	MessageBox(hMain, "RECEIVE SEARCH FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_ICONINFORMATION);
-	mapSearch.erase(string(info->fileName));
+	CreateMessage(&message, 4010, fileData.lastLength, info->fileName, info->ID, fileData.data[fileData.length - 1], fileData.lastLength);
+	ret = SEND_TCP(client, message, 0);
+	if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
+	mapForwardSend[string(info->ID)].erase(string(info->fileName));
 	return 0;
 }
 
@@ -192,32 +192,34 @@ unsigned _stdcall ReceiveListSearchID(void* param) {
 	return 0;
 }
 
-unsigned _stdcall SendForwardFile(void* param) {
-	ForwardInfoSend* info = (ForwardInfoSend*)param;
-	int ret; Message message;
-	FileData fileData = CreatePayload(string(info->pathToFile));
-	for (int i = 0; i < fileData.length; i++) {
-		MessageBox(hMain, fileData.data[i], "TTTT", MB_OK);
-		CreateMessage(&message, 401, 0, info->fileName, info->ID, fileData.data[i], BUFF_SIZE);
-		ret = SEND_TCP(client, message, 0);
-		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
+unsigned _stdcall ReceiveSearchFile(void* param) {
+	SearchInfo* info = (SearchInfo*)param;
+	ofstream f("Data/" + string(info->fileName), ios::out | ios::binary);
+	list<char*>::iterator pointer = info->data.begin();
+	int length = info->data.size();
+	for (int i = 0; i < length - 1; i++) {
+		f.write(*pointer, BUFF_SIZE);
+		pointer++;
 	}
-	CreateMessage(&message, 401, 0, info->fileName, info->ID, 0, 0);
-	ret = SEND_TCP(client, message, 0);
-	if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
-	mapForwardSend[string(info->ID)].erase(string(info->fileName));
+	f.write(*pointer, info->lastLength);
+	f.close();
+	MessageBox(hMain, "RECEIVE SEARCH FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_ICONINFORMATION);
+	mapSearch.erase(string(info->fileName));
 	return 0;
 }
 
 unsigned _stdcall ReceiveForwardFile(void* param) {
 	ForwardInfoReceive* info = (ForwardInfoReceive*)param;
 	ofstream f("Data/" + string(info->fileName), ios::out | ios::binary);
-	for (char* data : info->data) {
-		f.write(data, strlen(data));
+	list<char*>::iterator pointer = info->data.begin();
+	int length = info->data.size();
+	for (int i = 0; i < length - 1; i++) {
+		f.write(*pointer, BUFF_SIZE);
+		pointer++;
 	}
+	f.write(*pointer, info->lastLength);
 	f.close();
 	MessageBox(hMain, "RECEIVE FORWARD FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_ICONINFORMATION);
-
 	return 0;
 }
 
@@ -242,13 +244,12 @@ unsigned _stdcall ListenServer(void* param) {
 		else if (message.type == 112 || message.type == 1120) {
 			char* temp = new char[message.opcode + 1];
 			string fileName(message.fileName);
-			//strcpy_s(temp, message.opcode + 1, message.data);
 			memcpy_s(temp, message.opcode, message.data, message.opcode);
 			if (message.type == 112) mapSearch[fileName].data.push_back(temp);
 			else {
 				mapSearch[fileName].lastLength = message.opcode;
 				mapSearch[fileName].data.push_back(temp);
-				_beginthreadex(0, 0, ReceiveSearchFileToServer, (void*)&mapSearch[fileName], 0, 0);
+				_beginthreadex(0, 0, ReceiveSearchFile, (void*)&mapSearch[fileName], 0, 0);
 			}
 		}
 
@@ -298,14 +299,17 @@ unsigned _stdcall ListenServer(void* param) {
 			if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 		}
 
-		else if (message.type == 201) {
-			char* temp = new char[BUFF_SIZE];
-			MessageBox(hMain, message.data, "TTT", MB_OK);
-			strcpy_s(temp, strlen(message.data) + 1, message.data);
+		else if (message.type == 201 || message.type == 2010) {
+			char* temp = new char[message.opcode + 1];
 			string ID(message.ID);
 			string fileName(message.fileName);
-			if (strcmp(message.data, "")) mapForwardReceive[ID][fileName].data.push_back(temp);
-			else _beginthreadex(0, 0, ReceiveForwardFile, (void*)&mapForwardReceive[ID][fileName], 0, 0);
+			memcpy_s(temp, message.opcode, message.data, message.opcode);
+			if (message.type == 201) mapForwardReceive[ID][fileName].data.push_back(temp);
+			else {
+				mapForwardReceive[ID][fileName].lastLength = message.opcode;
+				mapForwardReceive[ID][fileName].data.push_back(temp);
+				_beginthreadex(0, 0, ReceiveForwardFile, (void*)&mapForwardReceive[ID][fileName], 0, 0);
+			}
 		}
 
 		else if (message.type == 202) {

@@ -163,7 +163,9 @@ unsigned _stdcall Handler(void* param) {
 					string ID(message.ID);
 					if (message.type == 311)
 						CreateMessage(&message, 112, message.opcode, message.fileName, client[index].ID, message.data, message.opcode);
-					else CreateMessage(&message, 1120, message.opcode, message.fileName, client[index].ID, message.data, message.opcode);
+					else {
+						CreateMessage(&message, 1120, message.opcode, message.fileName, client[index].ID, message.data, message.opcode);
+					}
 					int ret = SEND_TCP(mapSession[ID]->connSock, message, 0);
 					if (ret == SOCKET_ERROR) continue;
 				}
@@ -205,9 +207,11 @@ unsigned _stdcall Handler(void* param) {
 					}
 				}
 
-				else if (message.type == 401) {
+				else if (message.type == 401 || message.type == 4010) {
 					string ID(message.ID);
-					CreateMessage(&message, 201, 0, message.fileName, client[index].ID, message.data, 0);
+					if(message.type == 401) 
+						CreateMessage(&message, 201, message.opcode, message.fileName, client[index].ID, message.data, message.opcode);
+					else CreateMessage(&message, 2010, message.opcode, message.fileName, client[index].ID, message.data, message.opcode);
 					int ret = SEND_TCP(mapSession[ID]->connSock, message, 0);
 					if (ret == SOCKET_ERROR) continue;
 				}
