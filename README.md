@@ -12,6 +12,7 @@
 - Gửi yêu cầu tìm kiếm một file lên server
 - Nhận danh sách  các client có file mà client yêu cầu tìm kiếm
 - Lựa chọn một client trong kết quả server gửi về để yêu cầu download file
+- Yêu cầu server chuyển tiếp file đến client khác
 
 <pre> mỗi client có sau khi kết nối thành công đến server sẽ được server tạo một ID và gửi về cho client
  => nâng cấp chương trình bằng việc thay thế ID bằng username, password </pre>
@@ -32,7 +33,7 @@
 - ID: lưu ID của client
 - data: hiện chỉ có chức năng lưu dữ liệu của file
 
-### Định nghĩa opcode
+### Định nghĩa type
 #### 1xx, 2xx: server gửi tín hiệu cho client
 #### 3xx, 4xx: client gửi tín hiệu cho server
 #### SERVER:
@@ -56,7 +57,7 @@
 - 312: yêu cầu tải file từ client có ID trong phần data
 - 320: không tìm thấy tên file trong trường data
 - 321: tìm thấy tên file trong trường data
-- 400: gửi ID và fileName để chuyển tiếp file
+- 400: gửi ID và fileName để chuyển tiếp file đến client tương ứng với ID được gửi
 - 401: gửi lần lượt từng gói file chuyển tiêp lên server đi kèm với kích thước của gói đó
 - 4010: giống 401 nhưng là dấu hiệu kết thúc tải file lên server
 - 410: không cho chuyển tiếp file về client
