@@ -159,7 +159,7 @@ unsigned _stdcall SendForwardFile(void* param) {
 	int ret; Message message;
 	FileData fileData = CreatePayload(string(info->pathToFile));
 	for (int i = 0; i < fileData.length - 1; i++) {
-		CreateMessage(&message, 401, 0, info->fileName, info->ID, fileData.data[i], BUFF_SIZE);
+		CreateMessage(&message, 401, BUFF_SIZE, info->fileName, info->ID, fileData.data[i], BUFF_SIZE);
 		ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 	}
@@ -280,7 +280,7 @@ unsigned _stdcall ListenServer(void* param) {
 		else if (message.type == 200) {
 			char* temp1 = new char[100]{ "Request receive forward file " };
 			char* temp2 = new char[100]{ " from client " };
-			char* temp3 = new char[100]{ "\nDo you allow find?" };
+			char* temp3 = new char[100]{ "\nDo you allow forward?" };
 			strcat_s(temp1, strlen(temp1) + strlen(message.fileName) + 1, message.fileName);
 			strcat_s(temp1, strlen(temp1) + strlen(temp2) + 1, temp2);
 			strcat_s(temp1, strlen(temp1) + strlen(message.ID) + 1, message.ID);
@@ -530,6 +530,7 @@ void OnLbClickItem(HWND window) {
 		int ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_OK);
 		mapSearch[string(fileName)].data.clear();
+		SendMessage(GetDlgItem(hSearch, lbID), LB_DELETESTRING, 0, (LPARAM)"");
 		ShowWindow(hSearch, SW_HIDE);
 	}
 }

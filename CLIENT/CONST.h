@@ -5,7 +5,7 @@
 #include <tchar.h>
 using namespace std;
 
-#define BUFF_SIZE 2048
+#define BUFF_SIZE 10240
 
 static TCHAR szWindowMain[] = _T("win32app");
 static TCHAR szWindowSearch[] = _T("win32app_search");

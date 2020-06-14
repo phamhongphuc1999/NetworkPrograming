@@ -165,6 +165,7 @@ unsigned _stdcall Handler(void* param) {
 						CreateMessage(&message, 112, message.opcode, message.fileName, client[index].ID, message.data, message.opcode);
 					else {
 						CreateMessage(&message, 1120, message.opcode, message.fileName, client[index].ID, message.data, message.opcode);
+						mapSession[ID]->searchInfo.erase(fileName);
 					}
 					int ret = SEND_TCP(mapSession[ID]->connSock, message, 0);
 					if (ret == SOCKET_ERROR) continue;

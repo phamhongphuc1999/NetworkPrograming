@@ -159,7 +159,7 @@ unsigned _stdcall SendForwardFile(void* param) {
 	int ret; Message message;
 	FileData fileData = CreatePayload(string(info->pathToFile));
 	for (int i = 0; i < fileData.length - 1; i++) {
-		CreateMessage(&message, 401, 0, info->fileName, info->ID, fileData.data[i], BUFF_SIZE);
+		CreateMessage(&message, 401, BUFF_SIZE, info->fileName, info->ID, fileData.data[i], BUFF_SIZE);
 		ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 	}
@@ -219,7 +219,7 @@ unsigned _stdcall ReceiveForwardFile(void* param) {
 	}
 	f.write(*pointer, info->lastLength);
 	f.close();
-	MessageBox(hMain, "RECEIVE FORWARD FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_ICONINFORMATION);
+	MessageBox(hMain, "RECEIVE FORWARD FILE FINISH IN CLIENT", "ANNOUNT", MB_ICONINFORMATION);
 	return 0;
 }
 
@@ -530,6 +530,7 @@ void OnLbClickItem(HWND window) {
 		int ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_OK);
 		mapSearch[string(fileName)].data.clear();
+		SendMessage(GetDlgItem(hSearch, lbID), LB_DELETESTRING, 0, (LPARAM)"");
 		ShowWindow(hSearch, SW_HIDE);
 	}
 }
