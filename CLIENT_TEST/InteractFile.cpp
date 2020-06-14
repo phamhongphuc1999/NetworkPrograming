@@ -67,15 +67,15 @@ FileData CreatePayload(string pathToFile) {
 	file.seekg(0, ios::end);
 	int length = file.tellg();
 	file.seekg(0);
-	int numberOfPackage = length / 2048;
-	int lastLength = length % 2048;
+	int numberOfPackage = length / BUFF_SIZE;
+	int lastLength = length % BUFF_SIZE;
 	FileData result; result.lastLength = lastLength;
 	result.length = numberOfPackage + 1;
 	result.data = new char*[result.length];
 	for (int i = 0; i < result.length - 1; i++) {
-		result.data[i] = new char[2049];
-		file.read(result.data[i], 2048);
-		result.data[i][2048] = 0;
+		result.data[i] = new char[BUFF_SIZE + 1];
+		file.read(result.data[i], BUFF_SIZE);
+		result.data[i][BUFF_SIZE] = 0;
 	}
 	result.data[result.length - 1] = new char[lastLength + 1];
 	file.read(result.data[result.length - 1], lastLength);

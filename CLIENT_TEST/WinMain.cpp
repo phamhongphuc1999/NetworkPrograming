@@ -111,7 +111,7 @@ void DrawMainWindow(HWND window) {
 }
 
 void DrawSearchWindow(HWND window) {
-	sFileNameSearch = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_CENTER, 160, 0, 80, 20, window, (HMENU)staticFNSearch, NULL, NULL);
+	sFileNameSearch = CreateWindow("STATIC", "", WS_VISIBLE | WS_CHILD | SS_CENTER, 100, 0, 200, 20, window, (HMENU)staticFNSearch, NULL, NULL);
 	listBoxID = CreateWindow("LISTBOX", NULL, WS_VISIBLE | WS_CHILD | LBS_STANDARD | LBS_NOTIFY, 100, 40, 200, 100, window, (HMENU)lbID, NULL, NULL);
 }
 
@@ -143,12 +143,12 @@ unsigned _stdcall SendSearchFileToServer(void* param) {
 	Message* searchFile = (Message*)param;
 	FileData fileData = CreatePayload("Data/" + string(searchFile->fileName));
 	Message message; int ret;
-	for (int i = 0; i < fileData.length; i++) {
-		CreateMessage(&message, 311, searchFile->fileName, searchFile->ID, fileData.data[i]);
+	for (int i = 0; i < fileData.length - 1; i++) {
+		CreateMessage(&message, 311, BUFF_SIZE, searchFile->fileName, searchFile->ID, fileData.data[i], BUFF_SIZE);
 		ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 	}
-	CreateMessage(&message, 311, searchFile->fileName, searchFile->ID, 0);
+	CreateMessage(&message, 3110, fileData.lastLength, searchFile->fileName, searchFile->ID, fileData.data[fileData.length - 1], fileData.lastLength);
 	ret = SEND_TCP(client, message, 0);
 	if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 	return 0;
@@ -157,9 +157,13 @@ unsigned _stdcall SendSearchFileToServer(void* param) {
 unsigned _stdcall ReceiveSearchFileToServer(void* param) {
 	SearchInfo* info = (SearchInfo*)param;
 	ofstream f("Data/" + string(info->fileName), ios::out | ios::binary);
-	for (char* data : info->data) {
-		f.write(data, strlen(data));
+	list<char*>::iterator pointer = info->data.begin();
+	int length = info->data.size();
+	for (int i = 0; i < length - 1; i++) {
+		f.write(*pointer, BUFF_SIZE);
+		pointer++;
 	}
+	f.write(*pointer, info->lastLength);
 	f.close();
 	MessageBox(hMain, "RECEIVE SEARCH FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_ICONINFORMATION);
 	mapSearch.erase(string(info->fileName));
@@ -193,11 +197,12 @@ unsigned _stdcall SendForwardFile(void* param) {
 	int ret; Message message;
 	FileData fileData = CreatePayload(string(info->pathToFile));
 	for (int i = 0; i < fileData.length; i++) {
-		CreateMessage(&message, 401, info->fileName, info->ID, fileData.data[i]);
+		MessageBox(hMain, fileData.data[i], "TTTT", MB_OK);
+		CreateMessage(&message, 401, 0, info->fileName, info->ID, fileData.data[i], BUFF_SIZE);
 		ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 	}
-	CreateMessage(&message, 401, info->fileName, info->ID, 0);
+	CreateMessage(&message, 401, 0, info->fileName, info->ID, 0, 0);
 	ret = SEND_TCP(client, message, 0);
 	if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 	mapForwardSend[string(info->ID)].erase(string(info->fileName));
@@ -234,12 +239,17 @@ unsigned _stdcall ListenServer(void* param) {
 			}
 		}
 
-		else if (message.type == 112) {
-			char* temp = new char[BUFF_SIZE];
+		else if (message.type == 112 || message.type == 1120) {
+			char* temp = new char[message.opcode + 1];
 			string fileName(message.fileName);
-			strcpy_s(temp, strlen(message.data) + 1, message.data);
-			if (strcmp(message.data, "")) mapSearch[fileName].data.push_back(temp);
-			else _beginthreadex(0, 0, ReceiveSearchFileToServer, (void*)&mapSearch[fileName], 0, 0);
+			//strcpy_s(temp, message.opcode + 1, message.data);
+			memcpy_s(temp, message.opcode, message.data, message.opcode);
+			if (message.type == 112) mapSearch[fileName].data.push_back(temp);
+			else {
+				mapSearch[fileName].lastLength = message.opcode;
+				mapSearch[fileName].data.push_back(temp);
+				_beginthreadex(0, 0, ReceiveSearchFileToServer, (void*)&mapSearch[fileName], 0, 0);
+			}
 		}
 
 		else if (message.type == 120) {
@@ -257,7 +267,7 @@ unsigned _stdcall ListenServer(void* param) {
 				if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 			}
 			else if (id == IDOK) {
-				Message searchInfo; CreateMessage(&searchInfo, 0, message.fileName, message.ID, 0);
+				Message searchInfo; CreateMessage(&searchInfo, 0, 0, message.fileName, message.ID, 0, 0);
 				_beginthreadex(0, 0, SearchFile, (void*)&searchInfo, 0, 0);
 			}
 		}
@@ -290,6 +300,7 @@ unsigned _stdcall ListenServer(void* param) {
 
 		else if (message.type == 201) {
 			char* temp = new char[BUFF_SIZE];
+			MessageBox(hMain, message.data, "TTT", MB_OK);
 			strcpy_s(temp, strlen(message.data) + 1, message.data);
 			string ID(message.ID);
 			string fileName(message.fileName);
@@ -356,7 +367,7 @@ int BnClickedMakeConnect(char* address, u_short port) {
 	serverAddr.sin_port = htons(port);
 	serverAddr.sin_addr.s_addr = inet_addr(address);
 	if (connect(client, (sockaddr*)&serverAddr, sizeof(serverAddr))) return -2;
-	Message message; CreateMessage(&message, 300, 0, 0, 0);
+	Message message; CreateMessage(&message, 300, 0, 0, 0, 0, 0);
 	int ret = SEND_TCP(client, message, 0);
 	if (ret == SOCKET_ERROR) return -3;
 
@@ -433,7 +444,7 @@ void OnBnClickedForward(HWND window) {
 			strcpy_s(info.fileName, strlen(fileName) + 1, fileName);
 			strcpy_s(info.pathToFile, strlen(pathToFile) + 1, pathToFile);
 			mapForwardSend[sID].insert({ file_name, info });
-			Message message; CreateMessage(&message, 400, fileName, partnerID, 0);
+			Message message; CreateMessage(&message, 400, 0, fileName, partnerID, 0, 0);
 			int ret = SEND_TCP(client, message, 0);
 			if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_ICONERROR);
 		}
@@ -479,7 +490,7 @@ void OnBnClickedSearch(HWND window) {
 	else {
 		SearchInfo info; strcpy_s(info.fileName, strlen(fileName) + 1, fileName);
 		mapSearch.insert({ file_name, info });
-		Message message; CreateMessage(&message, 310, fileName, 0, 0);
+		Message message; CreateMessage(&message, 310, 0, fileName, 0, 0, 0);
 		int ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_ICONERROR);
 	}
@@ -511,7 +522,7 @@ void OnLbClickItem(HWND window) {
 	if (id == IDOK) {
 		TCHAR* fileName = new char[BUFF_SIZE];
 		GetWindowText(sFileNameSearch, fileName, BUFF_SIZE);
-		Message message; CreateMessage(&message, 312, fileName, ID, 0);
+		Message message; CreateMessage(&message, 312, 0, fileName, ID, 0, 0);
 		int ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_OK);
 		mapSearch[string(fileName)].data.clear();

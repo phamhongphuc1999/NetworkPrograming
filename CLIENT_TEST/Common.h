@@ -23,6 +23,7 @@ struct ForwardInfoReceive
 
 struct SearchInfo
 {
+	int lastLength;
 	list<char*> data;
 	char fileName[BUFF_SIZE];
 };

@@ -12,6 +12,7 @@ struct Message{type, fileName, partnerID, listID}
 110: gửi danh sách các client đang kết nối
 111: gửi danh sách các client có file yêu cầu
 112: tải file từ server về client
+1120: thông báo kết thúc tải file, gửi kích thức gói tin cuối cùng
 120: gửi yêu cầu tìm kiếm file đến client
 121: gửi yêu cầu tải file lên server
 200: yêu cầu chuyển tiếp file về client
@@ -23,6 +24,7 @@ struct Message{type, fileName, partnerID, listID}
 300: yêu cầu kết nối và gửi ID
 310: gửi yêu cầu tìm kiếm file
 311: tải file từ client được chỉ định bởi client khác lên server
+3110: thông báo tải file hoàn tất, gửi kích thức gói tin cuối cùng
 312: yêu cầu tải file từ client có ID trong phần data(lần 1 gửi tên file, lần 2 gửi ID của client)
 320: không tìm thấy tên file trong trường data
 321: tìm thấy tên file trong trường data
