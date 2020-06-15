@@ -225,7 +225,7 @@ unsigned _stdcall ReceiveForwardFile(void* param) {
 
 unsigned _stdcall ListenServer(void* param) {
 	int ret; Message message;
-	while (true)
+	while (isConnect)
 	{
 		ret = RECEIVE_TCP(client, &message, 0);
 		if (ret == SOCKET_ERROR) continue;
@@ -235,10 +235,7 @@ unsigned _stdcall ListenServer(void* param) {
 			string fileName(message.fileName);
 			strcpy_s(temp, strlen(message.ID) + 1, message.ID);
 			if (strcmp(message.ID, "")) mapSearch[fileName].data.push_back(temp);
-			else {
-
-				_beginthreadex(0, 0, ReceiveListSearchID, (void*)&mapSearch[fileName], 0, 0);
-			}
+			else _beginthreadex(0, 0, ReceiveListSearchID, (void*)&mapSearch[fileName], 0, 0);
 		}
 
 		else if (message.type == 112 || message.type == 1120) {

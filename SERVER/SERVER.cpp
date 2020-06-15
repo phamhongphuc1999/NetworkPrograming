@@ -196,7 +196,7 @@ unsigned _stdcall Handler(void* param) {
 				else if (message.type == 400) {
 					string ID(message.ID);
 					SESSION* partner = mapSession[ID];
-					if (partner != NULL) {
+					if (partner != NULL && strcmp(client[index].ID, message.ID)) {
 						CreateMessage(&message, 200, 0, message.fileName, client[index].ID, 0, 0);
 						ret = SEND_TCP(partner->connSock, message, 0);
 						if (ret == SOCKET_ERROR) continue;
@@ -236,6 +236,7 @@ unsigned _stdcall Handler(void* param) {
 
 			if (sockEvent.lNetworkEvents & FD_CLOSE) {
 				if (sockEvent.iErrorCode[FD_CLOSE_BIT] != 0) {
+					printf("Connection shutdown\n");
 					HANDLE hRelease = (HANDLE)_beginthreadex(0, 0, ReleaseSession, (void*)&client[index], 0, 0);
 					WaitForSingleObject(hRelease, INFINITE);
 					closesocket(client[index].connSock);
@@ -244,6 +245,7 @@ unsigned _stdcall Handler(void* param) {
 					nEvents--; continue;
 				}
 				else {
+					printf("Connection close\n");
 					HANDLE hRelease = (HANDLE)_beginthreadex(0, 0, ReleaseSession, (void*)&client[index], 0, 0);
 					WaitForSingleObject(hRelease, INFINITE);
 					closesocket(client[index].connSock);

@@ -225,7 +225,7 @@ unsigned _stdcall ReceiveForwardFile(void* param) {
 
 unsigned _stdcall ListenServer(void* param) {
 	int ret; Message message;
-	while (true)
+	while (isConnect)
 	{
 		ret = RECEIVE_TCP(client, &message, 0);
 		if (ret == SOCKET_ERROR) continue;
