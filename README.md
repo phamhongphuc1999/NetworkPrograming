@@ -71,3 +71,4 @@
 - https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox
 - https://stackoverflow.com/questions/42046666/test-project-exe-has-triggered-a-breakpoint
 - https://stackoverflow.com/questions/42438135/c-winapi-listbox-getting-selected-item-using-lb-getsel-lb-getcursel
+- https://docs.microsoft.com/en-us/windows/win32/learnwin32/closing-the-window
