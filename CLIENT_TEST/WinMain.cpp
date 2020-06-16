@@ -4,6 +4,7 @@
 
 HWND hMain, hSearch;
 HINSTANCE hInst;
+bool isMainClose, isSearchClose, isProgramEnd;
 //controller in main window
 static HWND btnBrowse, btnForward, btnSearch, btnHide, btnConnect, btnClean;
 static HWND eFile, eFileName, ePartnerId, eIdDetail;
@@ -55,6 +56,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 	ShowWindow(hMain, nCmdShow);
 	UpdateWindow(hMain);
+	isMainClose = false;
 
 	WNDCLASSEX w_search;
 	ZeroMemory(&w_search, sizeof(WNDCLASSEX));
@@ -82,11 +84,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return 1;
 	}
 	UpdateWindow(hSearch);
+	isSearchClose = false;
+	isProgramEnd = false;
 	MSG msg;
-	while (GetMessage(&msg, NULL, 0, 0))
+	while (!isProgramEnd)
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		if (GetMessage(&msg, NULL, 0, 0)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		if (isMainClose && isSearchClose) isProgramEnd = true;
 	}
 	return (int)msg.wParam;
 }
@@ -551,6 +558,7 @@ LRESULT CALLBACK WndProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
+		isMainClose = true;
 		break;
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
@@ -572,6 +580,7 @@ LRESULT CALLBACK WndProcSearch(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
+		isSearchClose = true;
 		break;
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);

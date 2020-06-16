@@ -1,9 +1,9 @@
 ﻿  TCP_SOCKET.cpp
   SERVER.cpp
-d:\documents\visualstudio\bai_tap_lon_version2.0\server\server.cpp(22): warning C4477: 'scanf_s' : format string '%d' requires an argument of type 'int *', but variadic argument 1 has type 'u_short *'
-  d:\documents\visualstudio\bai_tap_lon_version2.0\server\server.cpp(22): note: consider using '%hd' in the format string
-d:\documents\visualstudio\bai_tap_lon_version2.0\server\server.cpp(103): warning C4101: 'i': unreferenced local variable
+d:\documents\visualstudio\bai_tap_lon_ltm\server\server.cpp(22): warning C4477: 'scanf_s' : format string '%d' requires an argument of type 'int *', but variadic argument 1 has type 'u_short *'
+  d:\documents\visualstudio\bai_tap_lon_ltm\server\server.cpp(22): note: consider using '%hd' in the format string
+d:\documents\visualstudio\bai_tap_lon_ltm\server\server.cpp(103): warning C4101: 'i': unreferenced local variable
   Common.cpp
   Generating Code...
-  SERVER.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_VERSION2.0\Debug\SERVER.exe
-  SERVER.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_VERSION2.0\Debug\SERVER.pdb (Partial PDB)
+  SERVER.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\SERVER.exe
+  SERVER.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\SERVER.pdb (Partial PDB)
