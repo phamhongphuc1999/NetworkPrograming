@@ -17,6 +17,7 @@ struct ForwardInfoSend
 
 struct ForwardInfoReceive
 {
+	char partnerID[30];
 	int lastLength;
 	list<char*> data;
 	char fileName[BUFF_SIZE];
@@ -24,6 +25,7 @@ struct ForwardInfoReceive
 
 struct SearchInfo
 {
+	char partnerID[30];
 	int lastLength;
 	list<char*> data;
 	char fileName[BUFF_SIZE];

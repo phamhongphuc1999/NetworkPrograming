@@ -3,5 +3,10 @@ d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(40): warning C4302:
 d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(45): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
 d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(69): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
 d:\documents\visualstudio\bai_tap_lon_ltm\client\winmain.cpp(74): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+  Generating Code...
+  Skipping... (no relevant changes detected)
+  TCP_SOCKET.cpp
+  InteractFile.cpp
+  Common.cpp
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\CLIENT.exe
   CLIENT.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\CLIENT.pdb (Partial PDB)

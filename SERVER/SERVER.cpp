@@ -179,9 +179,12 @@ unsigned _stdcall Handler(void* param) {
 				}
 
 				else if (message.type == 312) {
-					Message searchFile; CreateMessage(&searchFile, 121, 0, message.fileName, client[index].ID, 0, 0);
-					int ret = SEND_TCP(mapSession[string(message.ID)]->connSock, searchFile, 0);
-					if (ret == SOCKET_ERROR) continue;
+					if (strcmp(message.ID, "")) {
+						Message searchFile; CreateMessage(&searchFile, 121, 0, message.fileName, client[index].ID, 0, 0);
+						int ret = SEND_TCP(mapSession[string(message.ID)]->connSock, searchFile, 0);
+						if (ret == SOCKET_ERROR) continue;
+					}
+					else mapSession[string(client[index].ID)]->searchInfo.erase(string(message.fileName));
 				}
 
 				else if (message.type == 320 || message.type == 321) {
@@ -242,26 +245,15 @@ unsigned _stdcall Handler(void* param) {
 			}
 
 			if (sockEvent.lNetworkEvents & FD_CLOSE) {
-				if (sockEvent.iErrorCode[FD_CLOSE_BIT] != 0) {
-					printf("Connection shutdown\n");
-					HANDLE hRelease = (HANDLE)_beginthreadex(0, 0, ReleaseSession, (void*)&client[index], 0, 0);
-					WaitForSingleObject(hRelease, INFINITE);
-					closesocket(client[index].connSock);
-					InitiateSession(&client[index]);
-					WSACloseEvent(events[index]);
-					nEvents--; 
-					continue;
-				}
-				else {
-					printf("Connection close\n");
-					HANDLE hRelease = (HANDLE)_beginthreadex(0, 0, ReleaseSession, (void*)&client[index], 0, 0);
-					WaitForSingleObject(hRelease, INFINITE);
-					closesocket(client[index].connSock);
-					InitiateSession(&client[index]);
-					WSACloseEvent(events[index]);
-					nEvents--; 
-					continue;
-				}
+				if (sockEvent.iErrorCode[FD_CLOSE_BIT] != 0) printf("Connection shutdown\n");
+				else printf("Connection close\n");
+				HANDLE hRelease = (HANDLE)_beginthreadex(0, 0, ReleaseSession, (void*)&client[index], 0, 0);
+				WaitForSingleObject(hRelease, INFINITE);
+				closesocket(client[index].connSock);
+				InitiateSession(&client[index]);
+				WSACloseEvent(events[index]);
+				nEvents--;
+				continue;
 			}
 		}
 	}

@@ -211,7 +211,14 @@ unsigned _stdcall ReceiveSearchFile(void* param) {
 	}
 	f.write(*pointer, info->lastLength);
 	f.close();
-	MessageBox(hMain, "RECEIVE SEARCH FILE FINISH IN CLIENT TEST", "ANNOUNT", MB_ICONINFORMATION);
+	char* temp1 = new char[100]{ "Receive the File: " };
+	char* temp2 = new char[100]{ " to client: " };
+	char* temp3 = new char[100]{ " finish" };
+	strcat_s(temp1, strlen(temp1) + strlen(info->fileName) + 1, info->fileName);
+	strcat_s(temp1, strlen(temp1) + strlen(temp2) + 1, temp2);
+	strcat_s(temp1, strlen(temp1) + strlen(info->partnerID) + 1, info->partnerID);
+	strcat_s(temp1, strlen(temp1) + strlen(temp3) + 1, temp3);
+	MessageBox(hMain, temp1, "SEARCH FILE", MB_ICONINFORMATION);
 	mapSearch.erase(string(info->fileName));
 	return 0;
 }
@@ -227,7 +234,14 @@ unsigned _stdcall ReceiveForwardFile(void* param) {
 	}
 	f.write(*pointer, info->lastLength);
 	f.close();
-	MessageBox(hMain, "RECEIVE FORWARD FILE FINISH IN CLIENT", "ANNOUNT", MB_ICONINFORMATION);
+	char* temp1 = new char[100]{ "Receive the File: " };
+	char* temp2 = new char[100]{ " to client: " };
+	char* temp3 = new char[100]{ " finish" };
+	strcat_s(temp1, strlen(temp1) + strlen(info->fileName) + 1, info->fileName);
+	strcat_s(temp1, strlen(temp1) + strlen(temp2) + 1, temp2);
+	strcat_s(temp1, strlen(temp1) + strlen(info->partnerID) + 1, info->partnerID);
+	strcat_s(temp1, strlen(temp1) + strlen(temp3) + 1, temp3);
+	MessageBox(hMain, temp1, "FORWARD FILE", MB_ICONINFORMATION);
 	return 0;
 }
 
@@ -297,6 +311,7 @@ unsigned _stdcall ListenServer(void* param) {
 				string fileName(message.fileName);
 				ForwardInfoReceive info;
 				strcpy_s(info.fileName, strlen(message.fileName) + 1, message.fileName);
+				strcpy_s(info.partnerID, strlen(message.ID) + 1, message.ID);
 				mapForwardReceive[ID].insert({ fileName, info });
 			}
 			else if (id == IDCANCEL) message.type = 410;
@@ -526,13 +541,15 @@ void OnLbClickItem(HWND window) {
 	if (id == IDOK) {
 		TCHAR* fileName = new char[BUFF_SIZE];
 		GetWindowText(eFileNameSearch, fileName, BUFF_SIZE);
+		string sFileName(fileName);
+		strcpy_s(mapSearch[sFileName].partnerID, strlen(ID) + 1, ID);
 		Message message; CreateMessage(&message, 312, 0, fileName, ID, 0, 0);
 		int ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_OK);
-		int size = mapSearch[string(fileName)].data.size();
+		int size = mapSearch[sFileName].data.size();
 		for (int i = 0; i < size; i++)
 			SendMessage(GetDlgItem(hSearch, lbID), LB_DELETESTRING, 0, (LPARAM)"");
-		mapSearch[string(fileName)].data.clear();
+		mapSearch[sFileName].data.clear();
 		ShowWindow(hSearch, SW_HIDE);
 	}
 }
@@ -585,8 +602,18 @@ LRESULT CALLBACK WndProcSearch(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	case WM_CLOSE:
 		int id = MessageBox(hWnd, "Are you sure?", "WARNING", MB_OKCANCEL | MB_ICONWARNING);
 		if (id == IDOK) {
+			TCHAR* fileName = new char[BUFF_SIZE];
+			GetWindowText(eFileNameSearch, fileName, BUFF_SIZE);
+			Message message; CreateMessage(&message, 312, 0, fileName, 0, 0, 0);
+			int ret = SEND_TCP(client, message, 0);
+			if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 			isSearchClose = true;
+			int size = mapSearch[string(fileName)].data.size();
+			for (int i = 0; i < size; i++)
+				SendMessage(GetDlgItem(hSearch, lbID), LB_DELETESTRING, 0, (LPARAM)"");
+			mapSearch[string(fileName)].data.clear();
 			ShowWindow(hSearch, SW_HIDE);
+			PostQuitMessage(0);
 		}
 		return 0;
 	}
