@@ -72,13 +72,20 @@ unsigned _stdcall ReleaseSession(void* param) {
 
 unsigned _stdcall SearchFile(void* param) {
 	SESSION* session = (SESSION*)param;
-	int ret; Message message;
+	int ret, count; Message message;
 	for (pair<string, SearchInfo> item : session->searchInfo) {
 		if (item.second.status == 0) {
+			count = 0;
 			for (pair<string, SESSION*> partner : mapSession) {
 				if (strcmp(session->ID, partner.second->ID)) {
 					CreateMessage(&message, 120, 0, item.second.fileName, session->ID, 0, 0);
 					ret = SEND_TCP(partner.second->connSock, message, 0);
+					if (ret == SOCKET_ERROR) continue;
+					count++;
+				}
+				if (count == 0) {
+					CreateMessage(&message, 111, 0, item.second.fileName, 0, 0, 0);
+					ret = SEND_TCP(session->connSock, message, 0);
 					if (ret == SOCKET_ERROR) continue;
 				}
 			}
@@ -242,7 +249,8 @@ unsigned _stdcall Handler(void* param) {
 					closesocket(client[index].connSock);
 					InitiateSession(&client[index]);
 					WSACloseEvent(events[index]);
-					nEvents--; continue;
+					nEvents--; 
+					continue;
 				}
 				else {
 					printf("Connection close\n");
@@ -251,7 +259,8 @@ unsigned _stdcall Handler(void* param) {
 					closesocket(client[index].connSock);
 					InitiateSession(&client[index]);
 					WSACloseEvent(events[index]);
-					nEvents--; continue;
+					nEvents--; 
+					continue;
 				}
 			}
 		}

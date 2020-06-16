@@ -26,6 +26,18 @@ bool CheckConnect(char* address, int port) {
 	return (port > 0) && CheckIP(address);
 }
 
+bool CheckRamdomID(char* ID, char* client_id) {
+	if (!strcmp(ID, client_id)) return false;
+	int index = 0;
+	while (true)
+	{
+		if (index == 20 || ID[index] == '\0') break;
+		if (!(97 <= ID[index] && ID[index] <= 122)) return false;
+		index++;
+	}
+	return (ID[index] == '\0' && index == 20);
+}
+
 char* StringToChars(string input) {
 	int length = input.length();
 	char* result = new char[length];

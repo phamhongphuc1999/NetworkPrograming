@@ -31,4 +31,5 @@ struct SearchInfo
 
 int CheckIP(char* IP);
 bool CheckConnect(char* address, int port);
+bool CheckRamdomID(char* ID, char* client_id);
 char* StringToChars(string input);

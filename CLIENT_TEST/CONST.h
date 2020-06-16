@@ -26,9 +26,9 @@ static int editFile = 100;
 static int editFileName = 101;
 static int editPartnerId = 102;
 static int editIdDetail = 103;
+static int editFNSearch = 104;
 
 static int staticFile = 200;
 static int staticFileName = 201;
 static int staticPartnerId = 202;
 static int staticId = 203;
-static int staticFNSearch = 204;
