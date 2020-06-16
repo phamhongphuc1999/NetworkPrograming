@@ -556,10 +556,14 @@ LRESULT CALLBACK WndProcMain(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	case WM_CREATE:
 		DrawMainWindow(hWnd);
 		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		isMainClose = true;
-		break;
+	case WM_CLOSE:
+		int id = MessageBox(hWnd, "Are you sure?", "WARNING", MB_OKCANCEL | MB_ICONWARNING);
+		if (id == IDOK) {
+			PostQuitMessage(0);
+			isMainClose = true;
+			isSearchClose = true;
+		}
+		return 0;
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
@@ -578,10 +582,13 @@ LRESULT CALLBACK WndProcSearch(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 	case WM_CREATE:
 		DrawSearchWindow(hWnd);
 		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		isSearchClose = true;
-		break;
+	case WM_CLOSE:
+		int id = MessageBox(hWnd, "Are you sure?", "WARNING", MB_OKCANCEL | MB_ICONWARNING);
+		if (id == IDOK) {
+			isSearchClose = true;
+			ShowWindow(hSearch, SW_HIDE);
+		}
+		return 0;
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }

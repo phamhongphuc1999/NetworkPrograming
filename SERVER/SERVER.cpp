@@ -83,11 +83,11 @@ unsigned _stdcall SearchFile(void* param) {
 					if (ret == SOCKET_ERROR) continue;
 					count++;
 				}
-				if (count == 0) {
-					CreateMessage(&message, 111, 0, item.second.fileName, 0, 0, 0);
-					ret = SEND_TCP(session->connSock, message, 0);
-					if (ret == SOCKET_ERROR) continue;
-				}
+			}
+			if (count == 0) {
+				CreateMessage(&message, 111, 0, item.second.fileName, 0, 0, 0);
+				ret = SEND_TCP(session->connSock, message, 0);
+				if (ret == SOCKET_ERROR) continue;
 			}
 			item.second.status = 1;
 		}
