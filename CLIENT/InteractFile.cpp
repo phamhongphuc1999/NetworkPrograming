@@ -23,16 +23,30 @@ list<string> read_directory(const string& pathToFolder)
 	return v;
 }
 
-bool SearchFileInDirectory(const string& pathToFolder, string fileName) {
+bool SearchFileInDirectory(const string& pathToFolder, string fileName, int* count, string& pathToResult) {
 	string pattern(pathToFolder);
 	pattern.append("\\*");
 	WIN32_FIND_DATA data;
 	HANDLE hFind;
+	*count = 0;
 	if ((hFind = FindFirstFile(pattern.c_str(), &data)) != INVALID_HANDLE_VALUE) {
 		while (true)
 		{
-			if (fileName == data.cFileName) return true;
-			if (FindNextFile(hFind, &data) == 0) break;
+			(*count)++;
+			if (!strcmp(data.cFileName, new char[2]{ "." }) || !strcmp(data.cFileName, new char[3]{ ".." })) {
+				if (FindNextFile(hFind, &data) == 0) break;
+				else continue;
+			}
+			else {
+				int temp = 0;
+				if (SearchFileInDirectory(pathToFolder + "/" + data.cFileName, fileName, &temp, pathToResult)) return true;
+				else if (temp == 0)
+					if (data.cFileName == fileName) {
+						pathToResult = pathToFolder + "/" + fileName;
+						return true;
+					}
+				if (FindNextFile(hFind, &data) == 0) break;
+			}
 		}
 		FindClose(hFind);
 	}
@@ -44,22 +58,6 @@ string GetFileName(const string& str)
 	size_t found;
 	found = str.find_last_of("/\\");
 	return str.substr(found + 1);
-}
-
-bool SearchFileByName(string fileName) {
-	string pattern("./data");
-	pattern.append("\\*");
-	WIN32_FIND_DATA data;
-	HANDLE hFind;
-	if ((hFind = FindFirstFile(pattern.c_str(), &data)) != INVALID_HANDLE_VALUE) {
-		while (true)
-		{
-			if (fileName == data.cFileName) return true;
-			if (FindNextFile(hFind, &data) == 0) break;
-		}
-		FindClose(hFind);
-	}
-	return false;
 }
 
 FileData CreatePayload(string pathToFile) {

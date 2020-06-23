@@ -1,12 +1,12 @@
 ﻿  WinMain.cpp
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(40): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(45): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(69): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(74): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-  Generating Code...
-  Skipping... (no relevant changes detected)
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(41): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(46): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(70): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\winmain.cpp(75): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
   TCP_SOCKET.cpp
   InteractFile.cpp
+d:\documents\visualstudio\bai_tap_lon_ltm\client_test\interactfile.cpp(66): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
   Common.cpp
+  Generating Code...
   CLIENT_TEST.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\CLIENT_TEST.exe
   CLIENT_TEST.vcxproj -> D:\Documents\VisualStudio\BAI_TAP_LON_LTM\Debug\CLIENT_TEST.pdb (Partial PDB)

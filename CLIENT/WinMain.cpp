@@ -21,7 +21,8 @@ WORD version = MAKEWORD(2, 2);
 SOCKET client;
 sockaddr_in serverAddr;
 
-map<string, SearchInfo> mapSearch;
+map<string, SearchInfoSend> mapSearchSend;
+map<string, SearchInfoReceive> mapSearchReceive;
 map<string, map<string, ForwardInfoSend>> mapForwardSend;
 map<string, map<string, ForwardInfoReceive>> mapForwardReceive;
 
@@ -133,8 +134,15 @@ void SendDataToSearchWindow(list<char*> listID, char* fileName) {
 unsigned _stdcall SearchFile(void* param) {
 	Message* searchInfo = (Message*)param;
 	string fileName(searchInfo->fileName);
-	bool check = SearchFileInDirectory("Data", fileName);
+	int count = 0; string pathToResult = "";
+	bool check = SearchFileInDirectory("Data", fileName, &count, pathToResult);
 	if (check) {
+		SearchInfoReceive info;
+		strcpy_s(info.fileName, strlen(searchInfo->fileName) + 1, searchInfo->fileName);
+		strcpy_s(info.partnerID, strlen(searchInfo->ID) + 1, searchInfo->ID);
+		char* pathToFile = StringToChars(pathToResult);
+		strcpy_s(info.pathToFile, strlen(pathToFile) + 1, pathToFile);
+		mapSearchReceive.insert({ fileName, info });
 		searchInfo->type = 321;
 		int ret = SEND_TCP(client, *searchInfo, 0);
 		if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
@@ -149,7 +157,8 @@ unsigned _stdcall SearchFile(void* param) {
 
 unsigned _stdcall SendSearchFileToServer(void* param) {
 	Message* searchFile = (Message*)param;
-	FileData fileData = CreatePayload("Data/" + string(searchFile->fileName));
+	SearchInfoReceive info = mapSearchReceive[string(searchFile->fileName)];
+	FileData fileData = CreatePayload(info.pathToFile);
 	Message message; int ret;
 	for (int i = 0; i < fileData.length - 1; i++) {
 		CreateMessage(&message, 311, BUFF_SIZE, searchFile->fileName, searchFile->ID, fileData.data[i], BUFF_SIZE);
@@ -179,7 +188,7 @@ unsigned _stdcall SendForwardFile(void* param) {
 }
 
 unsigned _stdcall ReceiveListSearchID(void* param) {
-	SearchInfo* searchList = (SearchInfo*)param;
+	SearchInfoSend* searchList = (SearchInfoSend*)param;
 	if (searchList->data.size() == 0) {
 		char* fileName = new char[BUFF_SIZE] {"do not find the file: "};
 		strcat_s(fileName, strlen(fileName) + strlen(searchList->fileName) + 1, searchList->fileName);
@@ -201,7 +210,7 @@ unsigned _stdcall ReceiveListSearchID(void* param) {
 }
 
 unsigned _stdcall ReceiveSearchFile(void* param) {
-	SearchInfo* info = (SearchInfo*)param;
+	SearchInfoSend* info = (SearchInfoSend*)param;
 	ofstream f("Data/" + string(info->fileName), ios::out | ios::binary);
 	list<char*>::iterator pointer = info->data.begin();
 	int length = info->data.size();
@@ -219,7 +228,7 @@ unsigned _stdcall ReceiveSearchFile(void* param) {
 	strcat_s(temp1, strlen(temp1) + strlen(info->partnerID) + 1, info->partnerID);
 	strcat_s(temp1, strlen(temp1) + strlen(temp3) + 1, temp3);
 	MessageBox(hMain, temp1, "SEARCH FILE", MB_ICONINFORMATION);
-	mapSearch.erase(string(info->fileName));
+	mapSearchSend.erase(string(info->fileName));
 	return 0;
 }
 
@@ -256,19 +265,19 @@ unsigned _stdcall ListenServer(void* param) {
 			char* temp = new char[BUFF_SIZE];
 			string fileName(message.fileName);
 			strcpy_s(temp, strlen(message.ID) + 1, message.ID);
-			if (strcmp(message.ID, "")) mapSearch[fileName].data.push_back(temp);
-			else _beginthreadex(0, 0, ReceiveListSearchID, (void*)&mapSearch[fileName], 0, 0);
+			if (strcmp(message.ID, "")) mapSearchSend[fileName].data.push_back(temp);
+			else _beginthreadex(0, 0, ReceiveListSearchID, (void*)&mapSearchSend[fileName], 0, 0);
 		}
 
 		else if (message.type == 112 || message.type == 1120) {
 			char* temp = new char[message.opcode + 1];
 			string fileName(message.fileName);
 			memcpy_s(temp, message.opcode, message.data, message.opcode);
-			if (message.type == 112) mapSearch[fileName].data.push_back(temp);
+			if (message.type == 112) mapSearchSend[fileName].data.push_back(temp);
 			else {
-				mapSearch[fileName].lastLength = message.opcode;
-				mapSearch[fileName].data.push_back(temp);
-				_beginthreadex(0, 0, ReceiveSearchFile, (void*)&mapSearch[fileName], 0, 0);
+				mapSearchSend[fileName].lastLength = message.opcode;
+				mapSearchSend[fileName].data.push_back(temp);
+				_beginthreadex(0, 0, ReceiveSearchFile, (void*)&mapSearchSend[fileName], 0, 0);
 			}
 		}
 
@@ -507,8 +516,8 @@ void OnBnClickedSearch(HWND window) {
 	string file_name(fileName);
 	if (file_name == "") MessageBox(window, "Must be enter file name", "ANNOUNT", MB_ICONINFORMATION);
 	else {
-		SearchInfo info; strcpy_s(info.fileName, strlen(fileName) + 1, fileName);
-		mapSearch.insert({ file_name, info });
+		SearchInfoSend info; strcpy_s(info.fileName, strlen(fileName) + 1, fileName);
+		mapSearchSend.insert({ file_name, info });
 		Message message; CreateMessage(&message, 310, 0, fileName, 0, 0, 0);
 		int ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_ICONERROR);
@@ -542,14 +551,14 @@ void OnLbClickItem(HWND window) {
 		TCHAR* fileName = new char[BUFF_SIZE];
 		GetWindowText(eFileNameSearch, fileName, BUFF_SIZE);
 		string sFileName(fileName);
-		strcpy_s(mapSearch[sFileName].partnerID, strlen(ID) + 1, ID);
+		strcpy_s(mapSearchSend[sFileName].partnerID, strlen(ID) + 1, ID);
 		Message message; CreateMessage(&message, 312, 0, fileName, ID, 0, 0);
 		int ret = SEND_TCP(client, message, 0);
 		if (ret == SOCKET_ERROR) MessageBox(window, "Can not send to server", "ERROR", MB_OK);
-		int size = mapSearch[sFileName].data.size();
+		int size = mapSearchSend[sFileName].data.size();
 		for (int i = 0; i < size; i++)
 			SendMessage(GetDlgItem(hSearch, lbID), LB_DELETESTRING, 0, (LPARAM)"");
-		mapSearch[sFileName].data.clear();
+		mapSearchSend[sFileName].data.clear();
 		ShowWindow(hSearch, SW_HIDE);
 	}
 }
@@ -608,10 +617,10 @@ LRESULT CALLBACK WndProcSearch(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			int ret = SEND_TCP(client, message, 0);
 			if (ret == SOCKET_ERROR) MessageBox(hMain, "Can not send to server", "ERROR", MB_ICONERROR);
 			isSearchClose = true;
-			int size = mapSearch[string(fileName)].data.size();
+			int size = mapSearchSend[string(fileName)].data.size();
 			for (int i = 0; i < size; i++)
 				SendMessage(GetDlgItem(hSearch, lbID), LB_DELETESTRING, 0, (LPARAM)"");
-			mapSearch[string(fileName)].data.clear();
+			mapSearchSend[string(fileName)].data.clear();
 			ShowWindow(hSearch, SW_HIDE);
 			PostQuitMessage(0);
 		}

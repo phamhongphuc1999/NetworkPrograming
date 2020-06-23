@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include "CONST.h"
 
 struct FileData
@@ -23,12 +24,19 @@ struct ForwardInfoReceive
 	char fileName[BUFF_SIZE];
 };
 
-struct SearchInfo
+struct SearchInfoSend
 {
 	char partnerID[30];
 	int lastLength;
 	list<char*> data;
 	char fileName[BUFF_SIZE];
+};
+
+struct SearchInfoReceive
+{
+	char partnerID[30];
+	char fileName[BUFF_SIZE];
+	char pathToFile[BUFF_SIZE];
 };
 
 int CheckIP(char* IP);
