@@ -1,10 +1,12 @@
 #include "InteractFile.h"
 
+//check for the existence of the file
 bool IsFileExistOrValid(string pathToFile) {
 	fstream file; file.open(pathToFile);
 	return file.good();
 }
 
+//return list of file name or directory name in folder
 list<string> read_directory(const string& pathToFolder)
 {
 	list<string> v;
@@ -23,6 +25,11 @@ list<string> read_directory(const string& pathToFolder)
 	return v;
 }
 
+//search file by file name in folder
+//pathToFolder[IN] : the path to folder will be searched
+//fileName[IN]     : the fileName will be searched
+//count[OUT]       : the number of item in folder will be searched
+//pathToResult[OUT]: the path to result file
 bool SearchFileInDirectory(const string& pathToFolder, string fileName, int* count, string& pathToResult) {
 	string pattern(pathToFolder);
 	pattern.append("\\*");
@@ -60,6 +67,7 @@ string GetFileName(const string& str)
 	return str.substr(found + 1);
 }
 
+//Split file data into packages of size BUFF_SIZE
 FileData CreatePayload(string pathToFile) {
 	ifstream file(pathToFile, ios::in | ios::binary);
 	file.seekg(0, ios::end);
