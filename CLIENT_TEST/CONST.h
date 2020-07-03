@@ -9,8 +9,8 @@ using namespace std;
 
 static TCHAR szWindowMain[] = _T("win32app");
 static TCHAR szWindowSearch[] = _T("win32app_search");
-static TCHAR szMain[] = _T("Client_test");
-static TCHAR szSearch[] = _T("Search_test");
+static TCHAR szMain[] = _T("Client_TEST");
+static TCHAR szSearch[] = _T("Search_TEST");
 
 //define ID of controller
 static int lbID = 1;

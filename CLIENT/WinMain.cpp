@@ -99,6 +99,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	return (int)msg.wParam;
 }
 
+//Add controller in main window
 void DrawMainWindow(HWND window) {
 	btnConnect = CreateWindow("button", "Connect", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 315, 250, 80, 30, window, (HMENU)buttonConnect, hInst, NULL);
 	btnBrowse = CreateWindow("button", "Browse", WS_CHILD | SW_HIDE | BS_DEFPUSHBUTTON, 460, 90, 70, 20, window, (HMENU)buttonBrowse, hInst, NULL);
@@ -119,11 +120,13 @@ void DrawMainWindow(HWND window) {
 	sDocument = CreateWindow("STATIC", "Client to forward and search file", WS_VISIBLE | WS_CHILD | SS_CENTER, 180, 0, 300, 20, window, NULL, NULL, NULL);
 }
 
+//Add controller in search window
 void DrawSearchWindow(HWND window) {
 	eFileNameSearch = CreateWindow("Edit", "", WS_VISIBLE | WS_CHILD | SS_CENTER | ES_READONLY, 0, 0, 400, 20, window, (HMENU)editFNSearch, NULL, NULL);
 	listBoxID = CreateWindow("LISTBOX", NULL, WS_VISIBLE | WS_CHILD | LBS_STANDARD | LBS_NOTIFY, 100, 40, 200, 100, window, (HMENU)lbID, NULL, NULL);
 }
 
+//Add search ID list in search window
 void SendDataToSearchWindow(list<char*> listID, char* fileName) {
 	SetWindowTextA(eFileNameSearch, fileName);
 	for (char* ID : listID)
@@ -342,7 +345,7 @@ unsigned _stdcall ListenServer(void* param) {
 		}
 
 		else if (message.type == 202) {
-			MessageBox(hMain, "Beginning upload file to server", "ANNOUNT", MB_ICONINFORMATION);
+			MessageBox(hMain, "Beginning upload forward file to server", "ANNOUNT", MB_ICONINFORMATION);
 			string ID(message.ID);
 			string fileName(message.fileName);
 			_beginthreadex(0, 0, SendForwardFile, &mapForwardSend[ID][fileName], 0, 0);
