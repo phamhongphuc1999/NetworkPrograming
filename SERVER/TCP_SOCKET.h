@@ -10,14 +10,14 @@
 
 struct Message {
 	int type;
-	int opcode;
 	char fileName[BUFF_SIZE];
 	char ID[BUFF_SIZE];
 	char data[BUFF_SIZE + 1];
+	int dataLen;
 };
 
 static int MessageSize = sizeof(Message);
 
 int SEND_TCP(SOCKET s, Message data, int flag);
 int RECEIVE_TCP(SOCKET s, Message* data, int flag);
-void CreateMessage(Message* message, int type, int opcode, char* fileName, char* ID, char* data, int dataLen);
+void CreateMessage(Message* message, int type, char* fileName, char* ID, char* data, int dataLen);

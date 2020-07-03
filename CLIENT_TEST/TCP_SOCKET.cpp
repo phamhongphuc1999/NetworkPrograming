@@ -20,9 +20,9 @@ int RECEIVE_TCP(SOCKET s, Message* data, int flag) {
 //Packed data before transmission
 //message[OUT]: the data after packed
 //dataLen[IN]: the data lenght
-void CreateMessage(Message* message, int type, int opcode, char* fileName, char* ID, char* data, int dataLen) {
+void CreateMessage(Message* message, int type, char* fileName, char* ID, char* data, int dataLen) {
 	message->type = type;
-	message->opcode = opcode;
+	message->dataLen = dataLen;
 
 	if (fileName == 0) message->fileName[0] = 0;
 	else strcpy_s(message->fileName, strlen(fileName) + 1, fileName);

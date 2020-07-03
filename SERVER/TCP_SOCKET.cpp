@@ -15,9 +15,9 @@ int RECEIVE_TCP(SOCKET s, Message* data, int flag) {
 	return ret;
 }
 
-void CreateMessage(Message* message, int type, int opcode, char* fileName, char* ID, char* data, int dataLen) {
+void CreateMessage(Message* message, int type, char* fileName, char* ID, char* data, int dataLen) {
 	message->type = type;
-	message->opcode = opcode;
+	message->dataLen = dataLen;
 
 	if (fileName == 0) message->fileName[0] = 0;
 	else strcpy_s(message->fileName, strlen(fileName) + 1, fileName);
@@ -28,4 +28,3 @@ void CreateMessage(Message* message, int type, int opcode, char* fileName, char*
 	if (data == 0) message->data[0] = 0;
 	else memcpy_s(message->data, dataLen, data, dataLen);
 }
-
