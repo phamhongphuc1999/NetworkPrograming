@@ -13,6 +13,7 @@
 - Nhận danh sách  các client có file mà client yêu cầu tìm kiếm
 - Lựa chọn một client trong kết quả server gửi về để yêu cầu download file
 - Yêu cầu server chuyển tiếp file đến client khác
+- Tìm kiếm file mà client khác yêu cầu(do là chương trình demo nên client sẽ tìm kiếm file trong folder Data nằm cùng thư mục với file exe của chương trình): nó sẽ tìm kiếm lần lượt các file trong folder Data, nếu trong Data còn chứa thư mục con, chương trình sẽ thực hiện tìm kiếm đệ quy vào các thư mục con đó
 
 <pre> mỗi client có sau khi kết nối thành công đến server sẽ được server tạo một ID và gửi về cho client
  => nâng cấp chương trình bằng việc thay thế ID bằng username, password </pre>
