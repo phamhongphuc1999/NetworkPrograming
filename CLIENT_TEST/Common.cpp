@@ -1,6 +1,7 @@
 #include "Common.h"
 
 //Check the validity of the IP address
+//IP[IN]: IP needs to check
 int CheckIP(char* IP) {
 	int index = 0, sum = 0, countPoint = 0;
 	while (IP[index] == ' ') index++;
@@ -24,11 +25,15 @@ int CheckIP(char* IP) {
 }
 
 //Check the validity of the IP address and the port
+//address[IN]: the IP needs to check
+//port[IN]   : the munber of port needs to check
 bool CheckConnect(char* address, int port) {
 	return (port > 0) && CheckIP(address);
 }
 
-//Check if ID and client_id are the same
+//Check if ID and client_id are the same and the validity of the ID
+//ID[IN]       : ID needs to check
+//client_id[IN]: ID to compare
 bool CheckRamdomID(char* ID, char* client_id) {
 	if (!strcmp(ID, client_id)) return false;
 	int index = 0;
@@ -42,6 +47,7 @@ bool CheckRamdomID(char* ID, char* client_id) {
 }
 
 //convert string to chars
+//input[IN]: 
 char* StringToChars(string input) {
 	int length = input.length();
 	char* result = new char[length];

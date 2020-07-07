@@ -30,7 +30,9 @@ LRESULT CALLBACK WndProcMain(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WndProcSearch(HWND, UINT, WPARAM, LPARAM);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-	WNDCLASSEX w_main; hInst = hInstance;
+	hInst = hInstance;
+	//Initialize main window
+	WNDCLASSEX w_main;
 	ZeroMemory(&w_main, sizeof(WNDCLASSEX));
 	w_main.cbSize = sizeof(WNDCLASSEX);
 	w_main.style = CS_HREDRAW | CS_VREDRAW;
@@ -59,6 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	UpdateWindow(hMain);
 	isMainClose = false;
 
+	//initialize search window
 	WNDCLASSEX w_search;
 	ZeroMemory(&w_search, sizeof(WNDCLASSEX));
 	w_search.cbSize = sizeof(WNDCLASSEX);
@@ -134,6 +137,7 @@ void SendDataToSearchWindow(list<char*> listID, char* fileName) {
 }
 
 #pragma region LISTEN SERVER
+// search the file by file name
 unsigned _stdcall SearchFile(void* param) {
 	Message* searchInfo = (Message*)param;
 	string fileName(searchInfo->fileName);
@@ -158,6 +162,7 @@ unsigned _stdcall SearchFile(void* param) {
 	return 0;
 }
 
+//send the search file to server
 unsigned _stdcall SendSearchFileToServer(void* param) {
 	Message* searchFile = (Message*)param;
 	SearchInfoReceive info = mapSearchReceive[string(searchFile->fileName)];
@@ -174,6 +179,7 @@ unsigned _stdcall SendSearchFileToServer(void* param) {
 	return 0;
 }
 
+//send forward file to server
 unsigned _stdcall SendForwardFile(void* param) {
 	ForwardInfoSend* info = (ForwardInfoSend*)param;
 	int ret; Message message;
@@ -190,6 +196,7 @@ unsigned _stdcall SendForwardFile(void* param) {
 	return 0;
 }
 
+//receive list ID of client that have the search file from server
 unsigned _stdcall ReceiveListSearchID(void* param) {
 	SearchInfoSend* searchList = (SearchInfoSend*)param;
 	if (searchList->data.size() == 0) {
@@ -212,6 +219,7 @@ unsigned _stdcall ReceiveListSearchID(void* param) {
 	return 0;
 }
 
+//receive the search file from server
 unsigned _stdcall ReceiveSearchFile(void* param) {
 	SearchInfoSend* info = (SearchInfoSend*)param;
 	ofstream f("Data/" + string(info->fileName), ios::out | ios::binary);
@@ -235,6 +243,7 @@ unsigned _stdcall ReceiveSearchFile(void* param) {
 	return 0;
 }
 
+//receive the forward from server
 unsigned _stdcall ReceiveForwardFile(void* param) {
 	ForwardInfoReceive* info = (ForwardInfoReceive*)param;
 	ofstream f("Data/" + string(info->fileName), ios::out | ios::binary);
@@ -257,6 +266,7 @@ unsigned _stdcall ReceiveForwardFile(void* param) {
 	return 0;
 }
 
+//listen the message from server
 unsigned _stdcall ListenServer(void* param) {
 	int ret; Message message;
 	while (isConnect)

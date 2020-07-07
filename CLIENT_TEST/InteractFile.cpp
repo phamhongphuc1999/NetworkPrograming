@@ -1,12 +1,14 @@
 #include "InteractFile.h"
 
 //check for the existence of the file
+//pathToFile[IN]: the path of file to be checked
 bool IsFileExistOrValid(string pathToFile) {
 	fstream file; file.open(pathToFile);
 	return file.good();
 }
 
 //return list of file name or directory name in folder
+//pathToFile[IN]: the path of file to be checked
 list<string> read_directory(const string& pathToFolder)
 {
 	list<string> v;
@@ -27,9 +29,10 @@ list<string> read_directory(const string& pathToFolder)
 
 //search file by file name in folder
 //pathToFolder[IN] : the path to folder will be searched
-//fileName[IN]     : the fileName will be searched
+//fileName[IN]     : the name of file will be searched
 //count[OUT]       : the number of item in folder will be searched
-//pathToResult[OUT]: the path to result file
+//pathToResult[OUT]: if the file with fileName is existence, the pathToResult is
+//                   the path to result file, else the pathToResult is empty string
 bool SearchFileInDirectory(const string& pathToFolder, string fileName, int* count, string& pathToResult) {
 	string pattern(pathToFolder);
 	pattern.append("\\*");
@@ -60,14 +63,17 @@ bool SearchFileInDirectory(const string& pathToFolder, string fileName, int* cou
 	return false;
 }
 
-string GetFileName(const string& str)
+//return the name of file
+//str[IN]: the path to file
+string GetFileName(const string& pathToFile)
 {
 	size_t found;
-	found = str.find_last_of("/\\");
-	return str.substr(found + 1);
+	found = pathToFile.find_last_of("/\\");
+	return pathToFile.substr(found + 1);
 }
 
 //Split file data into packages of size BUFF_SIZE
+//pathToFile[IN]: the path of file
 FileData CreatePayload(string pathToFile) {
 	ifstream file(pathToFile, ios::in | ios::binary);
 	file.seekg(0, ios::end);
