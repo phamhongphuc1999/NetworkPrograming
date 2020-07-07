@@ -29,15 +29,10 @@
 #### các trường trong struct có thể thay đổi chức năng tùy thuộc vào chức năng client hay server yêu cầu
 #### Các chức năng chính:
 - type: định nghĩa chức năng mà client, server phải thục hiện
-- fileName: lưu tên file
-- ID: lưu ID của client
-- data: hiện chỉ có chức năng lưu dữ liệu của file
-- dataLen: kích thức của trường data
-
-### Định nghĩa type
-#### 1xx, 2xx: server gửi tín hiệu cho client
-#### 3xx, 4xx: client gửi tín hiệu cho server
-#### SERVER:
+<pre>
+- 1xx, 2xx: server gửi tín hiệu cho client
+- 3xx, 4xx: client gửi tín hiệu cho server
+==========================SERVER==========================
 - 100: kết nối thành công, gửi ID lại client
 - 110: gửi danh sách các client đang kết nối
 - 111: gửi danh sách các client có file yêu cầu trong chức năng tìm kiếm file
@@ -50,7 +45,7 @@
 - 2010: giống 201 nhưng là dấu hiệu kết thúc tải file về client
 - 202: ID do client gửi lên có thể kết nối và được phép chuyển tiếp
 - 203: ID do client gửi lên không thể kết nối hoặc bị từ chối chuyển tiếp
-#### CLIENT:
+==========================CLIENT==========================
 - 300: yêu cầu kết nối và yêu cầu server gửi ID
 - 310: gửi yêu cầu tìm kiếm file
 - 311: tải từng gói file từ client được chỉ định bởi client khác lên server đi kèm với kích thức gói đó
@@ -63,6 +58,13 @@
 - 4010: giống 401 nhưng là dấu hiệu kết thúc tải file lên server
 - 410: không cho chuyển tiếp file về client
 - 411: cho phép chuyển tiếp file về client
+</pre>
+- fileName: lưu tên file
+- ID: lưu ID của client
+- data: hiện chỉ có chức năng lưu dữ liệu của file
+- dataLen: kích thức của trường data
+
+
 
 ## tài liệu tham khảo
 - https://docs.microsoft.com/en-us/windows/win32/controls/user-controls-intro
