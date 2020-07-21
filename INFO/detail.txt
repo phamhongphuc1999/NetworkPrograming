@@ -1,0 +1,35 @@
+==================================================================================================
+                                   Khuôn dạng gói tin
+==================================================================================================
+=============Định dạng struct
+struct Message{type, fileName, partnerID, listID}
+
+--- Định nghĩa opcode
+1, 2: server gửi tín hiệu cho client
+3, 4: client gửi tín hiệu cho server
+*SERVER:
+100: kết nối thành công, gửi ID lại client
+110: gửi danh sách các client đang kết nối
+111: gửi danh sách các client có file yêu cầu trong chức năng tìm kiếm file
+112: tải từng gói của file tìm kiếm về client đi kèm với kích thước của gói đó
+1120: giống 112 nhưng là dấu hiệu kết thúc tải file về client
+120: gửi yêu cầu tìm kiếm file đến client
+121: gửi yêu cầu tải file lên server trong chưc năng tìm kiếm file
+200: yêu cầu chuyển tiếp file về client
+201: tải từng gói file chuyển tiếp về client đi kềm với kích thước của gói đó
+2010: giống 201 nhưng là dấu hiệu kết thúc tải file về client
+202: ID do client gửi lên có thể kết nối và được phép chuyển tiếp
+203: ID do client gửi lên không thể kết nối hoặc bị từ chối chuyển tiếp
+*CLIENT:
+300: yêu cầu kết nối và gửi ID
+310: gửi yêu cầu tìm kiếm file
+311: tải từng gói file từ client được chỉ định bởi client khác lên server đi kèm với kích thức gói đó
+3110: giống 311 nhưng là dấu hiệu kết thúc tải file lên server
+312: yêu cầu tải file từ client có ID trong phần data
+320: không tìm thấy tên file trong trường data
+321: tìm thấy tên file trong trường data
+400: gửi ID của client chuyển tiếp đến và fileName
+401: gửi lần lượt từng gói file chuyển tiêp lên server đi kèm với kích thước của gói đó
+4010: giống 401 nhưng là dấu hiệu kết thúc tải file lên server
+410: không cho chuyển tiếp file về client
+411: cho phép chuyển tiếp file về client
