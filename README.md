@@ -1,14 +1,14 @@
-# bài tập lớn môn lập trình mạng
-## môi trường phát triển: visual studio 2015, ngôn ngữ c++
-## miêu tả solution: có hai project SERVER, CLIENT là empty project
+## bài tập lớn môn lập trình mạng
+### môi trường phát triển: visual studio 2015, ngôn ngữ c++
+### miêu tả solution: có hai project SERVER, CLIENT là empty project
 - project SERVER: là console(sử dụng hàm main), không có giao diện
 - project CLIENT: sử dụng WinMain để tạo giao diện
-## Server có các chức năng sau:
+#### Server có các chức năng sau:
 - Nhận yêu cầu tìm kiếm file (theo tên file) của client nào đó
 - Gửi lệnh tìm kiếm tới các client khác đang kết nối
 - Gửi lại cho client danh sách các client có file mà client tìm kiếm
 - Chuyển tiếp file khi client yêu cầu 
-## Client có các chức năng sau:
+#### Client có các chức năng sau:
 - Gửi yêu cầu tìm kiếm một file lên server
 - Nhận danh sách  các client có file mà client yêu cầu tìm kiếm
 - Lựa chọn một client trong kết quả server gửi về để yêu cầu download file
@@ -18,7 +18,7 @@
 <pre> mỗi client có sau khi kết nối thành công đến server sẽ được server tạo một ID và gửi về cho client
  => nâng cấp chương trình bằng việc thay thế ID bằng username, password </pre>
 
-## Khuôn dạng gói tin: định dạng struct, trước khi truyền ép kiểu về chuỗi byte
+### Khuôn dạng gói tin: định dạng struct, trước khi truyền ép kiểu về chuỗi byte
  <pre> struct Message {
    int type;
    char fileName[BUFF_SIZE];
