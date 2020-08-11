@@ -28,8 +28,8 @@
    }; </pre>
 #### các trường trong struct có thể thay đổi chức năng tùy thuộc vào chức năng client hay server yêu cầu
 #### Các chức năng chính:
-- type: định nghĩa chức năng mà client, server phải thục hiện
-<pre>
+1. type: định nghĩa chức năng mà client, server phải thục hiện
+
 - 1xx, 2xx: server gửi tín hiệu cho client
 - 3xx, 4xx: client gửi tín hiệu cho server
 ==========================SERVER==========================
@@ -58,11 +58,12 @@
 - 4010: giống 401 nhưng là dấu hiệu kết thúc tải file lên server
 - 410: không cho chuyển tiếp file về client
 - 411: cho phép chuyển tiếp file về client
-</pre>
-- fileName: lưu tên file
-- ID: lưu ID của client
-- data: hiện chỉ có chức năng lưu dữ liệu của file
-- dataLen: kích thức của trường data
+
+
+2. fileName: lưu tên file
+3. ID: lưu ID của client
+4. data: hiện chỉ có chức năng lưu dữ liệu của file
+5. dataLen: kích thức của trường data
 
 
 
