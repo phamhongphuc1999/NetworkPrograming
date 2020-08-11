@@ -32,7 +32,9 @@
 
 - 1xx, 2xx: server gửi tín hiệu cho client
 - 3xx, 4xx: client gửi tín hiệu cho server
-==========================SERVER==========================
+```
+=====================================SERVER====================================
+```
 - 100: kết nối thành công, gửi ID lại client
 - 110: gửi danh sách các client đang kết nối
 - 111: gửi danh sách các client có file yêu cầu trong chức năng tìm kiếm file
@@ -45,7 +47,9 @@
 - 2010: giống 201 nhưng là dấu hiệu kết thúc tải file về client
 - 202: ID do client gửi lên có thể kết nối và được phép chuyển tiếp
 - 203: ID do client gửi lên không thể kết nối hoặc bị từ chối chuyển tiếp
+```
 ==========================CLIENT==========================
+```
 - 300: yêu cầu kết nối và yêu cầu server gửi ID
 - 310: gửi yêu cầu tìm kiếm file
 - 311: tải từng gói file từ client được chỉ định bởi client khác lên server đi kèm với kích thức gói đó
