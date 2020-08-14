@@ -1,0 +1,9 @@
+﻿  TCP_SOCKET.cpp
+  SERVER.cpp
+d:\documents\visualstudio\btl_lap_trinh_mang\server\server.cpp(22): warning C4477: 'scanf_s' : format string '%d' requires an argument of type 'int *', but variadic argument 1 has type 'u_short *'
+  d:\documents\visualstudio\btl_lap_trinh_mang\server\server.cpp(22): note: consider using '%hd' in the format string
+d:\documents\visualstudio\btl_lap_trinh_mang\server\server.cpp(103): warning C4101: 'i': unreferenced local variable
+  Common.cpp
+  Generating Code...
+  SERVER.vcxproj -> D:\Documents\VisualStudio\btl_lap_trinh_mang\Debug\SERVER.exe
+  SERVER.vcxproj -> D:\Documents\VisualStudio\btl_lap_trinh_mang\Debug\SERVER.pdb (Partial PDB)
