@@ -15,16 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CONST.h">
+    <ClInclude Include="Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Common.h">
+    <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="InteractFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TCP_SOCKET.h">
+    <ClInclude Include="TCPSocket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -32,10 +32,10 @@
     <ClCompile Include="Common.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="TCP_SOCKET.cpp">
+    <ClCompile Include="InteractFile.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="InteractFile.cpp">
+    <ClCompile Include="TCPSocket.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="WinMain.cpp">

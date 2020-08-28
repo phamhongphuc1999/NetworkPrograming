@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{4810FF01-405A-4DCD-B292-65090DE34A09}</ProjectGuid>
-    <RootNamespace>CLIENT</RootNamespace>
+    <ProjectGuid>{B4418641-0336-4C9A-ACEF-B02778D9C268}</ProjectGuid>
+    <RootNamespace>Client</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -111,14 +111,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
-    <ClInclude Include="CONST.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="InteractFile.h" />
-    <ClInclude Include="TCP_SOCKET.h" />
+    <ClInclude Include="TCPSocket.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="InteractFile.cpp" />
-    <ClCompile Include="TCP_SOCKET.cpp" />
+    <ClCompile Include="TCPSocket.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
