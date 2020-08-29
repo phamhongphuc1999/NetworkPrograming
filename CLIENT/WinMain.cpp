@@ -1,5 +1,5 @@
 #include "Common.h"
-#include "TCP_SOCKET.h"
+#include "TCPSocket.h"
 #include "InteractFile.h"
 
 HWND hMain, hSearch;
@@ -32,7 +32,7 @@ LRESULT CALLBACK WndProcSearch(HWND, UINT, WPARAM, LPARAM);
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 	hInst = hInstance;
 	//Initialize main window
-	WNDCLASSEX w_main; 
+	WNDCLASSEX w_main;
 	ZeroMemory(&w_main, sizeof(WNDCLASSEX));
 	w_main.cbSize = sizeof(WNDCLASSEX);
 	w_main.style = CS_HREDRAW | CS_VREDRAW;

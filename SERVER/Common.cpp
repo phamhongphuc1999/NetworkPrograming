@@ -1,5 +1,4 @@
 #include "Common.h"
-#include "CONST.h"
 #include <list>
 
 //initiates a session for the client

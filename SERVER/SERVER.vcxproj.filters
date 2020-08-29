@@ -18,10 +18,10 @@
     <ClInclude Include="Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CONST.h">
+    <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TCP_SOCKET.h">
+    <ClInclude Include="TCPSocket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -29,10 +29,10 @@
     <ClCompile Include="Common.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="TCP_SOCKET.cpp">
+    <ClCompile Include="TCPSocket.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="SERVER.cpp">
+    <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

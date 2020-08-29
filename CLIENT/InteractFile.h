@@ -1,5 +1,5 @@
 #pragma once
-#include "CONST.h"
+#include "Config.h"
 #include "Common.h"
 #include <fstream>
 #include <windows.h>

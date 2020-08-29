@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "CONST.h"
+#include "Config.h"
 
 struct FileData
 {

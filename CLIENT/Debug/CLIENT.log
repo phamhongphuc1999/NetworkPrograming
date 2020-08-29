@@ -1,12 +1,12 @@
 ﻿  WinMain.cpp
-d:\documents\visualstudio\btl_lap_trinh_mang\client\winmain.cpp(43): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\btl_lap_trinh_mang\client\winmain.cpp(48): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\btl_lap_trinh_mang\client\winmain.cpp(73): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-d:\documents\visualstudio\btl_lap_trinh_mang\client\winmain.cpp(78): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
-  TCP_SOCKET.cpp
+d:\documents\visualstudio\networkprograming\client\winmain.cpp(43): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\networkprograming\client\winmain.cpp(48): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\networkprograming\client\winmain.cpp(73): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+d:\documents\visualstudio\networkprograming\client\winmain.cpp(78): warning C4302: 'type cast': truncation from 'LPSTR' to 'WORD'
+  TCPSocket.cpp
   InteractFile.cpp
-d:\documents\visualstudio\btl_lap_trinh_mang\client\interactfile.cpp(80): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
+d:\documents\visualstudio\networkprograming\client\interactfile.cpp(80): warning C4244: 'initializing': conversion from 'std::streamoff' to 'int', possible loss of data
   Common.cpp
   Generating Code...
-  CLIENT.vcxproj -> D:\Documents\VisualStudio\btl_lap_trinh_mang\Debug\CLIENT.exe
-  CLIENT.vcxproj -> D:\Documents\VisualStudio\btl_lap_trinh_mang\Debug\CLIENT.pdb (Partial PDB)
+  Client.vcxproj -> D:\Documents\VisualStudio\NetworkPrograming\Debug\Client.exe
+  Client.vcxproj -> D:\Documents\VisualStudio\NetworkPrograming\Debug\Client.pdb (Partial PDB)

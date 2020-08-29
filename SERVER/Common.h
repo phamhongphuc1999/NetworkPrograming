@@ -6,7 +6,7 @@
 #include <map>
 #include <winsock2.h>
 #include <WS2tcpip.h>
-#include "CONST.h"
+#include "Config.h"
 using namespace std;
 
 struct SearchInfo {
