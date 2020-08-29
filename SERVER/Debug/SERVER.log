@@ -1,1 +1,9 @@
-﻿
+﻿  TCPSocket.cpp
+  Server.cpp
+d:\documents\visualstudio\networkprograming\server\server.cpp(22): warning C4477: 'scanf_s' : format string '%d' requires an argument of type 'int *', but variadic argument 1 has type 'u_short *'
+  d:\documents\visualstudio\networkprograming\server\server.cpp(22): note: consider using '%hd' in the format string
+d:\documents\visualstudio\networkprograming\server\server.cpp(103): warning C4101: 'i': unreferenced local variable
+  Common.cpp
+  Generating Code...
+  Server.vcxproj -> D:\Documents\VisualStudio\NetworkPrograming\Debug\Server.exe
+  Server.vcxproj -> D:\Documents\VisualStudio\NetworkPrograming\Debug\Server.pdb (Partial PDB)
