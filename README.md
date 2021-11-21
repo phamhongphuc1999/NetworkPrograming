@@ -1,9 +1,16 @@
+<h1 align="center">
+  :sparkles::sparkles::sparkles:Network Programing:sparkles::sparkles::sparkles:
+</h1>
+<p align="center">
+    :fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire::fire:
+</p>
+
 1. [Tổng quan đề tài](#section1)
 2. [Cấu trúc chương trình](#section2)
     1. [Client](#section2.1)
     2. [Server](#section2.2)
-3. [Khuân dạng gói tin và cách truyền tin](#section3)
-    1. [Khuân dạng gói tin](#section3.1)
+3. [Khuôn dạng gói tin và cách truyền tin](#section3)
+    1. [Khuôn dạng gói tin](#section3.1)
     2. [cách truyền tin](#section3.2)
 4. [Use Case](#section4)
     1. [Biểu đồ use case](#section4.1)
@@ -18,51 +25,52 @@
     1. [Server](#section6.1)
     2. [Client](#section6.2)
 7. [Tài liệu tham khảo](#section7)
+---
 
-### Tổng quan đề tài<a name="section1"></a>
-##### Tên đề tài: xây dựng ứng dụng chia sẻ file 1
-###### Server có các chức năng:
-- Xử lý yêu cầu kết nối của client, trả về ID cho client đó
-- Nhận yêu cầu tìm kiếm file theo tên của client A nào đó
-- Gửi lệnh tìm kiếm tới các client khác đang kết nối
-- Gửi lại cho client A danh sách các client có file mà client A tìm kiếm
-###### Client có các chức năng:
-- Gửi yêu cầu tìm kiếm một file lên server
-- Nhận danh sách các client có file mà client đó yêu cầu tìm kiếm
-- Lựa chọn ra một client trong số đó để yêu cầu download file
-- Yêu cầu server chuyển tiếp file đến client khác
-- Thực hiện tìm kiếm file theo yêu cầu của client khác(sẽ tìm kiếm file trong thư mục Data nằm cùng thư mục với file .exe của client). Cụ thể, client sẽ tìm kiếm đệ quy vào thư mục Data(tìm kiếm tất cả các file nằm trong Data và các thư mục con của Data)
-##### Ngôn ngữ sử dụng: C, C++
-##### Trình biên dịch sử dụng: Visual Studio 2015
-### Cấu trúc chương trình<a name="section2"></a>
+## Tổng quan đề tài<a name="section1"></a>
+1. Tên đề tài: xây dựng ứng dụng chia sẻ file 1
+- Server có các chức năng:
+    - Xử lý yêu cầu kết nối của client, trả về ID cho client đó
+    - Nhận yêu cầu tìm kiếm file theo tên của client A nào đó
+    - Gửi lệnh tìm kiếm tới các client khác đang kết nối
+    - Gửi lại cho client A danh sách các client có file mà client A tìm kiếm
+- Client có các chức năng:
+    - Gửi yêu cầu tìm kiếm một file lên server
+    - Nhận danh sách các client có file mà client đó yêu cầu tìm kiếm
+    - Lựa chọn ra một client trong số đó để yêu cầu download file
+    - Yêu cầu server chuyển tiếp file đến client khác
+    - Thực hiện tìm kiếm file theo yêu cầu của client khác(sẽ tìm kiếm file trong thư mục Data nằm cùng thư mục với file .exe của client). Cụ thể, client sẽ tìm kiếm đệ quy vào thư mục Data(tìm kiếm tất cả các file nằm trong Data và các thư mục con của Data)
+2. Ngôn ngữ sử dụng: C, C++
+3. Trình biên dịch sử dụng: Visual Studio 2015
+## Cấu trúc chương trình<a name="section2"></a>
 Chương trình xây dựng theo hướng cấu trúc, bao gồm hai project là Client và Server
-#### Client<a name="section2.1"></a>
-###### Header File
-- Config.h: chứa những hằng số của chương trình client
-- Common.h: chứa những cấu trúc(struct) và tiêu đề hàm có chức năng chung của chương trình client
-- InteractFile.h: chứa những cấu trúc và tiêu đề hàm có chức năng tương tác với file(lấy tên file, tìm kiếm file, đọc file, kiểm tra sự tồn tại của file, …)
-- TCPSocket.h: chứa những cấu trúc và tiêu đề hàm có chức năng định nghĩa khuôn dạng gói tin, cách đóng gói và cách truyền tin trong chương trình
-###### Resource File
-- Common.cpp: định nghĩa các hàm được khai báo trong Common.h
-- InteractFile.cpp: định nghĩa các hàm được khai báo trong InteractFile.h
-- TCPSocket.cpp: định nghĩa các hàm được khai báo trong TCPSocket.h
-###### Source File
-- WinMain.cpp: chứa hàm WinMain(hàm chính) của chương trình client đồng thời có chức năng tạo giao diện, tương tác với người dùng và xử lý yêu cầu từ server
-#### Server<a name="section2.2"></a>
-###### Header File
-- Config.h: chứa những hằng số của chương trình server
-- Common.h: chứa những cấu và tiêu đề hàm có chức năng chung của chương trình server
-- TCPSocket.h: chứa những cấu trúc và tiêu đề có chức năng định nghĩa khuôn dạng gói tin, cách đóng gói và cách truyền tin trong chương trình
-###### Resource File
-- Common.cpp: định nghĩa các hàm được khai báo trong Common.h
-- TCPSocket.cpp: định nghĩa các hàm được khai báo trong TCPSocket.h
-###### Source File
-- Server.cpp: chứa hàm main của chương trình phía server, có chức năng quản lý các phiên đăng nhập của các client và xử lý các yêu cầu từ client
-### Khuân dạng gói tin và cách truyền tin<a name="section3"></a>
-#### Khuân dạng gói tin<a name="section3.1"></a>
+### Client<a name="section2.1"></a>
+1. Header File
+    - Config.h: chứa những hằng số của chương trình client
+    - Common.h: chứa những cấu trúc(struct) và tiêu đề hàm có chức năng chung của chương trình client
+    - InteractFile.h: chứa những cấu trúc và tiêu đề hàm có chức năng tương tác với file(lấy tên file, tìm kiếm file, đọc file, kiểm tra sự tồn tại của file, …)
+    - TCPSocket.h: chứa những cấu trúc và tiêu đề hàm có chức năng định nghĩa khuôn dạng gói tin, cách đóng gói và cách truyền tin trong chương trình
+2. Resource File
+    - Common.cpp: định nghĩa các hàm được khai báo trong Common.h
+    - InteractFile.cpp: định nghĩa các hàm được khai báo trong InteractFile.h
+    - TCPSocket.cpp: định nghĩa các hàm được khai báo trong TCPSocket.h
+3. Source File
+    - WinMain.cpp: chứa hàm WinMain(hàm chính) của chương trình client đồng thời có chức năng tạo giao diện, tương tác với người dùng và xử lý yêu cầu từ server
+### Server<a name="section2.2"></a>
+1. Header File
+    - Config.h: chứa những hằng số của chương trình server
+    - Common.h: chứa những cấu và tiêu đề hàm có chức năng chung của chương trình server
+    - TCPSocket.h: chứa những cấu trúc và tiêu đề có chức năng định nghĩa khuôn dạng gói tin, cách đóng gói và cách truyền tin trong chương trình
+2. Resource File
+    - Common.cpp: định nghĩa các hàm được khai báo trong Common.h
+    - TCPSocket.cpp: định nghĩa các hàm được khai báo trong TCPSocket.h
+3. Source File
+    - Server.cpp: chứa hàm main của chương trình phía server, có chức năng quản lý các phiên đăng nhập của các client và xử lý các yêu cầu từ client
+## Khuôn dạng gói tin và cách truyền tin<a name="section3"></a>
+### Khuôn dạng gói tin<a name="section3.1"></a>
 Khuôn dạng dược định nghĩa bằng một cấu trúc có 5 trường
-
-    struct Message {
+```c
+struct Message {
 	int type;
 	char fileName[BUFF_SIZE];
 	char ID[BUFF_SIZE];
@@ -70,8 +78,10 @@ Khuôn dạng dược định nghĩa bằng một cấu trúc có 5 trường
     int dataLen;
     };
     (BUFF_SIZE là 10240)
+```
 - type: xác định chức năng mà client và server phải thực hiện
-###### Server
+1. Server
+    ```text
     100: kết nối thành công, gửi ID lại cho client
     110: gửi danh sách các client đang kết nối
     111: gửi danh sách các client có file yêu cầu về client đang tìm kiếm file đấy
@@ -84,7 +94,9 @@ Khuôn dạng dược định nghĩa bằng một cấu trúc có 5 trường
     2010: có chức năng giống 201 nhưng là dấu hiệu của việc kết thúc truyền file về client
     202: ID do client gửi lên có thể kết nối và được phép chuyển tiếp
     203: ID do client gửi lên không thể kết nối hoặc bị từ chối chuyển tiếp
-###### Client
+    ```
+2. Client
+    ```text
     300:  yêu cầu kết nối và yêu cầu server gửi ID
     310: gửi yêu cầu tìm kiếm file
     311: tải từng gói dữ liệu file từ client được chỉ định bởi client khác lên server đi kèm với kích thức của gói dữ liệu đó
@@ -97,53 +109,55 @@ Khuôn dạng dược định nghĩa bằng một cấu trúc có 5 trường
     4010: có chức năng giống 401 nhưng là dấu hiệu của việc kết thúc truyền file lên server
     410: không cho chuyển tiếp file về client
     411: cho phép chuyển tiếp file về client
+    ```
+
 - fileName: chứa thông tin tên file
 - ID: chứa thông tin ID của client(ID của client cần chuyển tiếp hoặc yếu cầu chuyển tiếp, hoặc của client thực hiện tìm kiếm file hoặc client được yêu cầu tải file tìm kiếm lên server)
 - data: chứa dữ liệu của file
 - dataLen: kích thức của trường data
-#### Cách truyền tin<a name="section3.2"></a>
+### Cách truyền tin<a name="section3.2"></a>
 Sử dụng tcp socket và kỹ thuật truyền dòng để truyền tin giữa client và server
-### Use Case<a name="section4"></a>
-#### Biểu đồ user case<a name="section4.1"></a>
+## Use Case<a name="section4"></a>
+### Biểu đồ user case<a name="section4.1"></a>
 ![image](./BaoCao/Image/use-case.png)
-#### Use case kết nối tới server<a name="section4.2"></a>
-###### Đối tượng sử dụng use case: người dùng chương trình
-###### tóm tắt: người dùng sử dụng use case này để kết nối tới server và nhận ID từ server
-###### Dòng sự kiện
-- Hệ thống hiển thị  giao diện ban đầu
-- Người dùng thực hiện kết nối bằng việc nhập thông tin IP và số hiệu cổng của server, sau đó bấm Connect
-- Nếu kết nối thành công , server sẽ gửi trả ID của người dùng
-- Nếu không thành công hệ thống sẽ báo lỗi, yêu cầu kết nối lại
-#### Use case chuyển tiếp dữ liệu<a name="section4.3"></a>
-###### Đối tượng sử dụng use case: người dùng chương trình
-###### Tóm tắt: người dùng sử dụng use case để chuyển tiếp file đến client khác
-###### Dòng sự kiện
-- Use case bắt đầu khi người dùng bấm browse chọn file cần chuyển tiếp và bấm forward để chuyển tiếp file
-- Hệ thống sẽ yêu cầu nhập ID của người muốn chuyển tiếp
-- Sau khi nhập ID, bấm forward một lần nữa
-- Server sẽ tìm kiếm client được client kia yêu cầu, nếu tìm thấy server sẽ yêu cầu được chuyển tiếp file về client đó, nếu không tìm thấy thông báo về cho client yêu cầu chuyển tiếp, kết thúc use case
-- Nếu yêu cầu chuyển tiếp được chấp nhận, bắt đầu chuyển tiếp file về client đó, nếu không chấp nhận thì thông báo về cho client yêu cầu chuyển tiếp, kết thúc use case
-###### Luồng ngoại lệ: nếu client được yêu cầu chuyển tiếp chính là client yêu cầu chuyển tiếp thì báo lỗi cho người dùng, kết thúc use case
-#### Use case tìm kiếm file<a name="section4.4"></a>
-###### Đối tượng sử dụng use case: người sử dụng chương trình
-###### Tóm tắt: người dùng sử dụng use case để tìm kiếm file ở các client khác
-###### Dòng sự kiện
-- Use case bắt đầu khi người dùng nhập tên file cần chuyển tiếp và bấm nút search
-- Server sẽ gửi yêu cầu tìm kiếm này tới các client khác
-- Nếu tìm thấy, server sẽ gửi trả client yêu cầu tìm kiếm danh sách các client có thể tải file cần tìm kiếm, client sẽ chọn một chient trong số đó để yêu cầu tải file
-- Nếu không tìm thấy, server sẽ thông báo cho client, client sẽ hiện thông báo cho người dùng
-### Biểu đồ hoạt động<a name="section5"></a>
-#### Kết nối tới server<a name="section5.1"></a>
+### Use case kết nối tới server<a name="section4.2"></a>
+#### Đối tượng sử dụng use case: người dùng chương trình
+#### tóm tắt: người dùng sử dụng use case này để kết nối tới server và nhận ID từ server
+#### Dòng sự kiện
+1. Hệ thống hiển thị  giao diện ban đầu
+2. Người dùng thực hiện kết nối bằng việc nhập thông tin IP và số hiệu cổng của server, sau đó bấm Connect
+3. Nếu kết nối thành công , server sẽ gửi trả ID của người dùng
+4. Nếu không thành công hệ thống sẽ báo lỗi, yêu cầu kết nối lại
+### Use case chuyển tiếp dữ liệu<a name="section4.3"></a>
+#### Đối tượng sử dụng use case: người dùng chương trình
+#### Tóm tắt: người dùng sử dụng use case để chuyển tiếp file đến client khác
+#### Dòng sự kiện
+1. Use case bắt đầu khi người dùng bấm browse chọn file cần chuyển tiếp và bấm forward để chuyển tiếp file
+2. Hệ thống sẽ yêu cầu nhập ID của người muốn chuyển tiếp
+3. Sau khi nhập ID, bấm forward một lần nữa
+4. Server sẽ tìm kiếm client được client kia yêu cầu, nếu tìm thấy server sẽ yêu cầu được chuyển tiếp file về client đó, nếu không tìm thấy thông báo về cho client yêu cầu chuyển tiếp, kết thúc use case
+5. Nếu yêu cầu chuyển tiếp được chấp nhận, bắt đầu chuyển tiếp file về client đó, nếu không chấp nhận thì thông báo về cho client yêu cầu chuyển tiếp, kết thúc use case
+#### Luồng ngoại lệ: nếu client được yêu cầu chuyển tiếp chính là client yêu cầu chuyển tiếp thì báo lỗi cho người dùng, kết thúc use case
+### Use case tìm kiếm file<a name="section4.4"></a>
+#### Đối tượng sử dụng use case: người sử dụng chương trình
+#### Tóm tắt: người dùng sử dụng use case để tìm kiếm file ở các client khác
+#### Dòng sự kiện
+1. Use case bắt đầu khi người dùng nhập tên file cần chuyển tiếp và bấm nút search
+2. Server sẽ gửi yêu cầu tìm kiếm này tới các client khác
+3. Nếu tìm thấy, server sẽ gửi trả client yêu cầu tìm kiếm danh sách các client có thể tải file cần tìm kiếm, client sẽ chọn một chient trong số đó để yêu cầu tải file
+4. Nếu không tìm thấy, server sẽ thông báo cho client, client sẽ hiện thông báo cho người dùng
+## Biểu đồ hoạt động<a name="section5"></a>
+### Kết nối tới server<a name="section5.1"></a>
 ![image](./BaoCao/Image/connect-server.png)
-#### Chuyển tiếp file<a name="section5.2"></a>
+### Chuyển tiếp file<a name="section5.2"></a>
 ![image](./BaoCao/Image/forward-file.png)
-#### Tìm kiếm file<a name="section5.3"></a>
+### Tìm kiếm file<a name="section5.3"></a>
 ![image](./BaoCao/Image/search-file.png)
-### Giao diện chương trình<a name="section6"></a>
-##### Server<a name="section6.1"></a>
+## Giao diện chương trình<a name="section6"></a>
+### Server<a name="section6.1"></a>
 Server là console, không có giao diện
-##### Client<a name="section6.2"></a>
-###### Giao diện khởi tạo
+### Client<a name="section6.2"></a>
+#### Giao diện khởi tạo
 ![image](./BaoCao/Image/init-screne.png)
 ###### Giao diện sau kho đăng nhập thành công
 ![image](./BaoCao/Image/login-success.png)
@@ -151,7 +165,7 @@ Server là console, không có giao diện
 ![image](./BaoCao/Image/forward-file-screne.png)
 ###### Giao diện danh sách Id Client có file tìm kiếm
 ![image](./BaoCao/Image/clientlist.png)
-### tài liệu tham khảo<a name="section7"></a>
+## tài liệu tham khảo<a name="section7"></a>
 - https://docs.microsoft.com/en-us/windows/win32/controls/user-controls-intro
 - https://stackoverflow.com/questions/7598067/how-to-create-a-windows-style-textbox-in-a-c-win32-application
 - https://stackoverflow.com/questions/8520560/get-a-file-name-from-a-path
